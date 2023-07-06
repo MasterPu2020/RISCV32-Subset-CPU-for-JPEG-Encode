@@ -1,0 +1,36 @@
+设计简易的低级编程语言译码到汇编，再译到机器码（或直接译出机器码）
+
+该伪汇编可以实现：if else的ROM地址自动计算，函数功能及其入口出口，while语句，自动定义变量
+
+该伪汇编特性：
+固定栈空间：固定定义变量所使用的RAM空间
+一定程度的报错：报告语句是否闭环，报告栈溢出
+无代码优化：完全按照写出的代码执行编译
+单一语句单一操作，不可以组合复合语句：如a=b+1+c不被允许
+
+可解析种类与语法：
+
+变量类型：register，mem，immediate number
+mem：mem 名字 [值，值，值] 定义时声明ram中的所有值（必须在-128~128）
+register：不用定义直接使用reg0~31
+positive immediate integer number：不用定义直接使用，范围为0~255（存在范围）
+在后文中x指代为寄存器，mem或立即数
+
+运算操作：
+x0 = x1 operation x2 (operation包含加减乘除位移按位与或非)
+
+存储器操作：
+delet ram
+
+程序控制运算：
+if(x1 == x2),  else, （可以不接else）
+while(x1 == x2) 
+call function(x1, x2, x3)
+enter function(reg_addr or ram_addr =var)
+return reg1=var1, reg2=var2 ...
+
+其余特殊指令可自己构造
+
+软件实现硬件的功能：
+浮点数乘法
+浮点数ram定义法ram 名称 [ 整数部分, 次方部分] + 浮点运算函数
