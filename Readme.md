@@ -2,11 +2,11 @@
 # RISCV32 Subset for JPEG Encoding CPU Specification
 
 ## RISCV32-Subset CPU规格
-- Pipeline：5级
-- Data Forwarding: 支持
-- Branch Prediction：支持
-- Architecture：冯诺依曼（可拓展多核设计）
-- Bus：AHB
+- Pipeline：2级
+- Data Forwarding: 不支持
+- Branch Prediction：不支持
+- Architecture：哈佛（可拓展多核设计）
+- Bus：WB
 - ROM Size：32x2^12bit = 16KB
 - RAM Size:  8x2^32bit =  4GB
 ---

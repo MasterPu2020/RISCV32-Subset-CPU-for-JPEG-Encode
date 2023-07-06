@@ -25,7 +25,7 @@ def get_row(file_path:str):
             if len(text) < 2:
                 text = '0' + text
             double_word += text
-            if index % 4 == 0:
+            if index % 4 < 1:
                 img_row.append(int(double_word, 16))
                 double_word = ''
             index += 1
@@ -44,8 +44,8 @@ def encode(file_path:str):
     width = img_row_in_uart[1]
     
     # Pre-define variables
-    mcu_rows = int(hight / 16)
-    mcu_cals = int(width / 16)
+    mcu_rows = hight >> 4
+    mcu_cals = width >> 4
     
     mcu_x = 0
     mcu_y = 0
@@ -99,7 +99,7 @@ def encode(file_path:str):
         # show(block) # Debug
         block = bm.subtract(block, 128)
         block = bm.dct(block) # Discrete Cosine Transform
-        if mode == 0:
+        if mode < 1:
             quan_table = bm.luminance_quantization_table
         else:
             quan_table = bm.chrominance_quantization_table
@@ -124,35 +124,35 @@ def encode(file_path:str):
         blockCb[counter] += img_row[index + 1]
         blockCr[counter] += img_row[index + 2]
         # Block encode
-        if counter == 63:
+        if counter < 63:
+           counter += 1
+        else:
             huffman_bit_stack, stack_space, last_dc_value[0] = block_encode(blockY, last_dc_value[0], huffman_bit_stack, stack_space, 0)
             counter = 0
             # Cb Cr subsampling
-            if block_counter == 3:
+            if block_counter < 3:
+                block_counter += 1
+            else:
                 i = 0
                 while i < 64:
-                    blockCb[i] = int(blockCb[i] / 4)
-                    blockCr[i] = int(blockCr[i] / 4)
+                    blockCb[i] = blockCb[i] >> 2
+                    blockCr[i] = blockCr[i] >> 2
                     i += 1
                 # Cb Cr Block encode
                 huffman_bit_stack, stack_space, last_dc_value[1] = block_encode(blockCb, last_dc_value[1], huffman_bit_stack, stack_space, 1)
                 huffman_bit_stack, stack_space, last_dc_value[2] = block_encode(blockCr, last_dc_value[2], huffman_bit_stack, stack_space, 1)
-                print('\r [Process]: (', index+3, '/', mcu_rows * mcu_cals * 16 * 16 * 3, ')', end='')
                 block_counter = 0
                 i = 0
                 while i < 64:
                     blockCb[i] = 0
                     blockCr[i] = 0
                     i += 1
-            else:
-                block_counter += 1
-        else:
-            counter += 1
         index += 3
+        print('\r [Process]: (', index, '/', mcu_rows * mcu_cals * 16 * 16 * 3, ')', end='')
 
     # Post process: read in byte and insert '00' for 'FF', and fill the last byte
     fill = 0
-    while stack_space != 0:
+    while - stack_space < 0:
         fill = (fill << 1) + 1
         stack_space -= 1
     huffman_bit_stack[-1] += fill
@@ -178,7 +178,7 @@ def encode(file_path:str):
         i += 1
     hex_huffman_string = new_huffstring
 
-    
+
     print('\r [Finished] Size:', int(len(hex_huffman_string) / 2), 'bytes.          \n')
 
     # Generate file
