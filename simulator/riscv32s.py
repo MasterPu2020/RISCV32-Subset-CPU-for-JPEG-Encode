@@ -16,18 +16,15 @@ opcode = [    'add',     'and',      'or',     'mul',    'mulh',    'addi',    '
 opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0010011', '0010011', '0000011', '0100011', '1100011']
 funct7 = ['0000000', '0000000', '0000000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '']
 funct3 = [    '000',     '111',     '110',     '000',     '001',     '000',     '001',     '101',     '110',     '010',     '010',     '100']
-bin_file_line = 0
 x = [0] * 32 # registers
 pc = 0
 mem = [0] * (2**12) # RAM
-pause = False
-wait = 0.5
 
 # Verilog style trancation
 def tranc(string:str, top:int, buttom:int=-1): 
-    assert len(string.replace('1','').replace('0','')) == 0, 'Compiler error: tranc string is not binary.'
-    assert top < len(string), 'Compiler error: top bit large than string size.'
-    assert buttom < top and buttom >= -1, 'Compiler error: top bit less than buttom bit.'
+    assert len(string.replace('1','').replace('0','')) == 0, 'Simulator error: tranc string is not binary.'
+    assert top < len(string), 'Simulator error: top bit large than string size.'
+    assert buttom < top and buttom >= -1, 'Simulator error: top bit less than buttom bit.'
     if buttom == -1:
         return string[-top-1]
     elif buttom != 0:
@@ -38,7 +35,7 @@ def tranc(string:str, top:int, buttom:int=-1):
 # signed 32bit operation
 def op32(value:int):
     value = int(value) & (2**32-1)
-    value_bin = bin(value)[2:]
+    value_bin = '0' * (32 - len(bin(value)[2:])) + bin(value)[2:]
     if value_bin[0] == '1':
         value = int(value_bin.replace('0','x').replace('1','0').replace('x','1'), 2) + 1
         return - value
@@ -54,7 +51,8 @@ def imm32(string:str):
         return int(string, 2)
 
 # execute the instruction
-def execute(inst):
+def execute(inst, pc):
+    branch = False
     rd  = int(tranc(inst,11, 7), 2)
     rs1 = int(tranc(inst,19,15), 2)
     rs2 = int(tranc(inst,24,20), 2)
@@ -103,13 +101,13 @@ def execute(inst):
     elif inst_op == 'blt':
         if x[rs1] < x[rs2]:
             pc = (pc + immb) & (2**32-1)
+            branch = True
     else:
         raise 'Opcode not find'
-    return inst_op, rd, rs1, rs2, immi, imms, immb
+    return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
 def show(reglen=5, memlen=5):
-    print('\033c',end='') # clear screen
     print('\n[Register File: 32 x 32bit]')
     print('+','-'*77,'+')
     for i in range(0,4):
@@ -138,34 +136,46 @@ def show(reglen=5, memlen=5):
 
 
 # Main:
+# python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
 if __name__ == '__main__':
     
-    # Develop debug default file
-    if len(sys.argv) < 2:
-        file = './compiler/code.bin'
-        pause = True
-    else:
-        assert len(sys.argv) > 2, '[Usage]: Python ./riscv32s ./file \n[Options]: +pause +time='
-        file = sys.argv[1]
-        for option in sys.argv[1:]:
-            if option == '+pause':
-                pause = True
-            if option[:6] == '+time=':
-                wait = float(option[6:])
+    # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
+    assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear'
+    file = sys.argv[1]
+    goto_runtime = 0
+    dontclear = False
+    pause = False
+    wait = 0
+    for option in sys.argv[1:]:
+        if option == '+pause':
+            pause = True
+        if option[:6] == '+time=':
+            wait = float(option[6:])
+        if option[:7] == '+start=':
+            goto_runtime = float(option[7:])
+        if option == '+dontclear':
+            dontclear = True
 
     # Load Instructions
     with open(file, 'r') as bin_file:
         bin_code = bin_file.read().split()
     
     runtime = 0
+    last_op = ''
     # Start programm
-    while pc < (len(bin_code)+1):
+    while pc < len(bin_code):
+
+        if bin_code[pc] == '':
+            pc += 1
+            continue
 
         # Execute
-        inst_op, rd, rs1, rs2, immi, imms, immb = execute(bin_code[pc])
+        inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch = execute(bin_code[pc], pc)
         runtime += 1
 
         # Display CPU state
+        if not dontclear:
+            print('\033c',end='') # clear screen
         show()
         print('\n [CPU Instruction Information]')
         print(' Instruction:', bin_code[pc])
@@ -178,13 +188,23 @@ if __name__ == '__main__':
         print(' Imm[S]:   ', imms)
         print(' Imm[B]:   ', immb)
         print(' Run Time: ', runtime)
+        print(' Last Operation:', last_op)
+        last_op = inst_op
 
-        if pause:
-            input('\nPress Enter to continue...')
-        else:
-            time.sleep(wait)
+        if runtime >= goto_runtime:
+            if pause:
+                key = input('\nPress Enter to continue or debug...\n')
+                if key.lower() == 'q' or key.lower() == 'quit' or key.lower() == 'exit':
+                    break
+                if key.lower()[:9] == '+runtime=':
+                    goto_runtime = runtime + int(key[9:])
+                if key.lower()[:1] == '+':
+                    goto_runtime = runtime + int(key[1:])
+            elif wait > 0:
+                time.sleep(wait)
         
-        pc += 1
-        
+        if not branch:
+            pc += 1
+
     # Exit programm
-    print('[Programm Finished]')
+    print('[Simulation Finished]\n')

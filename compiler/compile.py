@@ -132,22 +132,18 @@ def get_imm(string:str):
         return int12.get(string)
 
 # Main:
+# python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
 if __name__ == '__main__':
 
-    # Develop debug default file
-    if len(sys.argv) < 2:
-        file = './compiler/code.s'
-        output_file = './compiler/code.bin'
-        debug = True
-    else:
-        assert len(sys.argv) > 2, '[Usage]: Python ./compiler ./file \n[Options]: +debug +output:./file'
-        file = sys.argv[1]
-        output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
-        for option in sys.argv[1:]:
-            if option == '+debug':
-                debug = True
-            if option[:8] == '+output:':
-                output_file = option[8:]
+    # python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
+    assert len(sys.argv) > 2, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
+    file = sys.argv[1]
+    output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
+    for option in sys.argv[1:]:
+        if option == '+debug':
+            debug = True
+        if option[:8] == '+output=':
+            output_file = option[8:]
             
     # initiate
     int12 = integer(12)
@@ -177,7 +173,7 @@ if __name__ == '__main__':
                 # is 'goto' macro
                 elif line[0][-1] == ':':
                     assert line[0][:-1] != '', 'At line '+str(assem_file_line)+' : address name empty.'
-                    addr12.new(line[0][:-1],bin_file_line)
+                    addr12.new(line[0][:-1],(bin_file_line))
 
         # compile file
         assem_file_line = 0
@@ -212,7 +208,7 @@ if __name__ == '__main__':
                         if debug:
                             print('\n--------------------------------------')
                         op_id = opcode.index(line[0])
-                        iimm = get_imm(line[3])
+                        imm = get_imm(line[3])
                         line_bin = tranc(imm,11,5) + reg(line[1]) + reg(line[2]) + funct3[op_id] + tranc(imm,4,0) + opbin[op_id]
                         machine_code += line_bin + '\n'
                         if debug:
