@@ -126,6 +126,8 @@ def get_imm(string:str):
         return getbin(string)
     elif string[:2] == '0b':
         return string[2:]
+    elif string[:2] == '0x':
+        return bin(int(string[2:], 16))[2:]
     else:
         return int12.get(string)
 

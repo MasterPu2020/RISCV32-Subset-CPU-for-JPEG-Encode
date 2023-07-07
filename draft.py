@@ -1,24 +1,19 @@
-a = -3
-def getbin(value, size:int=12):
-    value = int(value)
-    sizelow = -(2 ** int(size))
-    sizehigh = 2 ** (int(size)-1)
-    assert value in range(sizelow, sizehigh), 'Value not match given size.'
-    if value < 0:
-        value_bin = bin(value+1)[3:].replace('0','x').replace('1','0').replace('x','1')
-        value_bin = '1'*(size-len(value_bin)) + value_bin
+
+mem = [1] * 63
+print('[Memory File: 4k x 32bit]')
+print('+','-'*85,'+')
+j = 0
+text = '|'
+for i in range(0, len(mem)):
+    if mem[i] == 0:
+        continue
     else:
-        value_bin = bin(value)[2:]
-        value_bin = '0'*(size-len(value_bin)) + value_bin
-    return value_bin
-# print(getbin(a),len(getbin(a)))
-# imm[-11:-5] + reg(line[1]) + reg(line[2]) + funct3[op_id] + imm[-4:]
-b = '011100001110'
-def tranc(string:str, top:int, buttom:int=-1): # Verilog style trancation
-    if buttom == -1:
-        return string[-top-1]
-    elif buttom != 0:
-        return string[-top-1:-buttom]
-    else:
-        return string[-top-1:]
-print(tranc(b,11))
+        text += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (5 - len(str(mem[i]))) + str(mem[i]) + '|'
+        j += 1
+        if j == 8:
+            print(text)
+            text = '|'
+            j = 0
+if len(text) != 0:
+    print(text+' '*(88-len(text))+'|')
+print('+','-'*85,'+')
