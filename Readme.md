@@ -1,6 +1,25 @@
 
 # RISCV32 Subset for JPEG Encoding CPU Specification
 
+## Compiler and Simulator使用方法
+
+    python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
+    python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
+    ----------------------------------------------------------------------------
+    #   add  rs2 rs1 rd        // add  rs2 + rs1 -> rd
+    #   and  rs2 rs1 rd        // add  rs2 & rs1 -> rd
+    #   or   rs2 rs1 rd        // or   rs2 | rs1 -> rd
+    #   mul  rs2 rs1 rd        // mul  (rs2 * rs1)[31: 0] -> rd 
+    #   mulh rs2 rs1 rd        // mulh (rs2 * rs1)[63:32] -> rd 
+    #   addi imm rs1 rd        // addi imm + rs1 -> rd
+    #   slli imm rs1 rd        // slli r1 << imm[4:0] -> rd
+    #   srli imm rs1 rd        // srli r1 >> imm[4:0] -> rd
+    #   xori imm rs1 rd        // xori imm ^ rs1 -> rd
+    #   lw   imm rs1 rd        // lw   mem(imm + rs1) -> rd
+    #   sw   rs2 rs1 imm       // sw   mem(imm + rs1) <- rs2
+    #   blt  rs2 rs1 pc_imm    // blt  pc <- ({pc_imm,0} + pc) if (rs1 < rs2)
+    ----------------------------------------------------------------------------
+
 ## RISCV32-Subset CPU规格
 - Pipeline：2级
 - Data Forwarding: 不支持
