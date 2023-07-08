@@ -1,20 +1,4 @@
-# ---------------------------------------------------------
-# Using UTF-8
-# Last Modified Date: 2023/7/8
-# Python Image JPEG mini encode - Assembly Code
-# Version 1.0
-# Author: Clark Pu
-# ---------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
+addi 1 x0 x31   
+slli 11 x31 x31 
+addi 0 x0 x30   
+or x31 x31 x30 

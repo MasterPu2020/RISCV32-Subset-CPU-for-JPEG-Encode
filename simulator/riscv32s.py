@@ -175,6 +175,7 @@ if __name__ == '__main__':
         if inst_op == 'blt':
             branchcount += 1
         runtime += 1
+        x[0] = 0
 
         # Display CPU state
         if not dontclear:

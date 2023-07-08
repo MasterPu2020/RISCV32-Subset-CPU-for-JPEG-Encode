@@ -37,7 +37,7 @@ debug = False
 def reg(string):
     assert string[0] == 'x', 'At line '+str(assem_file_line)+' : Register name illegal.'
     id = int(string[1:])
-    assert id in range(0,31), 'At line '+str(assem_file_line)+' : Register ID out of range.'
+    assert id in range(0,32), 'At line '+str(assem_file_line)+' : Register ID out of range.'
     return '0'*(5-len(bin(id)[2:])) + bin(id)[2:]
 
 # get integer's binary string
@@ -45,7 +45,7 @@ def getbin(value, size:int=12):
     value = int(value)
     sizelow = -(2 ** int(size))
     sizehigh = 2 ** (int(size)-1)
-    assert value in range(sizelow, sizehigh), 'Value not match given size.'
+    assert value in range(sizelow, sizehigh), 'At line '+str(assem_file_line)+' : Imm Value Overflow: Value not match given size.'
     if value < 0:
         value_bin = bin(value+1)[3:].replace('0','x').replace('1','0').replace('x','1')
         value_bin = '1'*(size-len(value_bin)) + value_bin
@@ -125,9 +125,11 @@ def get_imm(string:str):
     if is_int(string):
         return getbin(string)
     elif string[:2] == '0b':
-        return string[2:]
+        immstring = string[:2]
+        return '0' * (12 - len(immstring)) + immstring
     elif string[:2] == '0x':
-        return bin(int(string[2:], 16))[2:]
+        immstring = bin(int(string[2:], 16))[2:]
+        return '0' * (12 - len(immstring)) + immstring
     else:
         return int12.get(string)
 
@@ -136,7 +138,7 @@ def get_imm(string:str):
 if __name__ == '__main__':
 
     # python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
-    assert len(sys.argv) > 2, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
+    assert len(sys.argv) > 1, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
     file = sys.argv[1]
     output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
     for option in sys.argv[1:]:
