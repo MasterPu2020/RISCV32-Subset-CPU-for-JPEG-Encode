@@ -3,8 +3,8 @@
 
 ## Compiler and Simulator使用方法
 
-    python .\compiler\compile.py main.s 
-    python .\simulator\riscv32s.py main.bin +start=0 +pause
+    python .\compiler\compile.py initiate.s 
+    python .\simulator\riscv32s.py initiate.bin +start=0 +pause
     ----------------------------------------------------------------------------
     #   add  rs2 rs1 rd        // add  rs2 + rs1 -> rd
     #   and  rs2 rs1 rd        // add  rs2 & rs1 -> rd

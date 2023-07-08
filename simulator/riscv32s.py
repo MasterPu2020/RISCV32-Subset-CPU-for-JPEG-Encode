@@ -213,3 +213,14 @@ if __name__ == '__main__':
 
     # Exit programm
     print('[Simulation Finished]\n')
+    
+    j = 0
+    text = '\n[Memory File: 4k x 32bit]\n|'
+    for i in range(0, 0x420):
+        text += ' ' * (6 - len(str(mem[i]))) + str(mem[i]) + '|'
+        j += 1
+        if j == 16:
+            text += '\n|'
+            j = 0
+    with open('mem.log', 'w') as memlog:
+        memlog.write(text)
