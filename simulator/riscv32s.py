@@ -144,6 +144,7 @@ if __name__ == '__main__':
     file = sys.argv[1]
     goto_runtime = 0
     dontclear = False
+    branchcount = 0
     pause = False
     wait = 0
     for option in sys.argv[1:]:
@@ -171,6 +172,8 @@ if __name__ == '__main__':
 
         # Execute
         inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch = execute(bin_code[pc], pc)
+        if inst_op == 'blt':
+            branchcount += 1
         runtime += 1
 
         # Display CPU state
@@ -188,7 +191,8 @@ if __name__ == '__main__':
         print(' Imm[S]:   ', imms)
         print(' Imm[B]:   ', immb)
         print(' Run Time: ', runtime)
-        print(' Last Operation:', last_op)
+        print(' Branch Counter: ', branchcount)
+        print(' Last Operation: ', last_op)
         last_op = inst_op
 
         if runtime >= goto_runtime:

@@ -5,7 +5,6 @@
 int block-y 1
 // init
 addi 64 x0 x25 // parameter x25 = 64
-addi -128 x0 x24 // parameter x24 = -128
 blt x25 x0 start // goto start, process begin
 // function subcrat matrix by constant 128
 subcrat-matrix:
@@ -23,9 +22,11 @@ subcrat-matrix:
 
 start:
     addi 0 x0 x30 // x30: return gate = 0
+    addi -128 x0 x24 // parameter x24 = -128
     blt x25 x0 subcrat-matrix
     subcrat-matrix-return-gate0:
     addi 1 x0 x30 // x30: return gate = 1
+    addi 128 x0 x24 // parameter x24 = 128
     blt x25 x0 subcrat-matrix
     subcrat-matrix-return-gate1:
 
