@@ -194,7 +194,7 @@ class core():
 
             # detection: increasing, decreasing, steady
             counter, rule = detect(table, addr-startaddr)
-            if (counter > 3):
+            if (counter > 5):
                 if rule == 1:
                     print('Increasing!', counter, table[addr-startaddr:addr-startaddr+counter])
                 elif rule == 2:
@@ -297,20 +297,20 @@ ac_c_EHUFSI = [
  0, 11, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
  0, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
 10, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16]
-# riscv.assem += '// Huffman code table: Luminace DC\n'
-# riscv.store(dc_y_EHUFCO, comment=True)
-# riscv.assem += '// Huffman size table: Luminace DC\n'
-# riscv.store(dc_y_EHUFSI, comment=True)
-# riscv.assem += '// Huffman code table: Luminace AC\n'
-# riscv.store(ac_y_EHUFCO, comment=True)
-# riscv.assem += '// Huffman size table: Luminace AC\n'
-# riscv.store(ac_y_EHUFSI, comment=True)
-# riscv.assem += '// Huffman code table: Chrominance DC\n'
-# riscv.store(dc_c_EHUFCO, comment=True)
-# riscv.assem += '// Huffman size table: Chrominance DC\n'
-# riscv.store(dc_c_EHUFSI, comment=True)
-# riscv.assem += '// Huffman code table: Chrominance AC\n'
-# riscv.store(ac_c_EHUFCO, comment=True)
+riscv.assem += '// Huffman code table: Luminace DC\n'
+riscv.store(dc_y_EHUFCO, comment=True)
+riscv.assem += '// Huffman size table: Luminace DC\n'
+riscv.store(dc_y_EHUFSI, comment=True)
+riscv.assem += '// Huffman code table: Luminace AC\n'
+riscv.store(ac_y_EHUFCO, comment=True)
+riscv.assem += '// Huffman size table: Luminace AC\n'
+riscv.store(ac_y_EHUFSI, comment=True)
+riscv.assem += '// Huffman code table: Chrominance DC\n'
+riscv.store(dc_c_EHUFCO, comment=True)
+riscv.assem += '// Huffman size table: Chrominance DC\n'
+riscv.store(dc_c_EHUFSI, comment=True)
+riscv.assem += '// Huffman code table: Chrominance AC\n'
+riscv.store(ac_c_EHUFCO, comment=True)
 riscv.assem += '// Huffman size table: Chrominance AC\n'
 riscv.store(ac_c_EHUFSI, comment=True)
 riscv.show()
