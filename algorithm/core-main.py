@@ -230,19 +230,21 @@ def linemark1():
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
     global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode, stack_space
     
-    # 8x8 matrix subtraction
+    # 8x8 matrix subtraction: Sub Area 1
     # ------------------------------------------------------------------
-    x7 = 0
-    while x7 != 64:
-        temp = mem2048_2111[x7]
-        temp = temp - 128
-        mem2048_2111[x7] = temp
-        x7 += 1
+    x2 = 2047 + x0
+    x1 = 0 + x2
+    x2 = 64 + x2
+    while x1 != x2:
+        x3 = mem2048_2111[x1 + 1 - (2048)]
+        x3 = x3 - 128
+        mem2048_2111[x1 + 1 - (2048)] = x3
+        x1 += 1
     
-    # Discrete Cosine Transform
+    # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
     # CORDIC local cosine function
-    global target, x1 # partly local
+    global target # partly local
 
     mem2112_2175 = mem2048_2111
     def linemark2(): # target been << 16
@@ -312,7 +314,7 @@ def linemark1():
                 temp += 1
             mem2048_2111[x4 + x3 * 8] = temp
 
-    # Quantization
+    # Quantization: Sub Area 3
     # ------------------------------------------------------------------
     x1 = 0
     quantable_offset = 0
@@ -322,7 +324,7 @@ def linemark1():
         mem2048_2111[x1] = (mem2048_2111[x1] * quantable[x1 + quantable_offset]) >> 32 # take top 32-bit of the mul result
         x1 += 1
 
-    # Zigzag Scan
+    # Zigzag Scan: Sub Area 4
     # ------------------------------------------------------------------
     z = mem2048_2111
     x1 = 0
@@ -355,12 +357,12 @@ def linemark1():
         x2 += direction
         mem2048_2111[x7] = z[x2 * 8 + x1]
 
-    # Differential DC Value
+    # Differential DC Value: Sub Area 5
     # ------------------------------------------------------------------
     this_dc_value = mem2048_2111[0] 
     mem2048_2111[0] = this_dc_value - last_dc_value 
 
-    # Huffman Encode
+    # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
     # 0 for Luminace
     if mode == 0:
