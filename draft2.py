@@ -88,6 +88,7 @@ mem1116 = [4294967296] * 64
 quantable = mem1052 + mem1116
 mem1180 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
 global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
+
 x0 = 0
 
 # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
@@ -120,100 +121,13 @@ img_row_in_uart = get_row(file_path+'.row')
 # ------------------------------------------------------------------
 # RegFile Work Aera 1: Re-order Minimum coded unit(MCU)
 # ------------------------------------------------------------------
-x28 = img_row_in_uart[0]
-x29 = img_row_in_uart[1]
-hight = x28
-width = x29
-# Pre-define variables
-x28 = x28 >> 4
-x27 = x29 >> 4
-mcu_rows = x28
-mcu_cals = x27
+hight = 0
+width = 0
+mcu_rows = 0
+mcu_cals = 0
 
-x1 = 0
-x2 = 0
-x3 = 0
-x4 = 0
-x5 = 0
-x6 = 0
-x26 = 16
-x25 = 8
-x24 = 2
 
-while x2 < x28:
-    x10 = x26 * x29
-    x10 = x10 * x2
-    x10 = x10 + 2
-    while x1 < x27:
-        x11 = x26 * x1
-        x11 = x11 + x10
-        while x4 < x24:
-            x12 = x25 * x29
-            x12 = x12 * x4 
-            x12 = x12 + x11
-            while x3 < x24:
-                x13 = x25 * x3
-                x13 = x13 + x12
-                while x5 < x25:
-                    x14 = x5 + x13
-                    while x6 < x25:
-                        x15 = x29 * x6
-                        x15 = x15 + x14
-                        # YCbCr convertion
-                        # RGB
-                        x19 = 255
-                        x16 = img_row_in_uart[x15]
-                        x16 = x16 >> 16
-                        x16 = x16 & x19
-                        x17 = img_row_in_uart[x15]
-                        x17 = x17 >> 8
-                        x17 = x17 & x19
-                        x18 = img_row_in_uart[x15]
-                        x18 = x18 & x19
-                        # Y
-                        x19 = 1103806595
-                        x19 = (x19 * x16) >> 32
-                        x30 = 2422361555
-                        x30 = (x30 * x17) >> 32
-                        x19 = x19 + x30
-                        x30 = 420906795
-                        x30 = (x30 * x18) >> 32
-                        x19 = x19 + x30
-                        x19 = x19 + 16
-                        img_row.append(x19)
-                        # Cb
-                        x19 = -635655160
-                        x19 = (x19 * x16) >> 32 
-                        x30 = -1249835483
-                        x30 = (x30 * x17) >> 32
-                        x19 = x19 + x30
-                        x30 = 1885490643
-                        x30 = (x30 * x18) >> 32 
-                        x19 = x19 + x30
-                        x19 = x19 + 128
-                        img_row.append(x19)
-                        # Cr
-                        x19 = -1580547965
-                        x19 = (x19 * x17) >> 32 
-                        x30 = 1885490643
-                        x30 = (x30 * x16) >> 32 
-                        x19 = x19 + x30
-                        x30 = -304942678
-                        x30 = (x30 * x18) >> 32
-                        x19 = x19 + x30
-                        x19 = x19 + 128
-                        img_row.append(x19)
-                        x6 = x6 + 1
-                    x6 = 0 + x0
-                    x5 = x5 + 1
-                x5 = 0 + x0
-                x3 = x3 + 1
-            x3 = 0 + x0
-            x4 = x4 + 1
-        x4 = 0 + x0
-        x1 = x1 + 1
-    x1 = 0 + x0
-    x2 = x2 + 1
+
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 2: Huffman endcode
@@ -531,49 +445,3 @@ while stack_space != 0:
     fill = (fill << 1) + 1
     stack_space -= 1
 huffman_bit_stack[-1] += fill
-
-# String process, only for simulation usage
-hex_huffman_string = ''
-for double_word in huffman_bit_stack:
-    hex_huffman_string += '0' * (8 - len(hex(double_word)[2:])) + hex(double_word)[2:].upper()
-# Remove the redundent FF
-while hex_huffman_string[-2:] == 'FF':
-    if (len(hex_huffman_string) % 2 != 0):
-        hex_huffman_string = hex_huffman_string[:-1]
-    else:
-        hex_huffman_string = hex_huffman_string[:-2]
-# 'FF' follows the '00'
-i = 0
-new_huffstring = ''
-while i < len(hex_huffman_string) / 2:
-    byte = hex_huffman_string[i*2:i*2+2]
-    new_huffstring += byte
-    if byte == 'FF':
-        new_huffstring += '00'
-    i += 1
-hex_huffman_string = new_huffstring
-
-print('\r [Finished] Size:', int(len(hex_huffman_string) / 2), 'bytes.          \n')
-
-# Generate file
-file_hex = 'FFD8FFE000104A46494600010100000100010000'
-file_hex += 'FFDB004300'
-
-for byte in quantable[0:64]:
-    file_hex += '0' * (2 - len(hex(byte >> 32)[2:])) + hex(byte >> 32)[2:].upper()
-
-file_hex += 'FFDB004301'
-for byte in quantable[64:]:
-    file_hex += '0' * (2 - len(hex(byte >> 32)[2:])) + hex(byte >> 32)[2:].upper()
-
-lines = '0' * (4 - len( hex(hight)[2:])) + hex(hight)[2:].upper()
-samples_per_line = '0' * (4 - len( hex(width)[2:])) + hex(width)[2:].upper()
-file_hex += 'FFC0001108' + lines + samples_per_line + '03012200021101031101'
-
-file_hex += 'FFC4001F0000010501010101010100000000000000000102030405060708090A0BFFC400B5100002010303020403050504040000017D01020300041105122131410613516107227114328191A1082342B1C11552D1F02433627282090A161718191A25262728292A3435363738393A434445464748494A535455565758595A636465666768696A737475767778797A838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE1E2E3E4E5E6E7E8E9EAF1F2F3F4F5F6F7F8F9FAFFC4001F0100030101010101010101010000000000000102030405060708090A0BFFC400B51100020102040403040705040400010277000102031104052131061241510761711322328108144291A1B1C109233352F0156272D10A162434E125F11718191A262728292A35363738393A434445464748494A535455565758595A636465666768696A737475767778797A82838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE2E3E4E5E6E7E8E9EAF2F3F4F5F6F7F8F9FA'
-file_hex += 'FFDA000C03010002110311003F00'
-file_hex += hex_huffman_string
-file_hex += 'FFD9' 
-file_code = base64.b16decode(file_hex)
-with open(file_path+'.jpg', 'wb') as output_file:
-    output_file.write(file_code)
