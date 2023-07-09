@@ -232,12 +232,12 @@ def linemark1():
     
     # 8x8 matrix subtraction
     # ------------------------------------------------------------------
-    p = 0
-    while p != 64:
-        temp = mem2048_2111[p]
+    x7 = 0
+    while x7 != 64:
+        temp = mem2048_2111[x7]
         temp = temp - 128
-        mem2048_2111[p] = temp
-        p += 1
+        mem2048_2111[x7] = temp
+        x7 += 1
     
     # Discrete Cosine Transform
     # ------------------------------------------------------------------
@@ -258,50 +258,50 @@ def linemark1():
             target = target + 205887
         theta = 0 # Initial angle: 0 degree
         direction = [0, 0, 0, 0, 0, 0, 0] # clockwise is 1, anticlockwise is -1
-        p = 0 # iteration of the routation direction
-        while p != 7:
+        x7 = 0 # iteration of the routation direction
+        while x7 != 7:
             if theta > target:
-                theta -= mem1180_1186[p] # clockwise
-                direction[p] = 1
+                theta -= mem1180_1186[x7] # clockwise
+                direction[x7] = 1
             else:
-                theta += mem1180_1186[p] # anticlockwise
-                direction[p] = - 1
-            p += 1
+                theta += mem1180_1186[x7] # anticlockwise
+                direction[x7] = - 1
+            x7 += 1
         x1 = 39797
         x2 = 0
-        p = 6
-        while p != -1:
-            if direction[p] == 1:
-                x1 = x1 - (x2 >> p)
-                x2 = (x1 >> p) + x2
+        x7 = 6
+        while x7 != -1:
+            if direction[x7] == 1:
+                x1 = x1 - (x2 >> x7)
+                x2 = (x1 >> x7) + x2
             else:
-                x1 = x1 + (x2 >> p)
-                x2 = - (x1 >> p) + x2
-            p = p - 1
+                x1 = x1 + (x2 >> x7)
+                x2 = - (x1 >> x7) + x2
+            x7 = x7 - 1
         if inverse:
             x1 = ~ x1 + 1 # integer been << 16 bit
         return
     
     mem2048_2111 = [0] * 64 # python bug exist here
 
-    for u in range(0,8):
-        if u == 0:
+    for x3 in range(0,8):
+        if x3 == 0:
             Cu = 46341 # 1/root(2) << 16
         else:
             Cu = 65536 # 1 << 16
-        for v in range(0,8):
-            if v == 0:
+        for x4 in range(0,8):
+            if x4 == 0:
                 Cv = 46341
             else:
                 Cv = 65536
             unit = 0
-            for x in range(0,8):
-                for y in range(0,8):
-                    temp = mem2112_2175[y + x * 8]
-                    target = (2*x + 1) * u * 12868
+            for x5 in range(0,8):
+                for x6 in range(0,8):
+                    temp = mem2112_2175[x6 + x5 * 8]
+                    target = (2*x5 + 1) * x3 * 12868
                     linemark2()
                     temp = (temp * x1) >> 8
-                    target = (2*y + 1) * v * 12868
+                    target = (2*x6 + 1) * x4 * 12868
                     linemark2()
                     temp = (temp * x1) >> 8
                     unit += temp
@@ -310,50 +310,50 @@ def linemark1():
             temp = temp >> 2 # divide 4
             if temp < 0:
                 temp += 1
-            mem2048_2111[v + u * 8] = temp
+            mem2048_2111[x4 + x3 * 8] = temp
 
     # Quantization
     # ------------------------------------------------------------------
-    p = 0
+    x1 = 0
     quantable_offset = 0
     if mode != 0:
         quantable_offset = 64
-    while p != 64:
-        mem2048_2111[p] = (mem2048_2111[p] * quantable[p + quantable_offset]) >> 32 # take top 32-bit of the mul result
-        p += 1
+    while x1 != 64:
+        mem2048_2111[x1] = (mem2048_2111[x1] * quantable[x1 + quantable_offset]) >> 32 # take top 32-bit of the mul result
+        x1 += 1
 
     # Zigzag Scan
     # ------------------------------------------------------------------
     z = mem2048_2111
-    x = 0
-    y = 0
-    p = 0
+    x1 = 0
+    x2 = 0
+    x7 = 0
     mem2048_2111 = [0] * 64
     direction = 1
     is_edge = 0
     mem2048_2111[0] = z[0]
     while True:
         # meet edge
-        if x == 0 or x == 7:
-            y += 1
+        if x1 == 0 or x1 == 7:
+            x2 += 1
             is_edge = 1
-        elif y == 0 or y == 7:
-            x += 1
+        elif x2 == 0 or x2 == 7:
+            x1 += 1
             is_edge = 1
         # If is edge
         if is_edge == 1:
             is_edge = 0
             direction = - direction
-            p += 1
-            mem2048_2111[p] = z[y * 8 + x]
+            x7 += 1
+            mem2048_2111[x7] = z[x2 * 8 + x1]
         # if is end
-        if x == 7 and y == 7:
+        if x1 == 7 and x2 == 7:
             break
         # normally forwarding
-        p += 1
-        x -= direction
-        y += direction
-        mem2048_2111[p] = z[y * 8 + x]
+        x7 += 1
+        x1 -= direction
+        x2 += direction
+        mem2048_2111[x7] = z[x2 * 8 + x1]
 
     # Differential DC Value
     # ------------------------------------------------------------------
@@ -484,8 +484,8 @@ x1 = 768 + x0
 x2 = mcu_rows
 x1 = x1 * x2
 x2 = mcu_cals
-x4 = x1 * x2
-
+# protection needed registers:
+x4 = x1 * x2 # maxline
 x1 = 0 + x0 # index
 x2 = 0 + x0 # counter
 x3 = 0 + x0 # block_counter
@@ -509,6 +509,7 @@ while x1 != x4:
         # protect regfile area 3
         index = x1 # store x1
         block_counter = x3 # store x3
+        maxline = x4 # store x4
         x5 = 2047 + x0
         x6 = 64 + x0
         x7 = 0 + x0
@@ -564,8 +565,9 @@ while x1 != x4:
             x3 = 0 + x0
         else:
             x3 = x3 + 1
-        x2 = 0 + x0
-        x1 = index # restore x1
+        x2 = 0 + x0  # clear counter
+        x1 = index   # restore x1
+        x4 = maxline # restore x4
     else:
         x2 += 1
     x1 += 3
