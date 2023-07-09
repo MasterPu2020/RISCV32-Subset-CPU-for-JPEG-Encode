@@ -10,9 +10,9 @@
 
 import base64
 
-mem0 = [0, 2, 3, 4, 5, 6, 14, 30, 62, 126, 254, 510]
-mem12 = [2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9]
-mem24 = [
+mem0_11 = [0, 2, 3, 4, 5, 6, 14, 30, 62, 126, 254, 510]
+mem12_23 = [2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9]
+mem24_274 = [
   10,     0,     1,     4,    11,    26,   120,   248,  1014, 65410, 65411, 0, 0, 0, 0, 0,
    0,    12,    27,   121,   502,  2038, 65412, 65413, 65414, 65415, 65416, 0, 0, 0, 0, 0,
    0,    28,   249,  1015,  4084, 65417, 65418, 65419, 65420, 65421, 65422, 0, 0, 0, 0, 0,
@@ -29,7 +29,7 @@ mem24 = [
    0,  2040, 65506, 65507, 65508, 65509, 65510, 65511, 65512, 65513, 65514, 0, 0, 0, 0, 0,
    0, 65515, 65516, 65517, 65518, 65519, 65520, 65521, 65522, 65523, 65524, 0, 0, 0, 0, 0,
 2041, 65525, 65526, 65527, 65528, 65529, 65530, 65531, 65532, 65533, 65534]
-mem275 = [
+mem275_525 = [
  4,  2,  2,  3,  4,  5,  7,  8, 10, 16, 16,  0,  0,  0,  0,  0,
  0,  4,  5,  7,  9, 11, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
  0,  5,  8, 10, 12, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
@@ -46,9 +46,9 @@ mem275 = [
  0, 11, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
  0, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
 11, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]
-mem526 = [0, 1, 2, 6, 14, 30, 62, 126, 254, 510, 1022, 2046]
-mem538 = [2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-mem550 = [
+mem526_537 = [0, 1, 2, 6, 14, 30, 62, 126, 254, 510, 1022, 2046]
+mem538_549 = [2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+mem550_800 = [
    0,     1,     4,    10,    24,    25,    56,   120,   500,  1014,  4084, 0, 0, 0, 0, 0,
    0,    11,    57,   246,   501,  2038,  4085, 65416, 65417, 65418, 65419, 0, 0, 0, 0, 0,
    0,    26,   247,  1015,  4086, 32706, 65420, 65421, 65422, 65423, 65424, 0, 0, 0, 0, 0,
@@ -65,7 +65,7 @@ mem550 = [
    0,  2041, 65508, 65509, 65510, 65511, 65512, 65513, 65514, 65515, 65516, 0, 0, 0, 0, 0,
    0, 16352, 65517, 65518, 65519, 65520, 65521, 65522, 65523, 65524, 65525, 0, 0, 0, 0, 0,
 1018, 32707, 65526, 65527, 65528, 65529, 65530, 65531, 65532, 65533, 65534]
-mem801 = [
+mem801_1051 = [
  2,  2,  3,  4,  5,  5,  6,  7,  9, 10, 12,  0,  0,  0,  0,  0,
  0,  4,  6,  8,  9, 11, 12, 16, 16, 16, 16,  0,  0,  0,  0,  0,
  0,  5,  8, 10, 12, 15, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
@@ -82,11 +82,11 @@ mem801 = [
  0, 11, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
  0, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
 10, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16]
-hufftable = mem0 + mem12 + mem24 + mem275 + mem526 + mem538 + mem550 + mem801
-mem1052 = [4294967296] * 64 # 1 << 32 (/1)
-mem1116 = [4294967296] * 64
-quantable = mem1052 + mem1116
-mem1180 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
+hufftable = mem0_11 + mem12_23 + mem24_274 + mem275_525 + mem526_537 + mem538_549 + mem550_800 + mem801_1051
+mem1052_1115 = [4294967296] * 64 # 1 << 32 (/1)
+mem1116_1179 = [4294967296] * 64
+quantable = mem1052_1115 + mem1116_1179
+mem1180_1186 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
 global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
 x0 = 0
 
@@ -140,23 +140,23 @@ x26 = 16
 x25 = 8
 x24 = 2
 
-while x2 < x28:
+while x2 != x28:
     x10 = x26 * x29
     x10 = x10 * x2
     x10 = x10 + 2
-    while x1 < x27:
+    while x1 != x27:
         x11 = x26 * x1
         x11 = x11 + x10
-        while x4 < x24:
+        while x4 != x24:
             x12 = x25 * x29
             x12 = x12 * x4 
             x12 = x12 + x11
-            while x3 < x24:
+            while x3 != x24:
                 x13 = x25 * x3
                 x13 = x13 + x12
-                while x5 < x25:
+                while x5 != x25:
                     x14 = x5 + x13
-                    while x6 < x25:
+                    while x6 != x25:
                         x15 = x29 * x6
                         x15 = x15 + x14
                         # YCbCr convertion
@@ -227,11 +227,11 @@ stack_space = 32
 # ------------------------------------------------------------------
 # Super function: block endcode
 # ------------------------------------------------------------------
-global mem2048_2111, this_dc_value, last_dc_value, mode 
+global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode 
 
 def linemark1():
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
-    global mem2048_2111, this_dc_value, last_dc_value, mode, stack_space
+    global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode, stack_space
     
     # 8x8 matrix subtraction
     # ------------------------------------------------------------------
@@ -264,10 +264,10 @@ def linemark1():
         p = 0 # iteration of the routation direction
         while p != 7:
             if theta > target:
-                theta -= mem1180[p] # clockwise
+                theta -= mem1180_1186[p] # clockwise
                 direction[p] = 1
             else:
-                theta += mem1180[p] # anticlockwise
+                theta += mem1180_1186[p] # anticlockwise
                 direction[p] = - 1
             p += 1
         x1 = 39797
@@ -465,28 +465,35 @@ def linemark1():
 
     return this_dc_value 
 
+# ------------------------------------------------------------------
 # End of super function
 # ------------------------------------------------------------------
 
 # Y Cb Cr subsampling and encode
-blockY = [0] * 64 # Y image blocks 32-bit * 64 integers
-blockCb = [0] * 64 # U image blocks 32-bit * 64 integers
-blockCr = [0] * 64 # V image blocks 32-bit * 64 integers
+mem2176_2239 = [0] * 64 # Y image blocks
+mem2240_2303 = [0] * 64 # U image blocks
+mem2304_2367 = [0] * 64 # V image blocks
 index = 0
 counter = 0
 block_counter = 0
 last_dc_value_y = 0
 last_dc_value_cb = 0
 last_dc_value_cr = 0
-while index < (mcu_rows * mcu_cals * 16 * 16 * 3):
+
+t1 = 768 + x0
+t2 = mcu_rows
+t1 = t1 * t2
+t2 = mcu_cals
+t1 = t1 * t2
+while index != t1:
     # Sampling
-    blockY[counter]   = img_row[index]
-    blockCb[counter] += img_row[index + 1]
-    blockCr[counter] += img_row[index + 2]
+    mem2176_2239[counter]  = img_row[index]
+    mem2240_2303[counter] += img_row[index + 1]
+    mem2304_2367[counter] += img_row[index + 2]
     # Block encode and subsampling
     if counter == 63:
         # Y Block encode
-        mem2048_2111 = blockY
+        mem2048_2111 = mem2176_2239
         last_dc_value = last_dc_value_y
         mode = 0
         linemark1()
@@ -495,17 +502,17 @@ while index < (mcu_rows * mcu_cals * 16 * 16 * 3):
         if block_counter == 3:
             i = 0
             while i < 64:
-                blockCb[i] = blockCb[i] >> 2 # divide 4
-                blockCr[i] = blockCr[i] >> 2 # divide 4
+                mem2240_2303[i] = mem2240_2303[i] >> 2 # divide 4
+                mem2304_2367[i] = mem2304_2367[i] >> 2 # divide 4
                 i += 1
             # Cb Block encode
-            mem2048_2111 = blockCb
+            mem2048_2111 = mem2240_2303
             last_dc_value = last_dc_value_cb
             mode = 1
             linemark1()
             last_dc_value_cb = this_dc_value
             # Cr Block encode
-            mem2048_2111 = blockCr
+            mem2048_2111 = mem2304_2367
             last_dc_value = last_dc_value_cr
             mode = 2
             linemark1()
@@ -513,8 +520,8 @@ while index < (mcu_rows * mcu_cals * 16 * 16 * 3):
             # Clear for re-sampling
             i = 0
             while i < 64:
-                blockCb[i] = 0
-                blockCr[i] = 0
+                mem2240_2303[i] = 0
+                mem2304_2367[i] = 0
                 i += 1
             block_counter = 0
         else:
@@ -526,11 +533,12 @@ while index < (mcu_rows * mcu_cals * 16 * 16 * 3):
     print('\r [Process]: (', index, '/', mcu_rows * mcu_cals * 16 * 16 * 3, ')', end='')
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
-fill = 0
+temp = 0
 while stack_space != 0:
-    fill = (fill << 1) + 1
-    stack_space -= 1
-huffman_bit_stack[-1] += fill
+    temp = temp << 1
+    temp = temp + 1
+    stack_space = stack_space + (-1)
+huffman_bit_stack[-1] += temp
 
 # String process, only for simulation usage
 hex_huffman_string = ''
