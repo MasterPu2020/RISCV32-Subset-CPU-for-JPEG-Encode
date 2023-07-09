@@ -467,9 +467,11 @@ def linemark1():
 # ------------------------------------------------------------------
 
 # Y Cb Cr subsampling and encode
-mem2176_2239 = [0] * 64 # Y image blocks
-mem2240_2303 = [0] * 64 # U image blocks
-mem2304_2367 = [0] * 64 # V image blocks
+mem2048_2111 = [0] * 64 # block for calculation
+mem2112_2175 = [0] * 64 # block for calculation
+mem2176_2239 = [0] * 64 # Y image block
+mem2240_2303 = [0] * 64 # U image block
+mem2304_2367 = [0] * 64 # V image block
 
 index = 0
 counter = 0
@@ -493,7 +495,7 @@ while x1 != x4:
     x5 = 2047 + x0
     x5 = x5 + x2
     x6 = img_row[x1 + 0]
-    mem2176_2239[x5 + 129 - (2176)]  = x6
+    mem2176_2239[x5 + 129 - (2176)] = x6
     x6 = img_row[x1 + 1]
     x7 = mem2240_2303[x5 + 175 - (2240)]
     x6 = x6 + x7
@@ -501,50 +503,73 @@ while x1 != x4:
     x6 = img_row[x1 + 2]
     x7 = mem2304_2367[x5 + 239 - (2304)]
     x6 = x6 + x7
-    mem2304_2367[x5 + 239 - (2304)] = x6
-    # Block encode and subsampling
-    if x2 == 63:
-        index = x1
-        # Y Block encode
-        mem2048_2111 = mem2176_2239
-        last_dc_value = last_dc_value_y
-        mode = 0
-        linemark1()
-        last_dc_value_y = this_dc_value
-        # Cb Cr subsampling
-        if block_counter == 3:
-            i = 0
-            while i < 64:
-                mem2240_2303[i] = mem2240_2303[i] >> 2 # divide 4
-                mem2304_2367[i] = mem2304_2367[i] >> 2 # divide 4
-                i += 1
+    mem2304_2367[x5 + 239 - (2304)] = x6 # free x5 ~ x7
+    x6 = 63 + x0
+    if x2 == x6: # Block encode and subsampling
+        # protect regfile area 3
+        index = x1 # store x1
+        block_counter = x3 # store x3
+        x5 = 2047 + x0
+        x6 = 64 + x0
+        x7 = 0 + x0
+        while x7 != x6:
+            x8 = x7 + x5
+            x9 = mem2176_2239[x8 + 129 - (2176)]
+            mem2048_2111[x8 + 1 - (2048)] = x9
+            x7 = x7 + 1
+        # ----------------- RegFile Work Aera 2 Interface Start -----------------
+        last_dc_value = last_dc_value_y # interface exchange data
+        mode = 0 # interface exchange data
+        linemark1() # returnmark1_0
+        last_dc_value_y = this_dc_value # interface exchange data
+        x3 = block_counter # restore x3
+        if x3 == 3:
             # Cb Block encode
-            mem2048_2111 = mem2240_2303
-            last_dc_value = last_dc_value_cb
-            mode = 1
-            linemark1()
-            last_dc_value_cb = this_dc_value
+            x5 = 2047 + x0
+            x6 = 64 + x0
+            x7 = 0 + x0
+            while x7 != x6:
+                x8 = x7 + x5
+                x9 = mem2240_2303[x8 + 175 - (2240)]
+                x9 = x9 >> 2 # NOT logic shift
+                mem2048_2111[x8 + 1 - (2048)] = x9
+                x7 = x7 + 1
+            last_dc_value = last_dc_value_cb # interface exchange data
+            mode = 1 # interface exchange data
+            linemark1() # returnmark1_1
+            last_dc_value_cb = this_dc_value # interface exchange data
             # Cr Block encode
-            mem2048_2111 = mem2304_2367
-            last_dc_value = last_dc_value_cr
-            mode = 2
-            linemark1()
-            last_dc_value_cr = this_dc_value
+            x5 = 2047 + x0
+            x6 = 64 + x0
+            x7 = 0 + x0
+            while x7 != x6:
+                x8 = x7 + x5
+                x9 = mem2304_2367[x8 + 239 - (2304)]
+                x9 = x9 >> 2
+                mem2048_2111[x8 + 1 - (2048)] = x9
+                x7 = x7 + 1
+            last_dc_value = last_dc_value_cr# interface exchange data
+            mode = 2# interface exchange data
+            linemark1() # returnmark1_1
+            last_dc_value_cr = this_dc_value# interface exchange data
+            # ----------------- RegFile Work Aera 2 Interface End -----------------
             # Clear for re-sampling
-            i = 0
-            while i < 64:
-                mem2240_2303[i] = 0
-                mem2304_2367[i] = 0
-                i += 1
-            block_counter = 0
+            x6 = 2047 + x0
+            x6 = 64 + x6
+            x7 = 2047 + x0
+            while x7 != x6:
+                mem2240_2303[x7 + 175 - (2240)] = x0
+                mem2304_2367[x7 + 239 - (2304)] = x0
+                x7 = x7 + 1
+            x3 = 0 + x0
         else:
-            block_counter += 1
+            x3 = x3 + 1
         x2 = 0 + x0
-        x1 = index
+        x1 = index # restore x1
     else:
         x2 += 1
     x1 += 3
-    print('\r [Process]: (', index, '/', mcu_rows * mcu_cals * 16 * 16 * 3, ')', end='')
+    print('\r [Process]: (', x1, '/', mcu_rows * mcu_cals * 768, ')', end='')
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Post Process
