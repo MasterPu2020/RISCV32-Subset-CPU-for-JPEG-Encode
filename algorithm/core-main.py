@@ -96,16 +96,16 @@ def get_row(file_path:str):
         img_row = []
         byte_file = image.read()
         double_word = ''
-        index = 1
+        x1 = 1
         for byte in byte_file:
             text = str(hex(int(byte))[2:].upper())
             if len(text) < 2:
                 text = '0' + text
             double_word += text
-            if index % 4 == 0:
+            if x1 % 4 == 0:
                 img_row.append(int(double_word, 16))
                 double_word = ''
-            index += 1
+            x1 += 1
     return img_row 
 
 
@@ -119,6 +119,7 @@ img_row_in_uart = get_row(file_path+'.row')
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 1: Re-order Minimum coded unit(MCU)
+# Avialiable register remaind: x20 ~ x23
 # ------------------------------------------------------------------
 x28 = img_row_in_uart[0]
 x29 = img_row_in_uart[1]
@@ -219,15 +220,11 @@ while x2 != x28:
 # RegFile Work Aera 2: Huffman endcode
 # ------------------------------------------------------------------
 
+global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode 
 global huffman_bit_stack
 global stack_space
 huffman_bit_stack = [0]
 stack_space = 32
-
-# ------------------------------------------------------------------
-# Super function: block endcode
-# ------------------------------------------------------------------
-global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode 
 
 def linemark1():
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
@@ -466,13 +463,14 @@ def linemark1():
     return this_dc_value 
 
 # ------------------------------------------------------------------
-# End of super function
+# RegFile Work Aera 3: Sampling
 # ------------------------------------------------------------------
 
 # Y Cb Cr subsampling and encode
 mem2176_2239 = [0] * 64 # Y image blocks
 mem2240_2303 = [0] * 64 # U image blocks
 mem2304_2367 = [0] * 64 # V image blocks
+
 index = 0
 counter = 0
 block_counter = 0
@@ -480,18 +478,33 @@ last_dc_value_y = 0
 last_dc_value_cb = 0
 last_dc_value_cr = 0
 
-t1 = 768 + x0
-t2 = mcu_rows
-t1 = t1 * t2
-t2 = mcu_cals
-t1 = t1 * t2
-while index != t1:
+x1 = 768 + x0
+x2 = mcu_rows
+x1 = x1 * x2
+x2 = mcu_cals
+x4 = x1 * x2
+
+x1 = 0 + x0 # index
+x2 = 0 + x0 # counter
+x3 = 0 + x0 # block_counter
+
+while x1 != x4:
     # Sampling
-    mem2176_2239[counter]  = img_row[index]
-    mem2240_2303[counter] += img_row[index + 1]
-    mem2304_2367[counter] += img_row[index + 2]
+    x5 = 2047 + x0
+    x5 = x5 + x2
+    x6 = img_row[x1 + 0]
+    mem2176_2239[x5 + 129 - (2176)]  = x6
+    x6 = img_row[x1 + 1]
+    x7 = mem2240_2303[x5 + 175 - (2240)]
+    x6 = x6 + x7
+    mem2240_2303[x5 + 175 - (2240)] = x6
+    x6 = img_row[x1 + 2]
+    x7 = mem2304_2367[x5 + 239 - (2304)]
+    x6 = x6 + x7
+    mem2304_2367[x5 + 239 - (2304)] = x6
     # Block encode and subsampling
-    if counter == 63:
+    if x2 == 63:
+        index = x1
         # Y Block encode
         mem2048_2111 = mem2176_2239
         last_dc_value = last_dc_value_y
@@ -526,11 +539,16 @@ while index != t1:
             block_counter = 0
         else:
             block_counter += 1
-        counter = 0
+        x2 = 0 + x0
+        x1 = index
     else:
-        counter += 1
-    index += 3
+        x2 += 1
+    x1 += 3
     print('\r [Process]: (', index, '/', mcu_rows * mcu_cals * 16 * 16 * 3, ')', end='')
+
+# ------------------------------------------------------------------
+# RegFile Work Aera 3: Post Process
+# ------------------------------------------------------------------
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
 temp = 0
