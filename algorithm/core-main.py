@@ -112,6 +112,40 @@ def lw(xoffset, immoffset):
     data32 = mem[immoffset + xoffset]
     return data32
 
+# exam software sanity
+def exam():
+    assert  x0 == 0, 'Error: x0 != 0'
+    assert  x1 in range(-2**32, 2**32-1), 'Error:  x1 out of range'
+    assert  x2 in range(-2**32, 2**32-1), 'Error:  x2 out of range'
+    assert  x3 in range(-2**32, 2**32-1), 'Error:  x3 out of range'
+    assert  x4 in range(-2**32, 2**32-1), 'Error:  x4 out of range'
+    assert  x5 in range(-2**32, 2**32-1), 'Error:  x5 out of range'
+    assert  x6 in range(-2**32, 2**32-1), 'Error:  x6 out of range'
+    assert  x7 in range(-2**32, 2**32-1), 'Error:  x7 out of range'
+    assert  x8 in range(-2**32, 2**32-1), 'Error:  x8 out of range'
+    assert  x9 in range(-2**32, 2**32-1), 'Error:  x9 out of range'
+    assert x10 in range(-2**32, 2**32-1), 'Error: x10 out of range'
+    assert x11 in range(-2**32, 2**32-1), 'Error: x11 out of range'
+    assert x12 in range(-2**32, 2**32-1), 'Error: x12 out of range'
+    assert x13 in range(-2**32, 2**32-1), 'Error: x13 out of range'
+    assert x14 in range(-2**32, 2**32-1), 'Error: x14 out of range'
+    assert x15 in range(-2**32, 2**32-1), 'Error: x15 out of range'
+    assert x16 in range(-2**32, 2**32-1), 'Error: x16 out of range'
+    assert x17 in range(-2**32, 2**32-1), 'Error: x17 out of range'
+    assert x18 in range(-2**32, 2**32-1), 'Error: x18 out of range'
+    assert x19 in range(-2**32, 2**32-1), 'Error: x19 out of range'
+    assert x20 in range(-2**32, 2**32-1), 'Error: x20 out of range'
+    assert x21 in range(-2**32, 2**32-1), 'Error: x21 out of range'
+    assert x22 in range(-2**32, 2**32-1), 'Error: x22 out of range'
+    assert x23 in range(-2**32, 2**32-1), 'Error: x23 out of range'
+    assert x24 in range(-2**32, 2**32-1), 'Error: x24 out of range'
+    assert x25 in range(-2**32, 2**32-1), 'Error: x25 out of range'
+    assert x26 in range(-2**32, 2**32-1), 'Error: x26 out of range'
+    assert x27 in range(-2**32, 2**32-1), 'Error: x27 out of range'
+    assert x28 in range(-2**32, 2**32-1), 'Error: x28 out of range'
+    assert x29 in range(-2**32, 2**32-1), 'Error: x29 out of range'
+    assert x30 in range(-2**32, 2**32-1), 'Error: x30 out of range'
+    assert x31 in range(-2**32, 2**32-1), 'Error: x31 out of range'
 
 # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
 def get_row(file_path:str):
@@ -262,16 +296,20 @@ def linemark1():
     x1 = 0 + x2
     x2 = 64 + x2
     while x1 != x2:
-        x3 = mem2048_2111[x1 + 1 - (2048)]
+        x3 = lw(x1, 1)
         x3 = x3 - 128
-        mem2048_2111[x1 + 1 - (2048)] = x3
+        sw(x1, x3, 1)
         x1 += 1
     
     # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
-    # CORDIC local cosine function
+    x1 = 2047 + x0
+    x2 = 64 + x1
+    while x1 != x2:
+        x3 = lw(x1, 1)
+        sw(x1, x3, 65)
+        x1 = x1 + 1
 
-    mem2112_2175 = mem2048_2111
     def linemark2(): 
         global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
         x8 = 0
@@ -310,7 +348,9 @@ def linemark1():
         return
     
     mem2048_2111 = [0] * 64 # python bug exist here
+
     x15 = 8
+    x17 = 2
     x3 = 0
     x4 = 0
     x5 = 0
@@ -329,23 +369,35 @@ def linemark1():
             x14 = 0
             while x5 != x15:
                 while x6 != x15:
-                    x13 = mem2112_2175[x6 + x5 * 8]
-                    x9 = (2*x5 + 1) * x3 * mem_any[2]
+                    x16 = x5 * x15
+                    x16 = x16 + x6
+                    x16 = 2047 + x16
+                    x13 = lw(x16, 65)
+                    x9 = x17 * x5
+                    x9 = x9 + 1
+                    x9 = x9 * x3
+                    x9 = x9 * mem_any[2]
                     linemark2()
-                    x13 = (x13 * x1) >> 8
-                    x9 = (2*x6 + 1) * x4 * mem_any[2]
+                    x13 = x13 * x1
+                    x13 = x13 >> 8
+                    x9 = x17 * x6
+                    x9 = x9 + 1
+                    x9 = x9 * x4
+                    x9 = x9 * mem_any[2]
                     linemark2()
-                    x13 = (x13 * x1) >> 8
-                    x14 += x13
-
+                    x13 = x13 * x1
+                    x13 = x13 >> 8
+                    x14 = x14 + x13
                     x6 = x6 + 1
                 x6 = 0
                 x5 = x5 + 1
-            x13 = (x11 * x12) >> 16
+            x13 = x11 * x12
+            # assert x13 in range(-2**32, 2**32-1)
+            x13 = x13 >> 16
             x13 = (x13 * x14) >> 32
             x13 = x13 >> 2
             if x13 != 0:
-                x13 += 1
+                x13 = x13 + 1
             mem2048_2111[x4 + x3 * 8] = x13
             x5 = 0
             x4 = x4 + 1
@@ -548,7 +600,7 @@ while x1 != x4:
         while x7 != x6:
             x8 = x7 + x5
             x9 = lw(x8, 129)
-            mem2048_2111[x8 + 1 - (2048)] = x9
+            sw(x8, x9, 1)
             x7 = x7 + 1
         # ----------------- RegFile Work Aera 2 Interface Start -----------------
         last_dc_value = last_dc_value_y # interface exchange data
@@ -565,7 +617,7 @@ while x1 != x4:
                 x8 = x7 + x5
                 x9 = lw(x8, 193)
                 x9 = x9 >> 2 # NOT logic shift
-                mem2048_2111[x8 + 1 - (2048)] = x9
+                sw(x8, x9, 1)
                 x7 = x7 + 1
             last_dc_value = last_dc_value_cb # interface exchange data
             mode = 1 # interface exchange data
@@ -579,7 +631,7 @@ while x1 != x4:
                 x8 = x7 + x5
                 x9 = lw(x8, 257)
                 x9 = x9 >> 2
-                mem2048_2111[x8 + 1 - (2048)] = x9
+                sw(x8, x9, 1)
                 x7 = x7 + 1
             last_dc_value = last_dc_value_cr# interface exchange data
             mode = 2# interface exchange data
