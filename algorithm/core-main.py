@@ -349,43 +349,61 @@ def linemark1():
         x1 = x1 + 1
 
     def linemark2(): 
-        global x0, x1, x2, x7, x8, x9, x10
+        global x0, x1, x2, x7, x8, x9, x10, x20, x21, x22, x23, x24, x25, x26
         x8 = 0
-        while x9 > 205887:
-            x9 = x9 - 411775
-        if x9 > 102944:
+        x20 = 205887 # dust will help
+        x21 = - 411775 # dust will help
+        x22 = 102944 # dust will help
+        while x9 > x20: # extra instruction
+            x9 = x9 + x21
+        if x9 > x22:
             x8 = 1
-            x9 = x9 - 205887
-        elif x9 < -102944:
-            x8 = 1
-            x9 = x9 + 205887
+            x20 = ~ x20 + 1
+            x9 = x9 + x20
+        else:
+            x22 = ~ x22 + 1
+            if x9 < x22:
+                x8 = 1
+                x9 = x9 + x20
         x10 = 0 
         mem_any = [0, 0, 0, 0, 0, 0, 0] 
         x7 = 0 
         while x7 != 7:
-            if x10 > x9:
-                x10 -= lw(x7, 1180)
-                mem_any[x7] = 1
+            if x10 > x9: 
+                x20 = lw(x7, 1180)
+                x20 = ~ x20 + 1
+                x10 = x10 + x20
+                x21 = 1
+                mem_any[x7] = x21
             else:
-                x10 += lw(x7, 1180)
-                mem_any[x7] = - 1
-            x7 += 1
-        x1 = 39797
+                x20 = lw(x7, 1180)
+                x10 = x10 + x20
+                mem_any[x7] = x0
+            x7 = x7 + 1
+        x1 = 39797 # dust will help
         x2 = 0
         x7 = 6
-        while x7 != -1:
-            if mem_any[x7] == 1:
-                x1 = x1 - (x2 >> x7)
-                x2 = (x1 >> x7) + x2
+        x21 = 1
+        x23 = -1
+        # extra instruction
+        while x7 != x23:
+            x20 = mem_any[x7]
+            x22 = x2 >> x7
+            if x20 == x21:
+                x22 = ~ x22 + 1
+                x1 = x1 + x22
+                x22 = x1 >> x7
             else:
-                x1 = x1 + (x2 >> x7)
-                x2 = - (x1 >> x7) + x2
+                x1 = x1 + x22
+                x22 = x1 >> x7
+                x22 = ~ x22 + 1
+            x2 = x22 + x2
             x7 = x7 - 1
-        if x8 == 1:
+        if x8 == x21:
             x1 = ~ x1 + 1
         return
     
-    mem2048_2111 = [0] * 64 # python bug exist here
+    # mem2048_2111 = [0] * 64 # python bug exist here
 
     x15 = 8
     x17 = 2
@@ -436,7 +454,7 @@ def linemark1():
             x13 = x13 >> 2
             if x13 != 0:
                 x13 = x13 + 1
-            mem2048_2111[x4 + x3 * 8] = x13
+            # mem2048_2111[x4 + x3 * 8] = x13
             x16 = x3 * x15
             x16 = x4 + x16
             x16 = x16 + 2047
@@ -491,7 +509,6 @@ def linemark1():
             x4 = 0
             x3 = - x3
             x5 += 1
-            
             x12 = x2 * x7
             x12 = x12 + x1
             x12 = x12 + x10
