@@ -95,9 +95,44 @@ quantable = mem1052_1115 + mem1116_1179
 mem1180_1186 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
 
 global mem
-mem = [0] * 4096
 global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
-x0 = 0
+
+def reset():
+    global mem
+    mem = [0] * 4096
+    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
+    x0 = 0
+    x1 = 0
+    x2 = 0
+    x3 = 0
+    x4 = 0
+    x5 = 0
+    x6 = 0
+    x7 = 0
+    x8 = 0
+    x9 = 0
+    x10 = 0
+    x11 = 0
+    x12 = 0
+    x13 = 0
+    x14 = 0
+    x15 = 0
+    x16 = 0
+    x17 = 0
+    x18 = 0
+    x19 = 0
+    x20 = 0
+    x21 = 0
+    x22 = 0
+    x23 = 0
+    x24 = 0
+    x25 = 0
+    x26 = 0
+    x27 = 0
+    x28 = 0
+    x29 = 0
+    x30 = 0
+    x31 = 0
 
 # sw mem(imm + rs1) <- rs2
 def sw(xoffset, data32, immoffset):
@@ -114,38 +149,39 @@ def lw(xoffset, immoffset):
 
 # exam software sanity
 def exam():
+    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
     assert  x0 == 0, 'Error: x0 != 0'
-    assert  x1 in range(-2**32, 2**32-1), 'Error:  x1 out of range'
-    assert  x2 in range(-2**32, 2**32-1), 'Error:  x2 out of range'
-    assert  x3 in range(-2**32, 2**32-1), 'Error:  x3 out of range'
-    assert  x4 in range(-2**32, 2**32-1), 'Error:  x4 out of range'
-    assert  x5 in range(-2**32, 2**32-1), 'Error:  x5 out of range'
-    assert  x6 in range(-2**32, 2**32-1), 'Error:  x6 out of range'
-    assert  x7 in range(-2**32, 2**32-1), 'Error:  x7 out of range'
-    assert  x8 in range(-2**32, 2**32-1), 'Error:  x8 out of range'
-    assert  x9 in range(-2**32, 2**32-1), 'Error:  x9 out of range'
-    assert x10 in range(-2**32, 2**32-1), 'Error: x10 out of range'
-    assert x11 in range(-2**32, 2**32-1), 'Error: x11 out of range'
-    assert x12 in range(-2**32, 2**32-1), 'Error: x12 out of range'
-    assert x13 in range(-2**32, 2**32-1), 'Error: x13 out of range'
-    assert x14 in range(-2**32, 2**32-1), 'Error: x14 out of range'
-    assert x15 in range(-2**32, 2**32-1), 'Error: x15 out of range'
-    assert x16 in range(-2**32, 2**32-1), 'Error: x16 out of range'
-    assert x17 in range(-2**32, 2**32-1), 'Error: x17 out of range'
-    assert x18 in range(-2**32, 2**32-1), 'Error: x18 out of range'
-    assert x19 in range(-2**32, 2**32-1), 'Error: x19 out of range'
-    assert x20 in range(-2**32, 2**32-1), 'Error: x20 out of range'
-    assert x21 in range(-2**32, 2**32-1), 'Error: x21 out of range'
-    assert x22 in range(-2**32, 2**32-1), 'Error: x22 out of range'
-    assert x23 in range(-2**32, 2**32-1), 'Error: x23 out of range'
-    assert x24 in range(-2**32, 2**32-1), 'Error: x24 out of range'
-    assert x25 in range(-2**32, 2**32-1), 'Error: x25 out of range'
-    assert x26 in range(-2**32, 2**32-1), 'Error: x26 out of range'
-    assert x27 in range(-2**32, 2**32-1), 'Error: x27 out of range'
-    assert x28 in range(-2**32, 2**32-1), 'Error: x28 out of range'
-    assert x29 in range(-2**32, 2**32-1), 'Error: x29 out of range'
-    assert x30 in range(-2**32, 2**32-1), 'Error: x30 out of range'
-    assert x31 in range(-2**32, 2**32-1), 'Error: x31 out of range'
+    assert  x1 in range(-2**32, 2**32-1), 'Error:  x1 out of range:' + str(len(bin( x1)[2:])) + ' bit.'
+    assert  x2 in range(-2**32, 2**32-1), 'Error:  x2 out of range:' + str(len(bin( x2)[2:])) + ' bit.'
+    assert  x3 in range(-2**32, 2**32-1), 'Error:  x3 out of range:' + str(len(bin( x3)[2:])) + ' bit.'
+    assert  x4 in range(-2**32, 2**32-1), 'Error:  x4 out of range:' + str(len(bin( x4)[2:])) + ' bit.'
+    assert  x5 in range(-2**32, 2**32-1), 'Error:  x5 out of range:' + str(len(bin( x5)[2:])) + ' bit.'
+    assert  x6 in range(-2**32, 2**32-1), 'Error:  x6 out of range:' + str(len(bin( x6)[2:])) + ' bit.'
+    assert  x7 in range(-2**32, 2**32-1), 'Error:  x7 out of range:' + str(len(bin( x7)[2:])) + ' bit.'
+    assert  x8 in range(-2**32, 2**32-1), 'Error:  x8 out of range:' + str(len(bin( x8)[2:])) + ' bit.'
+    assert  x9 in range(-2**32, 2**32-1), 'Error:  x9 out of range:' + str(len(bin( x9)[2:])) + ' bit.'
+    assert x10 in range(-2**32, 2**32-1), 'Error: x10 out of range:' + str(len(bin(x10)[2:])) + ' bit.'
+    assert x11 in range(-2**32, 2**32-1), 'Error: x11 out of range:' + str(len(bin(x11)[2:])) + ' bit.'
+    assert x12 in range(-2**32, 2**32-1), 'Error: x12 out of range:' + str(len(bin(x12)[2:])) + ' bit.'
+    assert x13 in range(-2**32, 2**32-1), 'Error: x13 out of range:' + str(len(bin(x13)[2:])) + ' bit.'
+    assert x14 in range(-2**32, 2**32-1), 'Error: x14 out of range:' + str(len(bin(x14)[2:])) + ' bit.'
+    assert x15 in range(-2**32, 2**32-1), 'Error: x15 out of range:' + str(len(bin(x15)[2:])) + ' bit.'
+    assert x16 in range(-2**32, 2**32-1), 'Error: x16 out of range:' + str(len(bin(x16)[2:])) + ' bit.'
+    assert x17 in range(-2**32, 2**32-1), 'Error: x17 out of range:' + str(len(bin(x17)[2:])) + ' bit.'
+    assert x18 in range(-2**32, 2**32-1), 'Error: x18 out of range:' + str(len(bin(x18)[2:])) + ' bit.'
+    assert x19 in range(-2**32, 2**32-1), 'Error: x19 out of range:' + str(len(bin(x19)[2:])) + ' bit.'
+    assert x20 in range(-2**32, 2**32-1), 'Error: x20 out of range:' + str(len(bin(x20)[2:])) + ' bit.'
+    assert x21 in range(-2**32, 2**32-1), 'Error: x21 out of range:' + str(len(bin(x21)[2:])) + ' bit.'
+    assert x22 in range(-2**32, 2**32-1), 'Error: x22 out of range:' + str(len(bin(x22)[2:])) + ' bit.'
+    assert x23 in range(-2**32, 2**32-1), 'Error: x23 out of range:' + str(len(bin(x23)[2:])) + ' bit.'
+    assert x24 in range(-2**32, 2**32-1), 'Error: x24 out of range:' + str(len(bin(x24)[2:])) + ' bit.'
+    assert x25 in range(-2**32, 2**32-1), 'Error: x25 out of range:' + str(len(bin(x25)[2:])) + ' bit.'
+    assert x26 in range(-2**32, 2**32-1), 'Error: x26 out of range:' + str(len(bin(x26)[2:])) + ' bit.'
+    assert x27 in range(-2**32, 2**32-1), 'Error: x27 out of range:' + str(len(bin(x27)[2:])) + ' bit.'
+    assert x28 in range(-2**32, 2**32-1), 'Error: x28 out of range:' + str(len(bin(x28)[2:])) + ' bit.'
+    assert x29 in range(-2**32, 2**32-1), 'Error: x29 out of range:' + str(len(bin(x29)[2:])) + ' bit.'
+    assert x30 in range(-2**32, 2**32-1), 'Error: x30 out of range:' + str(len(bin(x30)[2:])) + ' bit.'
+    assert x31 in range(-2**32, 2**32-1), 'Error: x31 out of range:' + str(len(bin(x31)[2:])) + ' bit.'
 
 # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
 def get_row(file_path:str):
@@ -171,6 +207,7 @@ file_path = './algorithm/test'
 print('\n')
 
 # Image read
+reset()
 img_row = [] # YCbCr image in real RAM, it is an 8-x15 stack
 img_row_in_uart = get_row(file_path+'.row')
 
@@ -280,15 +317,15 @@ while x2 != x28:
 # RegFile Work Aera 2: Huffman endcode
 # ------------------------------------------------------------------
 
-global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode 
+global mem2048_2111, mem2112_2175
 global huffman_bit_stack
-global stack_space
 huffman_bit_stack = [0]
-stack_space = 32
+x26 = 32
 
 def linemark1():
-    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
-    global mem2048_2111, mem2112_2175, this_dc_value, last_dc_value, mode, stack_space
+    global x29, x28, x27, x26, x30, x31
+    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25
+    global mem2048_2111, mem2112_2175, x26
     
     # 8x8 matrix subtraction: Sub Area 1
     # ------------------------------------------------------------------
@@ -308,10 +345,11 @@ def linemark1():
     while x1 != x2:
         x3 = lw(x1, 1)
         sw(x1, x3, 65)
+        sw(x1, x0, 1) ### bug reflect here
         x1 = x1 + 1
 
     def linemark2(): 
-        global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
+        global x0, x1, x2, x7, x8, x9, x10
         x8 = 0
         while x9 > 205887:
             x9 = x9 - 411775
@@ -392,69 +430,92 @@ def linemark1():
                 x6 = 0
                 x5 = x5 + 1
             x13 = x11 * x12
-            # assert x13 in range(-2**32, 2**32-1)
+            # exam()
             x13 = x13 >> 16
             x13 = (x13 * x14) >> 32
             x13 = x13 >> 2
             if x13 != 0:
                 x13 = x13 + 1
             mem2048_2111[x4 + x3 * 8] = x13
+            x16 = x3 * x15
+            x16 = x4 + x16
+            x16 = x16 + 2047
+            sw(x16, x13, 1)
             x5 = 0
             x4 = x4 + 1
         x4 = 0
         x3 = x3 + 1
 
+    # print(mem[2048:2112], mem2048_2111)
+
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
-    x1 = 1116 + x0
-    if mode == 0:
-        x1 = 1052 + x0
-    x2 = x1 + 64
-    while x1 != x2:
-        x3 = lw(x1, 0)
-        x4 = mem2048_2111[x1 - (x2 - 64)]
+    x2 = 1052 + x0
+    if x28 == 0:
+        x2 = 1116 + x0
+    x1 = 0 + x0
+    x5 = 64 + x0 
+    while x1 != x5:
+        x6 = x1 + x2
+        x7 = x1 + 2047
+        x3 = lw(x6, 0)
+        x4 = lw(x7, 1)
         x3 = (x3 * x4) >> 32
-        mem2048_2111[x1 - (x2 - 64)] = x3
+        sw(x7, x0, 1)
+        sw(x7, x3, 65)
         x1 = x1 + 1
 
     # Zigzag Scan: Sub Area 4
     # ------------------------------------------------------------------
-    mem2112_2175 = mem2048_2111
     x1 = 0
     x2 = 0
     x5 = 0
-    mem2048_2111 = [0] * 64
     x3 = 1
     x4 = 0
-    mem2048_2111[0] = mem2112_2175[0]
+    x6 = 7
+    x7 = 8
+    x9 = 1
+    # Differential DC Value:
+    x10 = 2047 + x0
+    x27 = lw(x10, 65)
+    x11 = x27 - x29
+    sw(x10, x11, 1)
     while True:
-        if x1 == 0 or x1 == 7:
+        if x1 == x0 or x1 == x6:
             x2 += 1
             x4 = 1
-        elif x2 == 0 or x2 == 7:
+        elif x2 == x0 or x2 == x6:
             x1 += 1
             x4 = 1
         if x4 == 1:
             x4 = 0
             x3 = - x3
             x5 += 1
-            mem2048_2111[x5] = mem2112_2175[x2 * 8 + x1]
-        if x1 == 7 and x2 == 7:
+            
+            x12 = x2 * x7
+            x12 = x12 + x1
+            x12 = x12 + x10
+            x11 = lw(x12, 65)
+            x13 = x10 + x5
+            sw(x13, x11, 1)
+        if x1 == x6 and x2 == x6:
             break
         x5 += 1
         x1 -= x3
         x2 += x3
-        mem2048_2111[x5] = mem2112_2175[x2 * 8 + x1]
+        x12 = x2 * x7
+        x12 = x12 + x1
+        x12 = x12 + x10
+        x11 = lw(x12, 65)
+        x13 = x10 + x5
+        sw(x13, x11, 1)
 
-    # Differential DC Value: Sub Area 5
-    # ------------------------------------------------------------------
-    this_dc_value = mem2048_2111[0] 
-    mem2048_2111[0] = this_dc_value - last_dc_value 
+    mem2048_2111 = mem[2048:2112]
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
     # 0 for Luminace
-    if mode == 0:
+    if x28 == 0:
         x10 = 0
         x11 = 12
         x12 = 24
@@ -486,24 +547,24 @@ def linemark1():
         return
 
     def linemark4():
-        global stack_space, x4, x5, x14, x15, x16, x17
+        global x26, x4, x5, x14, x15, x16, x17
         x14 = huffman_bit_stack[-1]
-        if x5 <= stack_space:
-            x14 = x14 + (x4 << (stack_space - x5))
+        if x5 <= x26:
+            x14 = x14 + (x4 << (x26 - x5))
             huffman_bit_stack[-1] = x14
-            stack_space = stack_space - x5
+            x26 = x26 - x5
         else:
-            x14 = x14 | (x4 >> (x5 - stack_space))
+            x14 = x14 | (x4 >> (x5 - x26))
             huffman_bit_stack[-1] = x14 
-            x5 = x5 - stack_space
+            x5 = x5 - x26
             x15 = x5
             x16 = 0
             while x15 != 0:
                 x16 = (x16 << 1) + 1
                 x15 -= 1
             x16 = x16 & x4
-            stack_space = 32 - x5
-            x17 = x16 << stack_space
+            x26 = 32 - x5
+            x17 = x16 << x26
             huffman_bit_stack.append(x17)
         return
     
@@ -543,8 +604,6 @@ def linemark1():
         x4 = mem[x12 + 0] # AC [0/0]
         x5 = mem[x13 + 0]
         linemark4()
-
-    return this_dc_value 
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
@@ -603,10 +662,11 @@ while x1 != x4:
             sw(x8, x9, 1)
             x7 = x7 + 1
         # ----------------- RegFile Work Aera 2 Interface Start -----------------
-        last_dc_value = last_dc_value_y # interface exchange data
-        mode = 0 # interface exchange data
+
+        x29 = last_dc_value_y # interface exchange data
+        x28 = 0 # interface exchange data
         linemark1() # returnmark1_0
-        last_dc_value_y = this_dc_value # interface exchange data
+        last_dc_value_y = x27 # interface exchange data
         x3 = block_counter # restore x3
         if x3 == 3:
             # Cb Block encode
@@ -619,10 +679,10 @@ while x1 != x4:
                 x9 = x9 >> 2 # NOT logic shift
                 sw(x8, x9, 1)
                 x7 = x7 + 1
-            last_dc_value = last_dc_value_cb # interface exchange data
-            mode = 1 # interface exchange data
+            x29 = last_dc_value_cb # interface exchange data
+            x28 = 1 # interface exchange data
             linemark1() # returnmark1_1
-            last_dc_value_cb = this_dc_value # interface exchange data
+            last_dc_value_cb = x27 # interface exchange data
             # Cr Block encode
             x5 = 2047 + x0
             x6 = 64 + x0
@@ -633,10 +693,10 @@ while x1 != x4:
                 x9 = x9 >> 2
                 sw(x8, x9, 1)
                 x7 = x7 + 1
-            last_dc_value = last_dc_value_cr# interface exchange data
-            mode = 2# interface exchange data
+            x29 = last_dc_value_cr# interface exchange data
+            x28 = 2 # interface exchange data
             linemark1() # returnmark1_1
-            last_dc_value_cr = this_dc_value# interface exchange data
+            last_dc_value_cr = x27# interface exchange data
             # ----------------- RegFile Work Aera 2 Interface End -----------------
             # Clear for re-sampling
             x6 = 2047 + x0
@@ -663,10 +723,10 @@ while x1 != x4:
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
 x13 = 0
-while stack_space != 0:
+while x26 != 0:
     x13 = x13 << 1
     x13 = x13 + 1
-    stack_space = stack_space + (-1)
+    x26 = x26 + (-1)
 huffman_bit_stack[-1] += x13
 
 # String process, only for simulation usage
