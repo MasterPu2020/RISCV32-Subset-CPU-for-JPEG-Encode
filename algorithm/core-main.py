@@ -144,7 +144,7 @@ img_row_in_uart = get_row(file_path+'.row')
 mem[0:1186] = hufftable + quantable + mem1180_1186
 
 # ------------------------------------------------------------------
-# RegFile Work Aera 1: Re-order Minimum coded unit(MCU)
+# RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
 # Avialiable register remaind: x20 ~ x23
 # ------------------------------------------------------------------
 x28 = img_row_in_uart[0]
@@ -310,34 +310,47 @@ def linemark1():
         return
     
     mem2048_2111 = [0] * 64 # python bug exist here
-
-    for x3 in range(0,8):
+    x15 = 8
+    x3 = 0
+    x4 = 0
+    x5 = 0
+    x6 = 0
+    mem_any = [46341, 65536, 12868]
+    while x3 != x15:
         if x3 == 0:
-            Cu = 46341
+            x11 = mem_any[0]
         else:
-            Cu = 65536 
-        for x4 in range(0,8):
+            x11 = mem_any[1] 
+        while x4 != x15:
             if x4 == 0:
-                Cv = 46341
+                x12 = mem_any[0]
             else:
-                Cv = 65536
-            unit = 0
-            for x5 in range(0,8):
-                for x6 in range(0,8):
-                    temp = mem2112_2175[x6 + x5 * 8]
-                    x9 = (2*x5 + 1) * x3 * 12868
+                x12 = mem_any[1]
+            x14 = 0
+            while x5 != x15:
+                while x6 != x15:
+                    x13 = mem2112_2175[x6 + x5 * 8]
+                    x9 = (2*x5 + 1) * x3 * mem_any[2]
                     linemark2()
-                    temp = (temp * x1) >> 8
-                    x9 = (2*x6 + 1) * x4 * 12868
+                    x13 = (x13 * x1) >> 8
+                    x9 = (2*x6 + 1) * x4 * mem_any[2]
                     linemark2()
-                    temp = (temp * x1) >> 8
-                    unit += temp
-            temp = (Cu * Cv) >> 16
-            temp = (temp * unit) >> 32
-            temp = temp >> 2
-            if temp < 0:
-                temp += 1
-            mem2048_2111[x4 + x3 * 8] = temp
+                    x13 = (x13 * x1) >> 8
+                    x14 += x13
+
+                    x6 = x6 + 1
+                x6 = 0
+                x5 = x5 + 1
+            x13 = (x11 * x12) >> 16
+            x13 = (x13 * x14) >> 32
+            x13 = x13 >> 2
+            if x13 != 0:
+                x13 += 1
+            mem2048_2111[x4 + x3 * 8] = x13
+            x5 = 0
+            x4 = x4 + 1
+        x4 = 0
+        x3 = x3 + 1
 
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
@@ -604,12 +617,12 @@ while x1 != x4:
 # ------------------------------------------------------------------
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
-temp = 0
+x13 = 0
 while stack_space != 0:
-    temp = temp << 1
-    temp = temp + 1
+    x13 = x13 << 1
+    x13 = x13 + 1
     stack_space = stack_space + (-1)
-huffman_bit_stack[-1] += temp
+huffman_bit_stack[-1] += x13
 
 # String process, only for simulation usage
 hex_huffman_string = ''
