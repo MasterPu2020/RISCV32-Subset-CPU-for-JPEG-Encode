@@ -413,90 +413,83 @@ def linemark1():
         AC_CODE = 550
         AC_SIZE = 801
 
-    global temp_data, data, data_size # partly local
-
     def linemark3():
-        global temp_data, data, data_size
+        global x1, x2, x3
         temp_data_size = 0
         less = 0
-        if temp_data < 0:
-            temp_data = ~ temp_data + 1
+        if x1 < 0:
+            x1 = ~ x1 + 1
             less = 1
-        data = temp_data
-        while temp_data != 0:
-            temp_data = temp_data >> 1
+        x2 = x1
+        while x1 != 0:
+            x1 = x1 >> 1
             temp_data_size += 1
-        data_size = temp_data_size
+        x3 = temp_data_size
         if less == 1:
             trim = 0
             while temp_data_size != 0:
                 trim = (trim << 1) + 1
                 temp_data_size -= 1
-            data = (~ data) & trim
+            x2 = (~ x2) & trim
         return
 
-    # push_size must less than 32-bit
-    # start with: huffman_bit_stack = [0], stack_space = 32.
-    global push_bin, push_size # partly local
     def linemark4():
-        global stack_space, push_bin, push_size
+        global stack_space, x4, x5
         last_dword = huffman_bit_stack[-1]
-        if push_size <= stack_space:
-            last_dword = last_dword + (push_bin << (stack_space - push_size))
+        if x5 <= stack_space:
+            last_dword = last_dword + (x4 << (stack_space - x5))
             huffman_bit_stack[-1] = last_dword
-            stack_space = stack_space - push_size
+            stack_space = stack_space - x5
         else:
-            # fill last double word
-            last_dword = last_dword | (push_bin >> (push_size - stack_space))
+            last_dword = last_dword | (x4 >> (x5 - stack_space))
             huffman_bit_stack[-1] = last_dword 
-            # fill new double word
-            push_size = push_size - stack_space
-            bit = push_size
+            x5 = x5 - stack_space
+            bit = x5
             trim = 0
             while bit != 0:
                 trim = (trim << 1) + 1
                 bit -= 1
-            trim = trim & push_bin
-            stack_space = 32 - push_size
+            trim = trim & x4
+            stack_space = 32 - x5
             this_word = trim << stack_space
             huffman_bit_stack.append(this_word)
         return
     
-    # DC code
-    temp_data = mem2048_2111[0]
+    # DC
+    x1 = mem2048_2111[0]
     linemark3()
-    code = hufftable[DC_CODE + data_size]
-    code_size = hufftable[DC_SIZE + data_size]
-    push_bin = (code << data_size) + data # less than 32-bit: max code size=16, max data size=10
-    push_size = data_size + code_size
+    x6 = hufftable[DC_CODE + x3]
+    x7 = hufftable[DC_SIZE + x3]
+    x4 = (x6 << x3) + x2
+    x5 = x3 + x7
     linemark4()
 
-    # AC code
-    zero_counter = 0
+    # AC
+    x9 = 0
     for index in range(1,64):
         if mem2048_2111[index] == 0:
-            zero_counter += 1
+            x9 += 1
         else:
-            while zero_counter > 15: # zeros over than 15
-                zero_counter -= 16
-                push_bin = hufftable[AC_CODE + 240] # AC [F/0]
-                push_size = hufftable[AC_SIZE + 240]
+            while x9 > 15: # zeros over than 15
+                x9 -= 16
+                x4 = hufftable[AC_CODE + 240] # AC [F/0]
+                x5 = hufftable[AC_SIZE + 240]
                 linemark4()
             # Assembly
-            temp_data = mem2048_2111[index]
+            x1 = mem2048_2111[index]
             linemark3()
-            ac_index = (zero_counter << 4) + data_size
-            code = hufftable[AC_CODE + ac_index]
-            code_size = hufftable[AC_SIZE + ac_index]
-            push_bin = (code << data_size) + data # less than 32-bit: max code size=16, max data size=10
-            push_size = data_size + code_size
+            x8 = (x9 << 4) + x3
+            x6 = hufftable[AC_CODE + x8]
+            x7 = hufftable[AC_SIZE + x8]
+            x4 = (x6 << x3) + x2
+            x5 = x3 + x7
             linemark4()
-            zero_counter = 0
+            x9 = 0
     
     # EOB
-    if zero_counter != 0:
-        push_bin = hufftable[AC_CODE + 0] # AC [0/0]
-        push_size = hufftable[AC_SIZE + 0]
+    if x9 != 0:
+        x4 = hufftable[AC_CODE + 0] # AC [0/0]
+        x5 = hufftable[AC_SIZE + 0]
         linemark4()
 
     return this_dc_value 
