@@ -352,24 +352,17 @@ def linemark1():
 
     # 8x8 matrix subtraction: Sub Area 1
     # ------------------------------------------------------------------
-    x2 = 2047 + x0
-    x1 = 0 + x2
-    x2 = 64 + x2
+    x1 = 0
+    x2 = 64
     while x1 != x2:
-        x3 = lw(x1, 1)
+        x3 = lw(x1, 1408)
         x3 = x3 - 128
-        sw(x1, x3, 1)
-        x1 += 1
-    
+        sw(x1, x3, 1472)
+        sw(x1, x0, 1408)
+        x1 = x1 + 1
+
     # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
-    x1 = 2047 + x0
-    x2 = 64 + x1
-    while x1 != x2:
-        x3 = lw(x1, 1)
-        sw(x1, x3, 65)
-        sw(x1, x0, 1)
-        x1 = x1 + 1
 
     def linemark2(): 
         global x0, x1, x2, x7, x8, x9, x10, x20, x21, x22, x23
@@ -453,8 +446,7 @@ def linemark1():
                 while x6 != x15:
                     x16 = x5 * x15
                     x16 = x16 + x6
-                    x16 = 2047 + x16
-                    x13 = lw(x16, 65)
+                    x13 = lw(x16, 1472)
                     x9 = x17 * x5
                     x9 = x9 + 1
                     x9 = x9 * x3
@@ -486,8 +478,7 @@ def linemark1():
                 x13 = x13 + 1
             x16 = x3 * x15
             x16 = x4 + x16
-            x16 = x16 + 2047
-            sw(x16, x13, 1)
+            sw(x16, x13, 1408)
             x5 = 0
             x4 = x4 + 1
         x4 = 0
@@ -502,12 +493,11 @@ def linemark1():
     x5 = 64 + x0 
     while x1 != x5:
         x6 = x1 + x2
-        x7 = x1 + 2047
         x3 = lw(x6, 0)
-        x4 = lw(x7, 1)
+        x4 = lw(x1, 1408)
         x3 = (x3 * x4) >> 31
-        sw(x7, x0, 1)
-        sw(x7, x3, 65)
+        sw(x1, x0, 1408)
+        sw(x1, x3, 1472)
         x1 = x1 + 1
 
     # Zigzag Scan: Sub Area 4
@@ -521,10 +511,9 @@ def linemark1():
     x7 = 8
     x9 = 1
     # Differential DC Value:
-    x10 = 2047 + x0
-    x27 = lw(x10, 65)
+    x27 = lw(x0, 1472)
     x11 = x27 - x29
-    sw(x10, x11, 1)
+    sw(x0, x11, 1408)
     while True:
         if x1 == x0 or x1 == x6:
             x2 += 1
@@ -538,10 +527,8 @@ def linemark1():
             x5 += 1
             x12 = x2 * x7
             x12 = x12 + x1
-            x12 = x12 + x10
-            x11 = lw(x12, 65)
-            x13 = x10 + x5
-            sw(x13, x11, 1)
+            x11 = lw(x12, 1472)
+            sw(x5, x11, 1408)
         if x1 == x6 and x2 == x6:
             break
         x5 += 1
@@ -549,10 +536,8 @@ def linemark1():
         x2 += x3
         x12 = x2 * x7
         x12 = x12 + x1
-        x12 = x12 + x10
-        x11 = lw(x12, 65)
-        x13 = x10 + x5
-        sw(x13, x11, 1)
+        x11 = lw(x12, 1472)
+        sw(x5, x11, 1408)
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
@@ -619,8 +604,7 @@ def linemark1():
         return
     
     # DC
-    x14 = 2047
-    x1 = lw(x14, 1)
+    x1 = lw(x0, 1408)
     linemark3()
     x14 = x10 + x3
     x6 = lw(x14, 0)
@@ -636,9 +620,7 @@ def linemark1():
     x21 = 64
     x22 = 15
     while x20 != x21:
-        x14 = 2047
-        x14 = x20 + x14
-        x15 = lw(x14, 1)
+        x15 = lw(x20, 1408)
         if x15 == x0:
             x9 = x9 + 1
         else:
@@ -648,9 +630,7 @@ def linemark1():
                 x5 = lw(x13, 240)
                 linemark4()
             # Assembly
-            x14 = 2047
-            x14 = x20 + x14
-            x1 = lw(x14, 1)
+            x1 = lw(x20, 1408)
             linemark3()
             x8 = x9 << 4
             x8 = x8 + x3
@@ -692,8 +672,6 @@ x2 = 0 + x0
 x3 = 0 + x0
 
 while x1 != x4:
-    x5 = 2047 + x0
-    x5 = x5 + x2
     x6 = img_row[x1 + 0]
     sw(x2, x6, 1216)
     x6 = img_row[x1 + 1]
@@ -708,13 +686,11 @@ while x1 != x4:
     if x2 == x6:
         sw(x0, x1, 1201)
         sw(x0, x3, 1203)
-        x5 = 2047 + x0
         x6 = 64 + x0
         x7 = 0 + x0
         while x7 != x6:
-            x8 = x7 + x5
             x9 = lw(x7, 1216)
-            sw(x8, x9, 1)
+            sw(x7, x9, 1408)
             x7 = x7 + 1
         x29 = lw(x0, 1204)
         x28 = 0 
@@ -722,27 +698,23 @@ while x1 != x4:
         sw(x0, x27, 1204)
         x3 = lw(x0, 1203)
         if x3 == 3:
-            x5 = 2047 + x0
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6:
-                x8 = x7 + x5
                 x9 = lw(x7, 1280)
                 x9 = x9 >> 2 
-                sw(x8, x9, 1)
+                sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1205)
             x28 = 1 
             linemark1() 
             sw(x0, x27, 1205)
-            x5 = 2047 + x0
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6:
-                x8 = x7 + x5
                 x9 = lw(x7, 1344)
                 x9 = x9 >> 2
-                sw(x8, x9, 1)
+                sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1206)
             x28 = 2
