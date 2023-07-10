@@ -8,6 +8,12 @@
 # Author: Clark Pu
 # -------------------------------------
 
+# if x0 != x1, then () <=> skip () if x0 == x1 # this go downwards
+# if x0 == x1, then () <=> skip () if x0 != x1 # this go downwards
+# while x0 != x1, then () <=> loop () until x0 != x1 # this go upwards
+# while x0 == x1, then () <=> loop () until x0 == x1 # this go upwards
+# break <=> x1 = 1, goto () if x0 != x1 # this go anywhere
+
 import base64
 
 mem0_11 = [0, 2, 3, 4, 5, 6, 14, 30, 62, 126, 254, 510]
@@ -87,8 +93,23 @@ mem1052_1115 = [4294967296] * 64 # 1 << 32 (/1)
 mem1116_1179 = [4294967296] * 64
 quantable = mem1052_1115 + mem1116_1179
 mem1180_1186 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
+
+global mem
+mem = [0] * 4096
 global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
 x0 = 0
+
+# sw mem(imm + rs1) <- rs2
+def sw(xoffset, data32, immoffset):
+    global mem
+    mem[immoffset + xoffset] = data32
+
+# mem(imm + rs1) -> rd
+def lw(xoffset, immoffset):
+    global mem
+    data32 = mem[immoffset + xoffset]
+    return data32
+
 
 # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
 def get_row(file_path:str):
@@ -116,6 +137,9 @@ print('\n')
 # Image read
 img_row = [] # YCbCr image in real RAM, it is an 8-bit stack
 img_row_in_uart = get_row(file_path+'.row')
+
+# initiate memory
+mem[0:1186] = hufftable + quantable + mem1180_1186
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 1: Re-order Minimum coded unit(MCU)
@@ -316,12 +340,13 @@ def linemark1():
 
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
-    x1 = 0
-    quantable_offset = 0
-    if mode != 0:
-        quantable_offset = 64
+    x1 = 0 + x0
+    x2 = 64 + x0
+    x3 = 64 + x0
+    if mode == 0:
+        x3 = 0 + x0
     while x1 != 64:
-        mem2048_2111[x1] = (mem2048_2111[x1] * quantable[x1 + quantable_offset]) >> 32 # take top 32-bit of the mul result
+        mem2048_2111[x1] = (mem2048_2111[x1] * quantable[x1 + x3]) >> 32 # take top 32-bit of the mul result
         x1 += 1
 
     # Zigzag Scan: Sub Area 4
@@ -497,15 +522,15 @@ while x1 != x4:
     x5 = 2047 + x0
     x5 = x5 + x2
     x6 = img_row[x1 + 0]
-    mem2176_2239[x5 + 129 - (2176)] = x6
+    sw(x5, x6, 129)
     x6 = img_row[x1 + 1]
-    x7 = mem2240_2303[x5 + 175 - (2240)]
+    x7 = lw(x5, 193)
     x6 = x6 + x7
-    mem2240_2303[x5 + 175 - (2240)] = x6
+    sw(x5, x6, 193)
     x6 = img_row[x1 + 2]
-    x7 = mem2304_2367[x5 + 239 - (2304)]
+    x7 = lw(x5, 257)
     x6 = x6 + x7
-    mem2304_2367[x5 + 239 - (2304)] = x6 # free x5 ~ x7
+    sw(x5, x6, 257)
     x6 = 63 + x0
     if x2 == x6: # Block encode and subsampling
         # protect regfile area 3
@@ -517,7 +542,7 @@ while x1 != x4:
         x7 = 0 + x0
         while x7 != x6:
             x8 = x7 + x5
-            x9 = mem2176_2239[x8 + 129 - (2176)]
+            x9 = lw(x8, 129)
             mem2048_2111[x8 + 1 - (2048)] = x9
             x7 = x7 + 1
         # ----------------- RegFile Work Aera 2 Interface Start -----------------
@@ -533,7 +558,7 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x8 = x7 + x5
-                x9 = mem2240_2303[x8 + 175 - (2240)]
+                x9 = lw(x8, 193)
                 x9 = x9 >> 2 # NOT logic shift
                 mem2048_2111[x8 + 1 - (2048)] = x9
                 x7 = x7 + 1
@@ -547,7 +572,7 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x8 = x7 + x5
-                x9 = mem2304_2367[x8 + 239 - (2304)]
+                x9 = lw(x8, 257)
                 x9 = x9 >> 2
                 mem2048_2111[x8 + 1 - (2048)] = x9
                 x7 = x7 + 1
@@ -561,8 +586,8 @@ while x1 != x4:
             x6 = 64 + x6
             x7 = 2047 + x0
             while x7 != x6:
-                mem2240_2303[x7 + 175 - (2240)] = x0
-                mem2304_2367[x7 + 239 - (2304)] = x0
+                sw(x7, x0, 193)
+                sw(x7, x0, 257)
                 x7 = x7 + 1
             x3 = 0 + x0
         else:
