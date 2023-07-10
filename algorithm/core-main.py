@@ -607,42 +607,51 @@ def linemark1():
 
     # AC
     x9 = 0
-    for index in range(1,64):
-        if mem2048_2111[index] == 0:
-            x9 += 1
+    x20 = 1
+    x21 = 64
+    x22 = 15
+    while x20 != x21:
+        x14 = 2047
+        x14 = x20 + x14
+        x15 = lw(x14, 1)
+        if x15 == x0:
+            x9 = x9 + 1
         else:
-            while x9 > 15: # zeros over than 15
-                x9 -= 16
-                x4 = mem[x12 + 240] # AC [F/0]
-                x5 = mem[x13 + 240]
+            while x9 > x22: # zeros over than 15
+                x9 = x9 - 16
+                x4 = lw(x12, 240)
+                x5 = lw(x13, 240)
                 linemark4()
             # Assembly
-            x1 = mem2048_2111[index]
+            x14 = 2047
+            x14 = x20 + x14
+            x1 = lw(x14, 1)
             linemark3()
-            x8 = (x9 << 4) + x3
-            x6 = mem[x12 + x8]
-            x7 = mem[x13 + x8]
-            x4 = (x6 << x3) + x2
+            x8 = x9 << 4
+            x8 = x8 + x3
+            x14 = x12 + x8
+            x6 = lw(x14, 0)
+            x14 = x13 + x8
+            x7 = lw(x14, 0)
+            x4 = x6 << x3
+            x4 = x4 + x2
             x5 = x3 + x7
             linemark4()
             x9 = 0
+        x20 = x20 + 1
 
     # EOB
     if x9 != 0:
-        x4 = mem[x12 + 0] # AC [0/0]
-        x5 = mem[x13 + 0]
+        x4 = lw(x12, 0)
+        x5 = lw(x13, 0)
         linemark4()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
 # ------------------------------------------------------------------
 
-# Y Cb Cr subsampling and encode
 mem2048_2111 = [0] * 64 # block for calculation
 mem2112_2175 = [0] * 64 # block for calculation
-# mem2176-2239# Y image block
-# mem2240-2303# U image block
-# mem2304-2367# V image block
 
 index = 0
 counter = 0
