@@ -249,7 +249,14 @@ sw(x0, x2, 1213)
 x1 = -790273982
 sw(x0, x1, 1214)
 x1 = -152471339
-sw(x0, x1, 1215) # block start here
+sw(x0, x1, 1215) 
+
+# block start here
+# 1216 Y
+# 1280 U
+# 1344 V
+# 1408 Block
+# 1472 MidBlock
 
 x1 = 0
 x2 = 0
@@ -688,15 +695,15 @@ while x1 != x4:
     x5 = 2047 + x0
     x5 = x5 + x2
     x6 = img_row[x1 + 0]
-    sw(x5, x6, 129)
+    sw(x2, x6, 1216)
     x6 = img_row[x1 + 1]
-    x7 = lw(x5, 193)
+    x7 = lw(x2, 1280)
     x6 = x6 + x7
-    sw(x5, x6, 193)
+    sw(x2, x6, 1280)
     x6 = img_row[x1 + 2]
-    x7 = lw(x5, 257)
+    x7 = lw(x2, 1344)
     x6 = x6 + x7
-    sw(x5, x6, 257)
+    sw(x2, x6, 1344)
     x6 = 63 + x0
     if x2 == x6:
         sw(x0, x1, 1201)
@@ -706,7 +713,7 @@ while x1 != x4:
         x7 = 0 + x0
         while x7 != x6:
             x8 = x7 + x5
-            x9 = lw(x8, 129)
+            x9 = lw(x7, 1216)
             sw(x8, x9, 1)
             x7 = x7 + 1
         x29 = lw(x0, 1204)
@@ -720,7 +727,7 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x8 = x7 + x5
-                x9 = lw(x8, 193)
+                x9 = lw(x7, 1280)
                 x9 = x9 >> 2 
                 sw(x8, x9, 1)
                 x7 = x7 + 1
@@ -733,7 +740,7 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x8 = x7 + x5
-                x9 = lw(x8, 257)
+                x9 = lw(x7, 1344)
                 x9 = x9 >> 2
                 sw(x8, x9, 1)
                 x7 = x7 + 1
@@ -741,12 +748,11 @@ while x1 != x4:
             x28 = 2
             linemark1()
             sw(x0, x27, 1206)
-            x6 = 2047 + x0
-            x6 = 64 + x6
-            x7 = 2047 + x0
+            x6 = 64 + x0
+            x7 = 0 + x0
             while x7 != x6:
-                sw(x7, x0, 193)
-                sw(x7, x0, 257)
+                sw(x7, x0, 1280)
+                sw(x7, x0, 1344)
                 x7 = x7 + 1
             x3 = 0 + x0
         else:
@@ -793,7 +799,7 @@ while i < len(hex_huffman_string) / 2:
 hex_huffman_string = new_huffstring
 
 print('\r [Finished] Size:', int(len(hex_huffman_string) / 8), 'words.          \n')
-print(hex_huffman_string)
+# print(hex_huffman_string)
 
 # Generate file
 file_hex = 'FFD8FFE000104A46494600010100000100010000'
