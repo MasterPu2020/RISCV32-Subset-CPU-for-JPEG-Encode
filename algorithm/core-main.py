@@ -544,9 +544,10 @@ def linemark1():
         x13 = 801
 
     def linemark3():
-        global x1, x2, x3, x14, x15, x16
+        global x1, x2, x3, x14, x15, x16, x17
         x14 = 0
         x15 = 0
+        x17 = 1
         if x1 < x0:
             x1 = ~ x1 + 1
             x15 = 1
@@ -555,7 +556,7 @@ def linemark1():
             x1 = x1 >> 1
             x14 = x14 + 1
         x3 = x14
-        if x15 == 1:
+        if x15 == x17:
             x16 = 0
             while x14 != x0:
                 x16 = x16 << 1
@@ -566,14 +567,18 @@ def linemark1():
         return
 
     def linemark4():
-        global x26, x4, x5, x14, x15, x16, x17
+        global x26, x4, x5, x14, x15, x16, x17, x18
         x14 = huffman_bit_stack[-1]
         if x5 <= x26:
-            x14 = x14 + (x4 << (x26 - x5))
+            x18 = x26 - x5
+            x18 = x4 << x18
+            x14 = x14 + x18
             huffman_bit_stack[-1] = x14
             x26 = x26 - x5
         else:
-            x14 = x14 | (x4 >> (x5 - x26))
+            x18 = x5 - x26
+            x18 = x4 >> x18
+            x14 = x14 | x18
             huffman_bit_stack[-1] = x14 
             x5 = x5 - x26
             x15 = x5
@@ -589,10 +594,13 @@ def linemark1():
         return
     
     # DC
-    x1 = mem2048_2111[0]
+    x14 = 2047
+    x1 = lw(x14, 1)
     linemark3()
-    x6 = mem[x10 + x3]
-    x7 = mem[x11 + x3]
+    x14 = x10 + x3
+    x6 = lw(x14, 0) # mem[x10 + x3]
+    x14 = x11 + x3
+    x7 = lw(x14, 0) # mem[x11 + x3]
     x4 = (x6 << x3) + x2
     x5 = x3 + x7
     linemark4()
