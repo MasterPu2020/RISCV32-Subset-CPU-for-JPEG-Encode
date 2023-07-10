@@ -547,20 +547,22 @@ def linemark1():
         global x1, x2, x3, x14, x15, x16
         x14 = 0
         x15 = 0
-        if x1 < 0:
+        if x1 < x0:
             x1 = ~ x1 + 1
             x15 = 1
         x2 = x1
-        while x1 != 0:
+        while x1 != x0:
             x1 = x1 >> 1
-            x14 += 1
+            x14 = x14 + 1
         x3 = x14
         if x15 == 1:
             x16 = 0
-            while x14 != 0:
-                x16 = (x16 << 1) + 1
-                x14 -= 1
-            x2 = (~ x2) & x16
+            while x14 != x0:
+                x16 = x16 << 1
+                x16 = x16 + 1
+                x14 = x14 - 1
+            x2 = ~ x2
+            x2 = x2 & x16
         return
 
     def linemark4():
@@ -577,8 +579,9 @@ def linemark1():
             x15 = x5
             x16 = 0
             while x15 != 0:
-                x16 = (x16 << 1) + 1
-                x15 -= 1
+                x16 = x16 << 1
+                x16 = x16 + 1
+                x15 = x15 - 1
             x16 = x16 & x4
             x26 = 32 - x5
             x17 = x16 << x26
