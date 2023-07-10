@@ -270,53 +270,52 @@ def linemark1():
     # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
     # CORDIC local cosine function
-    global target # partly local
 
     mem2112_2175 = mem2048_2111
-    def linemark2(): # target been << 16
-        global target, x1 # partly local
-        inverse = False
-        while target > 205887:
-            target = target - 411775
-        if target > 102944:
-            inverse = True
-            target = target - 205887
-        elif target < -102944:
-            inverse = True
-            target = target + 205887
-        theta = 0 # Initial angle: 0 degree
-        x3 = [0, 0, 0, 0, 0, 0, 0] # clockwise is 1, anticlockwise is -1
-        x7 = 0 # iteration of the routation x3
+    def linemark2(): 
+        global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
+        x8 = 0
+        while x9 > 205887:
+            x9 = x9 - 411775
+        if x9 > 102944:
+            x8 = 1
+            x9 = x9 - 205887
+        elif x9 < -102944:
+            x8 = 1
+            x9 = x9 + 205887
+        x10 = 0 
+        mem_any = [0, 0, 0, 0, 0, 0, 0] 
+        x7 = 0 
         while x7 != 7:
-            if theta > target:
-                theta -= lw(x7, 1180)
-                x3[x7] = 1
+            if x10 > x9:
+                x10 -= lw(x7, 1180)
+                mem_any[x7] = 1
             else:
-                theta += lw(x7, 1180) # anticlockwise
-                x3[x7] = - 1
+                x10 += lw(x7, 1180)
+                mem_any[x7] = - 1
             x7 += 1
         x1 = 39797
         x2 = 0
         x7 = 6
         while x7 != -1:
-            if x3[x7] == 1:
+            if mem_any[x7] == 1:
                 x1 = x1 - (x2 >> x7)
                 x2 = (x1 >> x7) + x2
             else:
                 x1 = x1 + (x2 >> x7)
                 x2 = - (x1 >> x7) + x2
             x7 = x7 - 1
-        if inverse:
-            x1 = ~ x1 + 1 # integer been << 16 bit
+        if x8 == 1:
+            x1 = ~ x1 + 1
         return
     
     mem2048_2111 = [0] * 64 # python bug exist here
 
     for x3 in range(0,8):
         if x3 == 0:
-            Cu = 46341 # 1/root(2) << 16
+            Cu = 46341
         else:
-            Cu = 65536 # 1 << 16
+            Cu = 65536 
         for x4 in range(0,8):
             if x4 == 0:
                 Cv = 46341
@@ -326,16 +325,16 @@ def linemark1():
             for x5 in range(0,8):
                 for x6 in range(0,8):
                     temp = mem2112_2175[x6 + x5 * 8]
-                    target = (2*x5 + 1) * x3 * 12868
+                    x9 = (2*x5 + 1) * x3 * 12868
                     linemark2()
                     temp = (temp * x1) >> 8
-                    target = (2*x6 + 1) * x4 * 12868
+                    x9 = (2*x6 + 1) * x4 * 12868
                     linemark2()
                     temp = (temp * x1) >> 8
                     unit += temp
             temp = (Cu * Cv) >> 16
             temp = (temp * unit) >> 32
-            temp = temp >> 2 # divide 4
+            temp = temp >> 2
             if temp < 0:
                 temp += 1
             mem2048_2111[x4 + x3 * 8] = temp
@@ -601,7 +600,7 @@ while x1 != x4:
     print('\r [Process]: (', x1, '/', mcu_rows * mcu_cals * 768, ')', end='')
 
 # ------------------------------------------------------------------
-# RegFile Work Aera 3: Post Process
+# RegFile Work Aera 4: Post Process
 # ------------------------------------------------------------------
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
