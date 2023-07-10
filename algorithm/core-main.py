@@ -374,7 +374,6 @@ def linemark1():
         sw(x0, x0, 1195)
         sw(x0, x0, 1196)
         sw(x0, x0, 1197)
-        # mem[1191:1198] = [0, 0, 0, 0, 0, 0, 0] 
         x7 = 0 
         while x7 != 7:
             if x10 > x9: 
@@ -382,11 +381,11 @@ def linemark1():
                 x20 = ~ x20 + 1
                 x10 = x10 + x20
                 x21 = 1
-                mem[1191 + x7] = x21
+                sw(x7, x21, 1191)
             else:
                 x20 = lw(x7, 1180)
                 x10 = x10 + x20
-                mem[1191 + x7] = x0
+                sw(x7, x0, 1191)
             x7 = x7 + 1
         x1 = 39797 # dust will help
         x2 = 0
@@ -395,7 +394,7 @@ def linemark1():
         x23 = -1
         # extra instruction
         while x7 != x23:
-            x20 = mem[1191 + x7]
+            x20 = lw(x7, 1191)
             x22 = x2 >> x7
             if x20 == x21:
                 x22 = ~ x22 + 1
