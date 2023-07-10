@@ -137,7 +137,7 @@ file_path = './algorithm/test'
 print('\n')
 
 # Image read
-img_row = [] # YCbCr image in real RAM, it is an 8-bit stack
+img_row = [] # YCbCr image in real RAM, it is an 8-x15 stack
 img_row_in_uart = get_row(file_path+'.row')
 
 # initiate memory
@@ -403,63 +403,63 @@ def linemark1():
     # ------------------------------------------------------------------
     # 0 for Luminace
     if mode == 0:
-        DC_CODE = 0
-        DC_SIZE = 12
-        AC_CODE = 24
-        AC_SIZE = 275
+        x10 = 0
+        x11 = 12
+        x12 = 24
+        x13 = 275
     else:
-        DC_CODE = 526
-        DC_SIZE = 538
-        AC_CODE = 550
-        AC_SIZE = 801
+        x10 = 526
+        x11 = 538
+        x12 = 550
+        x13 = 801
 
     def linemark3():
-        global x1, x2, x3
-        temp_data_size = 0
-        less = 0
+        global x1, x2, x3, x14, x15, x16
+        x14 = 0
+        x15 = 0
         if x1 < 0:
             x1 = ~ x1 + 1
-            less = 1
+            x15 = 1
         x2 = x1
         while x1 != 0:
             x1 = x1 >> 1
-            temp_data_size += 1
-        x3 = temp_data_size
-        if less == 1:
-            trim = 0
-            while temp_data_size != 0:
-                trim = (trim << 1) + 1
-                temp_data_size -= 1
-            x2 = (~ x2) & trim
+            x14 += 1
+        x3 = x14
+        if x15 == 1:
+            x16 = 0
+            while x14 != 0:
+                x16 = (x16 << 1) + 1
+                x14 -= 1
+            x2 = (~ x2) & x16
         return
 
     def linemark4():
-        global stack_space, x4, x5
-        last_dword = huffman_bit_stack[-1]
+        global stack_space, x4, x5, x14, x15, x16, x17
+        x14 = huffman_bit_stack[-1]
         if x5 <= stack_space:
-            last_dword = last_dword + (x4 << (stack_space - x5))
-            huffman_bit_stack[-1] = last_dword
+            x14 = x14 + (x4 << (stack_space - x5))
+            huffman_bit_stack[-1] = x14
             stack_space = stack_space - x5
         else:
-            last_dword = last_dword | (x4 >> (x5 - stack_space))
-            huffman_bit_stack[-1] = last_dword 
+            x14 = x14 | (x4 >> (x5 - stack_space))
+            huffman_bit_stack[-1] = x14 
             x5 = x5 - stack_space
-            bit = x5
-            trim = 0
-            while bit != 0:
-                trim = (trim << 1) + 1
-                bit -= 1
-            trim = trim & x4
+            x15 = x5
+            x16 = 0
+            while x15 != 0:
+                x16 = (x16 << 1) + 1
+                x15 -= 1
+            x16 = x16 & x4
             stack_space = 32 - x5
-            this_word = trim << stack_space
-            huffman_bit_stack.append(this_word)
+            x17 = x16 << stack_space
+            huffman_bit_stack.append(x17)
         return
     
     # DC
     x1 = mem2048_2111[0]
     linemark3()
-    x6 = hufftable[DC_CODE + x3]
-    x7 = hufftable[DC_SIZE + x3]
+    x6 = mem[x10 + x3]
+    x7 = mem[x11 + x3]
     x4 = (x6 << x3) + x2
     x5 = x3 + x7
     linemark4()
@@ -472,24 +472,24 @@ def linemark1():
         else:
             while x9 > 15: # zeros over than 15
                 x9 -= 16
-                x4 = hufftable[AC_CODE + 240] # AC [F/0]
-                x5 = hufftable[AC_SIZE + 240]
+                x4 = mem[x12 + 240] # AC [F/0]
+                x5 = mem[x13 + 240]
                 linemark4()
             # Assembly
             x1 = mem2048_2111[index]
             linemark3()
             x8 = (x9 << 4) + x3
-            x6 = hufftable[AC_CODE + x8]
-            x7 = hufftable[AC_SIZE + x8]
+            x6 = mem[x12 + x8]
+            x7 = mem[x13 + x8]
             x4 = (x6 << x3) + x2
             x5 = x3 + x7
             linemark4()
             x9 = 0
-    
+
     # EOB
     if x9 != 0:
-        x4 = hufftable[AC_CODE + 0] # AC [0/0]
-        x5 = hufftable[AC_SIZE + 0]
+        x4 = mem[x12 + 0] # AC [0/0]
+        x5 = mem[x13 + 0]
         linemark4()
 
     return this_dc_value 
