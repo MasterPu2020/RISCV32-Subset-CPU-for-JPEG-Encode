@@ -317,7 +317,6 @@ while x2 != x28:
 # RegFile Work Aera 2: Huffman endcode
 # ------------------------------------------------------------------
 
-global mem2048_2111, mem2112_2175
 global huffman_bit_stack
 huffman_bit_stack = [0]
 x26 = 32
@@ -325,8 +324,7 @@ x26 = 32
 def linemark1():
     global x29, x28, x27, x26, x30, x31
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25
-    global mem2048_2111, mem2112_2175, x26
-    
+
     # 8x8 matrix subtraction: Sub Area 1
     # ------------------------------------------------------------------
     x2 = 2047 + x0
@@ -403,8 +401,6 @@ def linemark1():
             x1 = ~ x1 + 1
         return
     
-    # mem2048_2111 = [0] * 64 # python bug exist here
-
     x15 = 8
     x17 = 2
     x3 = 0
@@ -454,7 +450,6 @@ def linemark1():
             x13 = x13 >> 2
             if x13 != 0:
                 x13 = x13 + 1
-            # mem2048_2111[x4 + x3 * 8] = x13
             x16 = x3 * x15
             x16 = x4 + x16
             x16 = x16 + 2047
@@ -463,8 +458,6 @@ def linemark1():
             x4 = x4 + 1
         x4 = 0
         x3 = x3 + 1
-
-    # print(mem[2048:2112], mem2048_2111)
 
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
@@ -526,8 +519,6 @@ def linemark1():
         x11 = lw(x12, 65)
         x13 = x10 + x5
         sw(x13, x11, 1)
-
-    mem2048_2111 = mem[2048:2112]
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
@@ -649,9 +640,6 @@ def linemark1():
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
 # ------------------------------------------------------------------
-
-mem2048_2111 = [0] * 64 # block for calculation
-mem2112_2175 = [0] * 64 # block for calculation
 
 index = 0
 counter = 0
