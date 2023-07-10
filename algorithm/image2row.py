@@ -45,3 +45,5 @@ def convert(file):
     with open(file[:-4]+'.row', 'wb') as output_img:
         output_img.write(row_data)
     print('\r [ROW file Created]                        \n')
+
+convert('./algorithm/test.bmp')

@@ -16,6 +16,7 @@
 
 import base64
 
+#memory in word size, in real assembly code, always shift left 1 bit before use
 mem0_11 = [0, 2, 3, 4, 5, 6, 14, 30, 62, 126, 254, 510]
 mem12_23 = [2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9]
 mem24_274 = [
@@ -218,15 +219,15 @@ mem[0:1186] = hufftable + quantable + mem1180_1186
 # RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
 # Avialiable register remaind: x20 ~ x23
 # ------------------------------------------------------------------
+
 x28 = img_row_in_uart[0]
 x29 = img_row_in_uart[1]
-hight = x28
-width = x29
-# Pre-define variables
+sw(x0, x28, 1187)
+sw(x0, x28, 1188)
 x28 = x28 >> 4
 x27 = x29 >> 4
-mcu_rows = x28
-mcu_cals = x27
+sw(x0, x28, 1189)
+sw(x0, x27, 1190)
 
 x1 = 0
 x2 = 0
@@ -257,8 +258,6 @@ while x2 != x28:
                     while x6 != x25:
                         x15 = x29 * x6
                         x15 = x15 + x14
-                        # YCbCr convertion
-                        # RGB
                         x19 = 255
                         x16 = img_row_in_uart[x15]
                         x16 = x16 >> 16
@@ -268,7 +267,6 @@ while x2 != x28:
                         x17 = x17 & x19
                         x18 = img_row_in_uart[x15]
                         x18 = x18 & x19
-                        # Y
                         x19 = 1103806595
                         x19 = (x19 * x16) >> 32
                         x30 = 2422361555
@@ -279,7 +277,6 @@ while x2 != x28:
                         x19 = x19 + x30
                         x19 = x19 + 16
                         img_row.append(x19)
-                        # Cb
                         x19 = -635655160
                         x19 = (x19 * x16) >> 32 
                         x30 = -1249835483
@@ -290,7 +287,6 @@ while x2 != x28:
                         x19 = x19 + x30
                         x19 = x19 + 128
                         img_row.append(x19)
-                        # Cr
                         x19 = -1580547965
                         x19 = (x19 * x17) >> 32 
                         x30 = 1885490643
@@ -321,6 +317,13 @@ global huffman_bit_stack
 huffman_bit_stack = [0]
 x26 = 32
 
+x23 = 46341
+sw(x0, x23, 1198)
+x23 = 65536
+sw(x0, x23, 1199)
+x23 = 12868
+sw(x0, x23, 1200)
+
 def linemark1():
     global x29, x28, x27, x26, x30, x31
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25
@@ -343,11 +346,11 @@ def linemark1():
     while x1 != x2:
         x3 = lw(x1, 1)
         sw(x1, x3, 65)
-        sw(x1, x0, 1) ### bug reflect here
+        sw(x1, x0, 1)
         x1 = x1 + 1
 
     def linemark2(): 
-        global x0, x1, x2, x7, x8, x9, x10, x20, x21, x22, x23, x24, x25, x26
+        global x0, x1, x2, x7, x8, x9, x10, x20, x21, x22, x23
         x8 = 0
         x20 = 205887 # dust will help
         x21 = - 411775 # dust will help
@@ -364,7 +367,14 @@ def linemark1():
                 x8 = 1
                 x9 = x9 + x20
         x10 = 0 
-        mem_any = [0, 0, 0, 0, 0, 0, 0] 
+        sw(x0, x0, 1191)
+        sw(x0, x0, 1192)
+        sw(x0, x0, 1193)
+        sw(x0, x0, 1194)
+        sw(x0, x0, 1195)
+        sw(x0, x0, 1196)
+        sw(x0, x0, 1197)
+        # mem[1191:1198] = [0, 0, 0, 0, 0, 0, 0] 
         x7 = 0 
         while x7 != 7:
             if x10 > x9: 
@@ -372,11 +382,11 @@ def linemark1():
                 x20 = ~ x20 + 1
                 x10 = x10 + x20
                 x21 = 1
-                mem_any[x7] = x21
+                mem[1191 + x7] = x21
             else:
                 x20 = lw(x7, 1180)
                 x10 = x10 + x20
-                mem_any[x7] = x0
+                mem[1191 + x7] = x0
             x7 = x7 + 1
         x1 = 39797 # dust will help
         x2 = 0
@@ -385,7 +395,7 @@ def linemark1():
         x23 = -1
         # extra instruction
         while x7 != x23:
-            x20 = mem_any[x7]
+            x20 = mem[1191 + x7]
             x22 = x2 >> x7
             if x20 == x21:
                 x22 = ~ x22 + 1
@@ -407,17 +417,16 @@ def linemark1():
     x4 = 0
     x5 = 0
     x6 = 0
-    mem_any = [46341, 65536, 12868]
     while x3 != x15:
         if x3 == 0:
-            x11 = mem_any[0]
+            x11 = lw(x0, 1198)
         else:
-            x11 = mem_any[1] 
+            x11 = lw(x0, 1199)
         while x4 != x15:
             if x4 == 0:
-                x12 = mem_any[0]
+                x12 = lw(x0, 1198)
             else:
-                x12 = mem_any[1]
+                x12 = lw(x0, 1199)
             x14 = 0
             while x5 != x15:
                 while x6 != x15:
@@ -428,14 +437,16 @@ def linemark1():
                     x9 = x17 * x5
                     x9 = x9 + 1
                     x9 = x9 * x3
-                    x9 = x9 * mem_any[2]
+                    x23 = lw(x0, 1200)
+                    x9 = x9 * x23
                     linemark2()
                     x13 = x13 * x1
                     x13 = x13 >> 8
                     x9 = x17 * x6
                     x9 = x9 + 1
                     x9 = x9 * x4
-                    x9 = x9 * mem_any[2]
+                    x23 = lw(x0, 1200)
+                    x9 = x9 * x23
                     linemark2()
                     x13 = x13 * x1
                     x13 = x13 >> 8
@@ -589,9 +600,9 @@ def linemark1():
     x1 = lw(x14, 1)
     linemark3()
     x14 = x10 + x3
-    x6 = lw(x14, 0) # mem[x10 + x3]
+    x6 = lw(x14, 0)
     x14 = x11 + x3
-    x7 = lw(x14, 0) # mem[x11 + x3]
+    x7 = lw(x14, 0)
     x4 = (x6 << x3) + x2
     x5 = x3 + x7
     linemark4()
@@ -641,25 +652,23 @@ def linemark1():
 # RegFile Work Aera 3: Sampling
 # ------------------------------------------------------------------
 
-index = 0
-counter = 0
-block_counter = 0
-last_dc_value_y = 0
-last_dc_value_cb = 0
-last_dc_value_cr = 0
-
+sw(x0, x0, 1201)
+sw(x0, x0, 1202)
+sw(x0, x0, 1203)
+sw(x0, x0, 1204)
+sw(x0, x0, 1205)
+sw(x0, x0, 1206)
 x1 = 768 + x0
-x2 = mcu_rows
+x2 = lw(x0, 1189)
 x1 = x1 * x2
-x2 = mcu_cals
-# protection needed registers:
-x4 = x1 * x2 # maxline
-x1 = 0 + x0 # index
-x2 = 0 + x0 # counter
-x3 = 0 + x0 # block_counter
+x2 = lw(x0, 1190)
+x4 = x1 * x2
+sw(x0, x4, 1207) # block start here
+x1 = 0 + x0
+x2 = 0 + x0
+x3 = 0 + x0
 
 while x1 != x4:
-    # Sampling
     x5 = 2047 + x0
     x5 = x5 + x2
     x6 = img_row[x1 + 0]
@@ -673,11 +682,9 @@ while x1 != x4:
     x6 = x6 + x7
     sw(x5, x6, 257)
     x6 = 63 + x0
-    if x2 == x6: # Block encode and subsampling
-        # protect regfile area 3
-        index = x1 # store x1
-        block_counter = x3 # store x3
-        maxline = x4 # store x4
+    if x2 == x6:
+        sw(x0, x1, 1201)
+        sw(x0, x3, 1203)
         x5 = 2047 + x0
         x6 = 64 + x0
         x7 = 0 + x0
@@ -686,29 +693,25 @@ while x1 != x4:
             x9 = lw(x8, 129)
             sw(x8, x9, 1)
             x7 = x7 + 1
-        # ----------------- RegFile Work Aera 2 Interface Start -----------------
-
-        x29 = last_dc_value_y # interface exchange data
-        x28 = 0 # interface exchange data
-        linemark1() # returnmark1_0
-        last_dc_value_y = x27 # interface exchange data
-        x3 = block_counter # restore x3
+        x29 = lw(x0, 1204)
+        x28 = 0 
+        linemark1() 
+        sw(x0, x27, 1204)
+        x3 = lw(x0, 1203)
         if x3 == 3:
-            # Cb Block encode
             x5 = 2047 + x0
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6:
                 x8 = x7 + x5
                 x9 = lw(x8, 193)
-                x9 = x9 >> 2 # NOT logic shift
+                x9 = x9 >> 2 
                 sw(x8, x9, 1)
                 x7 = x7 + 1
-            x29 = last_dc_value_cb # interface exchange data
-            x28 = 1 # interface exchange data
-            linemark1() # returnmark1_1
-            last_dc_value_cb = x27 # interface exchange data
-            # Cr Block encode
+            x29 = lw(x0, 1205)
+            x28 = 1 
+            linemark1() 
+            sw(x0, x27, 1205)
             x5 = 2047 + x0
             x6 = 64 + x0
             x7 = 0 + x0
@@ -718,12 +721,10 @@ while x1 != x4:
                 x9 = x9 >> 2
                 sw(x8, x9, 1)
                 x7 = x7 + 1
-            x29 = last_dc_value_cr# interface exchange data
-            x28 = 2 # interface exchange data
-            linemark1() # returnmark1_1
-            last_dc_value_cr = x27# interface exchange data
-            # ----------------- RegFile Work Aera 2 Interface End -----------------
-            # Clear for re-sampling
+            x29 = lw(x0, 1206)
+            x28 = 2
+            linemark1()
+            sw(x0, x27, 1206)
             x6 = 2047 + x0
             x6 = 64 + x6
             x7 = 2047 + x0
@@ -734,13 +735,13 @@ while x1 != x4:
             x3 = 0 + x0
         else:
             x3 = x3 + 1
-        x2 = 0 + x0  # clear counter
-        x1 = index   # restore x1
-        x4 = maxline # restore x4
+        x2 = 0 + x0
+        x1 = lw(x0, 1201)
+        x4 = lw(x0, 1207)
     else:
         x2 += 1
     x1 += 3
-    print('\r [Process]: (', x1, '/', mcu_rows * mcu_cals * 768, ')', end='')
+    print('\r [Process]: (', x1, '/', mem[1189] * mem[1190] * 768, ')', end='')
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 4: Post Process
@@ -775,7 +776,7 @@ while i < len(hex_huffman_string) / 2:
     i += 1
 hex_huffman_string = new_huffstring
 
-print('\r [Finished] Size:', int(len(hex_huffman_string) / 2), 'bytes.          \n')
+print('\r [Finished] Size:', int(len(hex_huffman_string) / 8), 'words.          \n')
 
 # Generate file
 file_hex = 'FFD8FFE000104A46494600010100000100010000'
@@ -788,8 +789,8 @@ file_hex += 'FFDB004301'
 for byte in quantable[64:]:
     file_hex += '0' * (2 - len(hex(byte >> 32)[2:])) + hex(byte >> 32)[2:].upper()
 
-lines = '0' * (4 - len( hex(hight)[2:])) + hex(hight)[2:].upper()
-samples_per_line = '0' * (4 - len( hex(width)[2:])) + hex(width)[2:].upper()
+lines = '0' * (4 - len( hex(mem[1187])[2:])) + hex(mem[1187])[2:].upper()
+samples_per_line = '0' * (4 - len( hex(mem[1188])[2:])) + hex(mem[1188])[2:].upper()
 file_hex += 'FFC0001108' + lines + samples_per_line + '03012200021101031101'
 
 file_hex += 'FFC4001F0000010501010101010100000000000000000102030405060708090A0BFFC400B5100002010303020403050504040000017D01020300041105122131410613516107227114328191A1082342B1C11552D1F02433627282090A161718191A25262728292A3435363738393A434445464748494A535455565758595A636465666768696A737475767778797A838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE1E2E3E4E5E6E7E8E9EAF1F2F3F4F5F6F7F8F9FAFFC4001F0100030101010101010101010000000000000102030405060708090A0BFFC400B51100020102040403040705040400010277000102031104052131061241510761711322328108144291A1B1C109233352F0156272D10A162434E125F11718191A262728292A35363738393A434445464748494A535455565758595A636465666768696A737475767778797A82838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE2E3E4E5E6E7E8E9EAF2F3F4F5F6F7F8F9FA'
