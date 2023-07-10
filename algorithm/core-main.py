@@ -102,11 +102,13 @@ x0 = 0
 # sw mem(imm + rs1) <- rs2
 def sw(xoffset, data32, immoffset):
     global mem
+    assert immoffset in range(-2**12, 2**12-1), '\nSave word, imm out of range.'
     mem[immoffset + xoffset] = data32
 
 # mem(imm + rs1) -> rd
 def lw(xoffset, immoffset):
     global mem
+    assert immoffset in range(-2**12, 2**12-1), '\nLoad word, imm out of range.'
     data32 = mem[immoffset + xoffset]
     return data32
 
@@ -283,21 +285,21 @@ def linemark1():
             inverse = True
             target = target + 205887
         theta = 0 # Initial angle: 0 degree
-        direction = [0, 0, 0, 0, 0, 0, 0] # clockwise is 1, anticlockwise is -1
-        x7 = 0 # iteration of the routation direction
+        x3 = [0, 0, 0, 0, 0, 0, 0] # clockwise is 1, anticlockwise is -1
+        x7 = 0 # iteration of the routation x3
         while x7 != 7:
             if theta > target:
-                theta -= mem1180_1186[x7] # clockwise
-                direction[x7] = 1
+                theta -= lw(x7, 1180)
+                x3[x7] = 1
             else:
-                theta += mem1180_1186[x7] # anticlockwise
-                direction[x7] = - 1
+                theta += lw(x7, 1180) # anticlockwise
+                x3[x7] = - 1
             x7 += 1
         x1 = 39797
         x2 = 0
         x7 = 6
         while x7 != -1:
-            if direction[x7] == 1:
+            if x3[x7] == 1:
                 x1 = x1 - (x2 >> x7)
                 x2 = (x1 >> x7) + x2
             else:
@@ -340,47 +342,45 @@ def linemark1():
 
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
-    x1 = 0 + x0
-    x2 = 64 + x0
-    x3 = 64 + x0
+    x1 = 1116 + x0
     if mode == 0:
-        x3 = 0 + x0
-    while x1 != 64:
-        mem2048_2111[x1] = (mem2048_2111[x1] * quantable[x1 + x3]) >> 32 # take top 32-bit of the mul result
-        x1 += 1
+        x1 = 1052 + x0
+    x2 = x1 + 64
+    while x1 != x2:
+        x3 = lw(x1, 0)
+        x4 = mem2048_2111[x1 - (x2 - 64)]
+        x3 = (x3 * x4) >> 32
+        mem2048_2111[x1 - (x2 - 64)] = x3
+        x1 = x1 + 1
 
     # Zigzag Scan: Sub Area 4
     # ------------------------------------------------------------------
-    z = mem2048_2111
+    mem2112_2175 = mem2048_2111
     x1 = 0
     x2 = 0
-    x7 = 0
+    x5 = 0
     mem2048_2111 = [0] * 64
-    direction = 1
-    is_edge = 0
-    mem2048_2111[0] = z[0]
+    x3 = 1
+    x4 = 0
+    mem2048_2111[0] = mem2112_2175[0]
     while True:
-        # meet edge
         if x1 == 0 or x1 == 7:
             x2 += 1
-            is_edge = 1
+            x4 = 1
         elif x2 == 0 or x2 == 7:
             x1 += 1
-            is_edge = 1
-        # If is edge
-        if is_edge == 1:
-            is_edge = 0
-            direction = - direction
-            x7 += 1
-            mem2048_2111[x7] = z[x2 * 8 + x1]
-        # if is end
+            x4 = 1
+        if x4 == 1:
+            x4 = 0
+            x3 = - x3
+            x5 += 1
+            mem2048_2111[x5] = mem2112_2175[x2 * 8 + x1]
         if x1 == 7 and x2 == 7:
             break
-        # normally forwarding
-        x7 += 1
-        x1 -= direction
-        x2 += direction
-        mem2048_2111[x7] = z[x2 * 8 + x1]
+        x5 += 1
+        x1 -= x3
+        x2 += x3
+        mem2048_2111[x5] = mem2112_2175[x2 * 8 + x1]
 
     # Differential DC Value: Sub Area 5
     # ------------------------------------------------------------------
@@ -496,9 +496,9 @@ def linemark1():
 # Y Cb Cr subsampling and encode
 mem2048_2111 = [0] * 64 # block for calculation
 mem2112_2175 = [0] * 64 # block for calculation
-mem2176_2239 = [0] * 64 # Y image block
-mem2240_2303 = [0] * 64 # U image block
-mem2304_2367 = [0] * 64 # V image block
+# mem2176-2239# Y image block
+# mem2240-2303# U image block
+# mem2304-2367# V image block
 
 index = 0
 counter = 0

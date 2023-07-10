@@ -77,6 +77,39 @@ quantable = mem1052_1115 + mem1116_1179
 mem1180_1186 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
 
 global mem
-mem = [0] * 3000
+mem = [0] * 4096
+global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
+x0 = 0
+
 mem[0:1186] = hufftable + quantable + mem1180_1186
-print(len(mem[2048:2111]))
+
+# sw mem(imm + rs1) <- rs2
+def sw(xoffset, data32, immoffset):
+    global mem
+    assert immoffset in range(-2**12, 2**12-1), '\nSave word, imm out of range.'
+    mem[immoffset + xoffset] = data32
+
+# mem(imm + rs1) -> rd
+def lw(xoffset, immoffset):
+    global mem
+    assert immoffset in range(-2**12, 2**12-1), '\nLoad word, imm out of range.'
+    data32 = mem[immoffset + xoffset]
+    return data32
+
+
+mode = 0
+mem2048_2111 = [0] * 64
+
+print(mem[1052:1052+64])
+
+x1 = 1116 + x0
+if mode == 0:
+    x1 = 1052 + x0
+x2 = x1 + 64
+while x1 != x2:
+    x3 = lw(x1, 0)
+    print(x3)
+    x4 = mem2048_2111[x1 - (x2 - 64)]
+    x3 = (x3 * x4) >> 32
+    mem2048_2111[x1 - (x2 - 64)] = x3
+    x1 = x1 + 1
