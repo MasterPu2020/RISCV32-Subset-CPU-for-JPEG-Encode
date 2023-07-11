@@ -3,6 +3,7 @@
 
 ## Compiler and Simulator使用方法
 
+    python .\compiler\dust.py
     python .\compiler\compile.py initiate.s 
     python .\simulator\riscv32s.py initiate.bin +start=0 +pause
 
