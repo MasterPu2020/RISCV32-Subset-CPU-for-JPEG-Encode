@@ -1,14 +1,6 @@
-
-line0
-x1 = x0 + 1
-x2 = x1 + x1
-x3 = x0 + 2
-x3 == x2 goto line1
-    x3 = x2 + 0
-line1:
-x3 < x0 goto line3
-    x3 = x3 + -1
-x0 == x0 goto line1
-line3:
+x1 = 50 + x0
+x2 = -10 + x0
+if x2 < x1,
+    x2 = x2 + 25
+endif
 x31 = x0 + 999
-x0 == x0 goto line0

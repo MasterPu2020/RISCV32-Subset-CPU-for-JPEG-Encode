@@ -8,6 +8,168 @@
 
 import compile
 
+# if it is a 12-bit signed integer
+def is_int12(string:str):
+    def is_int(string:str):
+        try:
+            int(string)
+            return True
+        except ValueError:
+            pass
+        return False
+    if is_int(string):
+        assert int(string) in range(-2**12, 2**12-1), 'ImmRangeError: '+string
+        return True
+    else:
+        return False
+
+# translation of simple arithmetic opertation macro:
+def macro2assem(line:str, comment=False):
+    opcode = [['add','and','or','sll','sra','mul','mulh'], ['addi','xori', 'lw'], [ 'sw'], ['beq','bne','blt','bge']]
+    opsign = [[  '+',  '&', '|', '<<', '>>',  '*','*top'], [   '+',   '^','mem'], ['mem'], [ '==', '!=',  '<', '>=']]
+    macro = line.replace(' ', '').replace('\n', '')
+    while '//' in macro:
+        macro = macro.split('//')[0]
+    for op in opsign[0]:
+        if op in macro and not ('mem' in macro):
+            rd = macro.split('=')[0]
+            rs1 = macro.split('=')[1].split(op)[0]
+            rs2 = macro.split(op)[1]
+            if is_int12(rs1) or is_int12(rs2):
+                break
+            op = opcode[0][opsign[0].index(op)]
+            if comment:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + rd + ' // ' + line.replace('\n', '') + '\n'
+            else:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + rd + '\n'
+    for op in opsign[1]:
+        if op in macro:
+            rd = macro.split('=')[0]
+            if 'mem' in macro:
+                if macro.split('mem')[0] == '':
+                    break
+                rs1 = macro.split('[')[1].split('+')[0]
+                rs2 = macro.split('+')[1].split(']')[1]
+            else:
+                rs1 = macro.split('=')[1].split(op)[0]
+                rs2 = macro.split(op)[1]
+            if is_int12(rs1):
+                imm = rs1
+                rs1 = rs2
+            else:
+                imm = rs2
+            op = opcode[1][opsign[1].index(op)]
+            if comment:
+                return op + ' ' + imm + ' ' + rs1 + ' ' + rd + ' // ' + line.replace('\n', '') + '\n'
+            else:
+                return op + ' ' + imm + ' ' + rs1 + ' ' + rd + '\n'
+    for op in opsign[2]:
+        if op in macro:
+            # memory style: mem[x1 + 90] = x1 
+            rs2 = macro.split('=')[1]
+            rs11 = macro.split('[')[1].split('+')[0]
+            rs12 = macro.split('+')[1].split(']')[0]
+            if is_int12(rs11):
+                imm = rs11
+                rs1 = rs12
+            else:
+                imm = rs12
+                rs1 = rs11
+            op = opcode[2][opsign[2].index(op)]
+            if comment:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + imm + ' // ' + line.replace('\n', '') + '\n'
+            else:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + imm + '\n'
+    for op in opsign[3]:
+        if op in macro:
+            # branch style: rs1 < rs2 goto linemark
+            linemark = macro.split('goto')[1]
+            rs1 = macro.split(op)[0]
+            rs2 = macro.split(op)[1].split('goto')[0]
+            op = opcode[3][opsign[3].index(op)]
+            if comment:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + ' // ' + line.replace('\n', '') + '\n'
+            else:
+                return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + '\n'
+    return line
+
+# translate the macros into assembly code:
+def demacro(path, comment=False, newfilepath=None):
+    if newfilepath == None:
+        newfilepath = path
+    newfile = ''
+    with open(path, 'r') as file:
+        file = file.readlines()
+    for line in file:
+        if line != '' or line != '\n':
+            newfile += macro2assem(line, comment)
+    with open(newfilepath, 'w') as file:
+        file.write(newfile)
+    return
+
+def remove_empty(li:list):
+    for i in li:
+        if i == '\n':
+            li.remove('\n')
+        if i == '':
+            li.remove('')
+        if i == None:
+            li.remove(None)
+    return li
+
+# if to macro:
+def if2macro(path, newfilepath=None):
+    if newfilepath == None:
+        newfilepath = path
+    with open(path, 'r') as file:
+        file = file.readlines()
+    file = remove_empty(file)
+    # if style: if x1 > x2,  ...  endif
+    iftotal = 0
+    for line in file:
+        if line.split()[0] == 'if':
+            iftotal += 1
+    line = 0
+    linemark = 0
+    if_id = 0
+    ifcounter = 0
+    endifcounter = 0
+    while if_id < iftotal:
+        while line < len(file):
+            assert ifcounter <= iftotal, 'Error: if without endif'
+            if ifcounter >= if_id:
+                if 'if' == file[line].split()[0] and endifcounter == 0:
+                    file[line] = file[line].replace('if ', '', 1)
+                    if '<' in file[line]:
+                        file[line] = file[line].replace('<','>=', 1)
+                    elif '>=' in file[line]:
+                        file[line] = file[line].replace('>=','<', 1)
+                    elif '==' in file[line]:
+                        file[line] = file[line].replace('==','!=', 1)
+                    elif '!=' in file[line]:
+                        file[line] = file[line].replace('!=','==', 1)
+                    file[line] = file[line].replace(',', ' goto endifmark' + str(linemark), 1)
+                elif 'if' == file[line].split()[0]:
+                    endifcounter += 1
+                if 'endif' == file[line].split()[0] and endifcounter == 0:
+                    file[line] = file[line].replace('endif', 'endifmark'+str(linemark)+':', 1)
+                    linemark += 1
+                    if_id += 1
+                    break
+                elif 'endif' == file[line].split()[0]:
+                    endifcounter -= 1
+            elif 'if' == file[line].split()[0]:
+                ifcounter += 1
+            line += 1
+    text = ''
+    for line in file:
+        text += line
+    with open(newfilepath, 'w') as newfile:
+        newfile.write(text)
+
+# while to macro:
+
+
 # riscv core optimizing compiling
 # don't use x20 - x31 for saving data, this range is for auto manage
 class core():
@@ -225,96 +387,7 @@ class core():
             self.mem[addr+self.x[offsetreg]] = table[addr-startaddr]
             addr += 1
 
-# if it is a 12-bit signed integer
-def is_int12(string:str):
-    if compile.is_int(string):
-        assert int(string) in range(-2**12, 2**12-1), 'ImmRangeError: '+string
-        return True
-    else:
-        return False
-    
-# translation of simple arithmetic opertation macro:
-def macro2assem(line:str, comment=False):
-    opcode = [['add','and','or','sll','sra','mul','mulh'], ['addi','xori', 'lw'], [ 'sw'], ['beq','bne','blt','bge']]
-    opsign = [[  '+',  '&', '|', '<<', '>>',  '*','*top'], [   '+',   '^','mem'], ['mem'], [ '==', '!=',  '<', '>=']]
-    macro = line.replace(' ', '').replace('\n', '')
-    while '//' in macro:
-        macro = macro.split('//')[0]
-    for op in opsign[0]:
-        if op in macro and not ('mem' in macro):
-            rd = macro.split('=')[0]
-            rs1 = macro.split('=')[1].split(op)[0]
-            rs2 = macro.split(op)[1]
-            if is_int12(rs1) or is_int12(rs2):
-                break
-            op = opcode[0][opsign[0].index(op)]
-            if comment:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + rd + ' // ' + line.replace('\n', '') + '\n'
-            else:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + rd + '\n'
-    for op in opsign[1]:
-        if op in macro:
-            rd = macro.split('=')[0]
-            if 'mem' in macro:
-                if macro.split('mem')[0] == '':
-                    break
-                rs1 = macro.split('[')[1].split('+')[0]
-                rs2 = macro.split('+')[1].split(']')[1]
-            else:
-                rs1 = macro.split('=')[1].split(op)[0]
-                rs2 = macro.split(op)[1]
-            if is_int12(rs1):
-                imm = rs1
-            else:
-                imm = rs2
-                rs2 = rs1
-            op = opcode[1][opsign[1].index(op)]
-            if comment:
-                return op + ' ' + imm + ' ' + rs1 + ' ' + rd + ' // ' + line.replace('\n', '') + '\n'
-            else:
-                return op + ' ' + imm + ' ' + rs1 + ' ' + rd + '\n'
-    for op in opsign[2]:
-        if op in macro:
-            # memory style: mem[x1 + 90] = x1 
-            rs2 = macro.split('=')[1]
-            rs11 = macro.split('[')[1].split('+')[0]
-            rs12 = macro.split('+')[1].split(']')[0]
-            if is_int12(rs11):
-                imm = rs11
-                rs1 = rs12
-            else:
-                imm = rs12
-                rs1 = rs11
-            op = opcode[2][opsign[2].index(op)]
-            if comment:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + imm + ' // ' + line.replace('\n', '') + '\n'
-            else:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + imm + '\n'
-    for op in opsign[3]:
-        if op in macro:
-            # branch style: rs1 < rs2 goto linemark
-            linemark = macro.split('goto')[1]
-            rs1 = macro.split(op)[0]
-            rs2 = macro.split(op)[1].split('goto')[0]
-            op = opcode[3][opsign[3].index(op)]
-            if comment:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + ' // ' + line.replace('\n', '') + '\n'
-            else:
-                return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + '\n'
-    return line
 
-# translate the with macros into assembly code:
-def demacro(path, comment=False, newfilepath=None):
-    if newfilepath == None:
-        newfilepath = path
-    newfile = ''
-    with open(path, 'r') as file:
-        file = file.readlines()
-    for line in file:
-        if line != '' or line != '\n':
-            newfile += macro2assem(line, comment)
-    with open(newfilepath, 'w') as file:
-        file.write(newfile)
-    return
-
+if2macro('initiate.s')
 demacro('initiate.s', True)
+compile.compile('initiate.s', True)

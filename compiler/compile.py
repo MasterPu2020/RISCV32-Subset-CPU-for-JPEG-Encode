@@ -37,7 +37,6 @@
 
 import sys
 
-
 # parameters:
 opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
 opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
@@ -136,33 +135,35 @@ class address(var):
             print('offset:', value, 'name:', name, 'address:', addr, 'this line:', bin_file_line) # Debug
         return self.bin(value)
 
-# from string get imm value
-def get_imm(string:str):
-    if is_int(string):
-        return getbin(string)
-    elif string[:2] == '0b':
-        immstring = string[:2]
-        return '0' * (12 - len(immstring)) + immstring
-    elif string[:2] == '0x':
-        immstring = bin(int(string[2:], 16))[2:]
-        return '0' * (12 - len(immstring)) + immstring
-    else:
-        return int12.get(string)
+# compile the assembly code
+def compile(file:str, output_file=None, debug=False):
+    # # python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
+    # assert len(sys.argv) > 1, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
+    # file = sys.argv[1]
+    # output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
+    # for option in sys.argv[1:]:
+    #     if option == '+debug':
+    #         debug = True
+    #     if option[:8] == '+output=':
+    #         output_file = option[8:]
 
-# Main:
-# python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
-if __name__ == '__main__':
+    if output_file == None:
+        output_file = file.split('.s')[0] + '.bin'
+    print(output_file)
+    
+    # from string get imm value
+    def get_imm(string:str):
+        if is_int(string):
+            return getbin(string)
+        elif string[:2] == '0b':
+            immstring = string[:2]
+            return '0' * (12 - len(immstring)) + immstring
+        elif string[:2] == '0x':
+            immstring = bin(int(string[2:], 16))[2:]
+            return '0' * (12 - len(immstring)) + immstring
+        else:
+            return int12.get(string)
 
-    # python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
-    assert len(sys.argv) > 1, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
-    file = sys.argv[1]
-    output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
-    for option in sys.argv[1:]:
-        if option == '+debug':
-            debug = True
-        if option[:8] == '+output=':
-            output_file = option[8:]
-            
     # initiate
     int12 = integer(12)
     addr12 = address(12)

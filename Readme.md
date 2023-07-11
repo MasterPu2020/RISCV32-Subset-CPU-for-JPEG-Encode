@@ -47,29 +47,29 @@
 
 if A, then():
 
-    goto line1 if A is false
+    A is false goto line1 
         ()
     line1:
 
 while A, then():
 
     line1:
-    goto line2 is A is false
+    A is false goto line2 
         ()
     goto line1
     line2:
 
 if A and B, then () : 
 
-    goto line1 if A is false,
-    goto line1 if B is false
+    A is false goto line1 
+    B is false goto line1 
         ()
     line1
 
 if A or B, then () : 
 
-    goto line1 if A is true,
-    goto line1 if B is true
+    A is true goto line1 
+    B is true goto line1 
     goto line2
     line1:
         ()
@@ -78,8 +78,8 @@ if A or B, then () :
 while A and B then () :
 
     line1:
-    goto line2 if A is false
-    goto line2 if B is false
+    A is false goto line2 
+    B is false goto line2 
         ()
     goto line1
     line2:
@@ -87,8 +87,8 @@ while A and B then () :
 while A or B then () :
 
     line1:
-    goto line2 if A is true
-    goto line2 if B is true
+    A is true goto line2 
+    B is true goto line2 
     goto line3
     line2:
         ()
