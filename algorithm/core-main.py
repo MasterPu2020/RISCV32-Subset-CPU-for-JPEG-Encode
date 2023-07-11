@@ -371,14 +371,16 @@ def linemark1():
         x20 = 205887 # dust will help
         x21 = - 411775 # dust will help
         x22 = 102944 # dust will help
-        while x9 > x20: # extra instruction
+        while x20 < x9: # extra instruction
             x9 = x9 + x21
-        if x9 > x22:
+        if x22 < x9:
             x8 = 1
-            x20 = ~ x20 + 1
+            x20 = x20 ^ -1
+            x20 = x20 + 1
             x9 = x9 + x20
         else:
-            x22 = ~ x22 + 1
+            x22 = x22 ^ -1 
+            x22 = x22 + 1
             if x9 < x22:
                 x8 = 1
                 x9 = x9 + x20
@@ -392,7 +394,7 @@ def linemark1():
         sw(x0, x0, 1197)
         x7 = 0 
         while x7 != 7:
-            if x10 > x9: 
+            if x9 < x10: 
                 x20 = lw(x7, 1180)
                 x20 = ~ x20 + 1
                 x10 = x10 + x20
@@ -518,26 +520,27 @@ def linemark1():
     x27 = lw(x0, 1472)
     x11 = x27 - x29
     sw(x0, x11, 1408)
-    while True:
+    while x0 == x0:
         if x1 == x0 or x1 == x6:
             x2 += 1
             x4 = 1
         elif x2 == x0 or x2 == x6:
             x1 += 1
             x4 = 1
-        if x4 == 1:
+        if x4 == x9:
             x4 = 0
-            x3 = - x3
-            x5 += 1
+            x3 = x3 ^ -1
+            x3 = x3 + 1
+            x5 = x5 + 1
             x12 = x2 * x7
             x12 = x12 + x1
             x11 = lw(x12, 1472)
             sw(x5, x11, 1408)
         if x1 == x6 and x2 == x6:
             break
-        x5 += 1
+        x5 = x5 + 1
         x1 -= x3
-        x2 += x3
+        x2 = x2 + x3
         x12 = x2 * x7
         x12 = x12 + x1
         x11 = lw(x12, 1472)
@@ -583,7 +586,7 @@ def linemark1():
     def linemark4():
         global x26, x4, x5, x14, x15, x16, x17, x18
         x14 = huffman_bit_stack[-1]
-        if x5 < x26 or x5 == x26:
+        if x26 >= x5:
             x18 = x26 - x5
             x18 = x4 << x18
             x14 = x14 + x18
@@ -597,7 +600,7 @@ def linemark1():
             x5 = x5 - x26
             x15 = x5
             x16 = 0
-            while x15 != 0:
+            while x15 != x0:
                 x16 = x16 << 1
                 x16 = x16 + 1
                 x15 = x15 - 1
@@ -629,7 +632,7 @@ def linemark1():
         if x15 == x0:
             x9 = x9 + 1
         else:
-            while x9 > x22: # zeros over than 15
+            while x22 < x9: # zeros over than 15
                 x9 = x9 - 16
                 x4 = lw(x12, 240)
                 x5 = lw(x13, 240)

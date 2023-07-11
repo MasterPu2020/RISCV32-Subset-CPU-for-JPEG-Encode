@@ -5,21 +5,31 @@
 
     python .\compiler\compile.py initiate.s 
     python .\simulator\riscv32s.py initiate.bin +start=0 +pause
-    ----------------------------------------------------------------------------
-    #   add  rs2 rs1 rd        // add  rs2 + rs1 -> rd
-    #   and  rs2 rs1 rd        // add  rs2 & rs1 -> rd
-    #   or   rs2 rs1 rd        // or   rs2 | rs1 -> rd
-    #   mul  rs2 rs1 rd        // mul  (rs2 * rs1)[31: 0] -> rd 
-    #   mulh rs2 rs1 rd        // mulh (rs2 * rs1)[63:32] -> rd 
-    #   addi imm rs1 rd        // addi imm + rs1 -> rd
-    #   slli imm rs1 rd        // slli r1 << imm[4:0] -> rd
-    #   srli imm rs1 rd        // srli r1 >> imm[4:0] -> rd
-    #   xori imm rs1 rd        // xori imm ^ rs1 -> rd
-    #   lw   imm rs1 rd        // lw   mem(imm + rs1) -> rd
-    #   sw   rs2 rs1 imm       // sw   mem(imm + rs1) <- rs2
-    #   blt  rs2 rs1 pc_imm    // blt  pc <- ({pc_imm,0} + pc) if (rs1 < rs2)
-    ----------------------------------------------------------------------------
 
+                                      RISC-V 32 Subset
+    +---------------------------------------------------------------------------------+
+    |31           25|24     20|19     15|14     12|11           7|6       0|   code   |
+    +---------------------------------------------------------------------------------+
+    |    0000000    |   rs2   |   rs1   |   000   |      rd      | 0110011 | [R] add  |
+    |    0000000    |   rs2   |   rs1   |   111   |      rd      | 0110011 | [R] and  |
+    |    0000000    |   rs2   |   rs1   |   110   |      rd      | 0110011 | [R] or   |
+    |    0000000    |   rs2   |   rs1   |   001   |      rd      | 0110011 | [R] sll  |
+    |    0100000    |   rs2   |   rs1   |   101   |      rd      | 0110011 | [R] sra  |
+    |    0000001    |   rs2   |   rs1   |   000   |      rd      | 0110011 | [R] mul  |
+    |    0000001    |   rs2   |   rs1   |   001   |      rd      | 0110011 | [R] mulh |
+    +---------------------------------------------------------------------------------+
+    |        imm[11:0]        |   rs1   |   000   |      rd      | 0010011 | [I] addi |
+    |        imm[11:0]        |   rs1   |   110   |      rd      | 0010011 | [I] xori |
+    |        imm[11:0]        |   rs1   |   010   |      rd      | 0000011 | [I] lw   |
+    +---------------------------------------------------------------------------------+
+    |    imm[11:5]  |   rs2   |   rs1   |   010   |   imm[4:0]   | 0100011 | [S] sw   |
+    +---------------------------------------------------------------------------------+
+    |  imm[12|10:5] |   rs2   |   rs1   |   000   |  imm[4:1|11] | 1100011 | [B] beq  |
+    |  imm[12|10:5] |   rs2   |   rs1   |   001   |  imm[4:1|11] | 1100011 | [B] bne  |
+    |  imm[12|10:5] |   rs2   |   rs1   |   100   |  imm[4:1|11] | 1100011 | [B] blt  |
+    |  imm[12|10:5] |   rs2   |   rs1   |   101   |  imm[4:1|11] | 1100011 | [B] bge  |
+    +---------------------------------------------------------------------------------+
+    
 ## RISCV32-Subset CPU规格
 - Pipeline：2级
 - Data Forwarding: 不支持
@@ -31,20 +41,81 @@
 ---
 
 ## 分支指令的等效替换
-- if x0 != x1, then () <=> skip () if x0 == x1 # this go downwards
-- if x0 == x1, then () <=> skip () if x0 != x1 # this go downwards
-- while x0 != x1, then () <=> loop () until x0 != x1 # this go upwards
-- while x0 == x1, then () <=> loop () until x0 == x1 # this go upwards
-- break <=> x1 = 1, goto () if x0 != x1 # this go anywhere
-- if x0 < x1 <=> skip () if x0 >= x1 # this go downwards
 
+### 7 Types
 
-## 必须使用的指令
+if A, then():
+
+    goto line1 if A is false
+        ()
+    line1:
+
+while A, then():
+
+    line1:
+    goto line2 is A is false
+        ()
+    goto line1
+    line2:
+
+if A and B, then () : 
+
+    goto line1 if A is false,
+    goto line1 if B is false
+        ()
+    line1
+
+if A or B, then () : 
+
+    goto line1 if A is true,
+    goto line1 if B is true
+    goto line2
+    line1:
+        ()
+    line2:
+
+while A and B then () :
+
+    line1:
+    goto line2 if A is false
+    goto line2 if B is false
+        ()
+    goto line1
+    line2:
+
+while A or B then () :
+
+    line1:
+    goto line2 if A is true
+    goto line2 if B is true
+    goto line3
+    line2:
+        ()
+    goto line1
+    line3:
+
+break:
+
+    (...
+    goto line1
+    ...)
+    line1:
+
+### Logic Judgement
+- x1 == x2
+- x1 != x2
+- x1 < x2
+- x1 >= x2
+
+Replacements:
+- not x1 == x2: x1 != x2
+- not x1 != x2: x1 == x2
+- not x1 < x2: x1 >= x2
+
+### 使用的指令
 **[ I type ]**
 - addi   :  用于加载立即数和立即数的加法
-- slai   :  arithmetic shift left by imm
-- srli   :  logic shift right by imm
-- xori   :  与立即数异或，用于实现按位取反的非常重要的位操作
+- xori   :  与立即数-1异或，用于实现按位取反的非常重要的位操作
 - lw     :  所有的运算均是32位整数运算，load word很重要
 
 **[ S type ]**
@@ -54,26 +125,16 @@
 - add    :  用于常规加法
 - and    :  按位与，非常重要的位截取操作
 - or     :  按位或，非常重要的位拼接操作
+- sll    :  logic shift left by reg
+- sra    :  arithmetic shift right by reg
 - mul    ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
 - mulh   ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
 
 **[ B type ]** 12位地址范围跳转，6.5k行汇编够用了
-- blt    :  jump if less than，CORDIC会使用到大小判断，所以必须要用判断signed-int32大小的电路
-
----
-
-## 可能会增加的指令
-- lb       : 涉及到对uart RAM中数据快速读取，优化效果应该还是有的，只不过不大，看情况使用
-- lui [U]  : 用于加载立即数高20位的常用指令, 也可以用addi与srli组合实现
-- sb       : write byte，可以优化uart交互速度，但貌似目前没有必要
-- beq      : jump if equal，也许会用于霍夫曼数据堆栈中的后处理
-- jal [UJ] : jump and link 2位强制跳转，按需增加
-
----
-
-## 有用但不会使用的指令
-- sub ：- a == + (~ a + 1) 自由减法涉及的不多，只在Huffman编码的地方用到
-- div : 小数 << 32 并与整数相乘取整就行，真正涉及到自由除法的地方只有量化
+- blt    :  branch if less than
+- bge    :  branch if greater than or equal
+- beq    :  branch if equal
+- bne    :  branch if not equal
 
 ---
 
