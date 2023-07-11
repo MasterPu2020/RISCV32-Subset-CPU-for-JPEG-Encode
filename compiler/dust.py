@@ -126,43 +126,48 @@ def if2macro(path, newfilepath=None):
     file = remove_empty(file)
     # if style: if x1 > x2,  ...  endif
     iftotal = 0
+    endiftotal = 0
+    iflevel = []
+    endlevel = []
     for line in file:
         if line.split()[0] == 'if':
+            iflevel.append(iftotal - endiftotal)
             iftotal += 1
-    line = 0
-    linemark = 0
-    if_id = 0
-    ifcounter = 0
-    endifcounter = 0
-    while if_id < iftotal:
-        while line < len(file):
-            assert ifcounter <= iftotal, 'Error: if without endif'
-            if ifcounter >= if_id:
-                if 'if' == file[line].split()[0] and endifcounter == 0:
-                    file[line] = file[line].replace('if ', '', 1)
-                    if '<' in file[line]:
-                        file[line] = file[line].replace('<','>=', 1)
-                    elif '>=' in file[line]:
-                        file[line] = file[line].replace('>=','<', 1)
-                    elif '==' in file[line]:
-                        file[line] = file[line].replace('==','!=', 1)
-                    elif '!=' in file[line]:
-                        file[line] = file[line].replace('!=','==', 1)
-                    file[line] = file[line].replace(',', ' goto endifmark' + str(linemark), 1)
-                elif 'if' == file[line].split()[0]:
-                    endifcounter += 1
-                if 'endif' == file[line].split()[0] and endifcounter == 0:
-                    file[line] = file[line].replace('endif', 'endifmark'+str(linemark)+':', 1)
-                    linemark += 1
-                    if_id += 1
-                    break
-                elif 'endif' == file[line].split()[0]:
-                    endifcounter -= 1
-            elif 'if' == file[line].split()[0]:
-                ifcounter += 1
-            line += 1
+        if line.split()[0] == 'endif':
+            endiftotal += 1
+            endlevel.append(iftotal - endiftotal)
+    assert endiftotal == iftotal
+    if iftotal == 0:
+        return
+    ifcounter = [0] * (max(iflevel) + 1)
+    endcounter = [0] * (max(endlevel) + 1)
+    ifmark = []
+    endmark = []
+    for i in iflevel:
+        ifmark.append('endifmark' + str(i) + '_' + str(ifcounter[i]))
+        ifcounter[i] += 1
+    for i in endlevel:
+        endmark.append('endifmark' + str(i) + '_' + str(endcounter[i]))
+        endcounter[i] += 1
     text = ''
+    if_id = 0
+    end_id = 0
     for line in file:
+        if line.split()[0] == 'if':
+            line = line.replace('if ', '', 1)
+            if '<' in line:
+                line = line.replace('<','>=', 1)
+            elif '>=' in file[line]:
+                line = line.replace('>=','<', 1)
+            elif '==' in file[line]:
+                line = line.replace('==','!=', 1)
+            elif '!=' in file[line]:
+                line = line.replace('!=','==', 1)
+            line = line.replace(',', ' goto ' + ifmark[if_id], 1)
+            if_id += 1
+        if line.split()[0] == 'endif':
+            line = line.replace('endif', endmark[end_id] + ':', 1)
+            end_id += 1
         text += line
     with open(newfilepath, 'w') as newfile:
         newfile.write(text)
@@ -390,4 +395,4 @@ class core():
 
 if2macro('initiate.s')
 demacro('initiate.s', True)
-compile.compile('initiate.s', True)
+compile.compile('initiate.s', debug=True)
