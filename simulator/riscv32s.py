@@ -11,11 +11,12 @@ import sys
 import time
 
 
-# global parameters:
-opcode = [    'add',     'and',      'or',     'mul',    'mulh',    'addi',    'slli',    'srli',    'xori',      'lw',      'sw',     'blt']
-opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0010011', '0010011', '0000011', '0100011', '1100011']
-funct7 = ['0000000', '0000000', '0000000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '']
-funct3 = [    '000',     '111',     '110',     '000',     '001',     '000',     '001',     '101',     '110',     '010',     '010',     '100']
+# parameters:
+opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
+opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
+funct7 = ['0000000', '0000000', '0000000', '0000000', '0100000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '',        '']
+funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     '001',     '101',     '110',     '010',     '010',     '000',     '001',     '100',     '101']
+
 x = [0] * 32 # registers
 pc = 0
 mem = [0] * (2**12) # RAM
@@ -79,17 +80,17 @@ def execute(inst, pc):
         x[rd] = op32(x[rs2] & x[rs1])
     elif inst_op == 'or':
         x[rd] = op32(x[rs2] | x[rs1])
+    elif inst_op == 'slli':
+        x[rd] = op32(x[rs2] << x[rs1])
+    elif inst_op == 'srli':
+        x[rd] = op32(x[rs2] >> x[rs1])
     elif inst_op == 'mul':
         x[rd] = op32(x[rs2] * x[rs1])
     elif inst_op == 'mulh':
-        x[rd] = op32((x[rs2] * x[rs1]) >> 32)
+        x[rd] = op32((x[rs2] * x[rs1]) >> 31)
     # i type
     elif inst_op == 'addi':
         x[rd] = op32(x[rs1] + immi)
-    elif inst_op == 'slli':
-        x[rd] = op32(x[rs1] << immi)
-    elif inst_op == 'srli':
-        x[rd] = op32((x[rs1] & (2**32-1)) >> immi)
     elif inst_op == 'xori':
         x[rd] = op32(x[rs1] ^ immi)
     elif inst_op == 'lw':
@@ -98,8 +99,20 @@ def execute(inst, pc):
     elif inst_op == 'sw':
         mem[op32(x[rs1] + imms)] = x[rs2]
     # b type, pc is unsigned
+    elif inst_op == 'beq':
+        if x[rs1] == x[rs2]:
+            pc = (pc + immb) & (2**32-1)
+            branch = True
+    elif inst_op == 'bne':
+        if x[rs1] != x[rs2]:
+            pc = (pc + immb) & (2**32-1)
+            branch = True
     elif inst_op == 'blt':
         if x[rs1] < x[rs2]:
+            pc = (pc + immb) & (2**32-1)
+            branch = True
+    elif inst_op == 'bge':
+        if x[rs1] >= x[rs2]:
             pc = (pc + immb) & (2**32-1)
             branch = True
     else:
@@ -172,7 +185,7 @@ if __name__ == '__main__':
 
         # Execute
         inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch = execute(bin_code[pc], pc)
-        if inst_op == 'blt':
+        if inst_op in opcode[11:]:
             branchcount += 1
         runtime += 1
         x[0] = 0

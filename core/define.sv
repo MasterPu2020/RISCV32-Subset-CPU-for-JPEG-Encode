@@ -33,10 +33,20 @@
 `define OP_ADD      7'b0110011
 `define FUNCT7_ADD  7'b0000000
 `define FUNCT3_ADD  3'b000
+// and   rs2 & rs1 -> rd
+`define OP_AND      7'b0110011
+`define FUNCT7_AND  7'b0000000
+`define FUNCT3_AND  3'b111
 // or   rs2 | rs1 -> rd
 `define OP_OR       7'b0110011
 `define FUNCT7_OR   7'b0000000
 `define FUNCT3_OR   3'b110
+// sll r1 << r2 -> rd
+`define OP_SLL      7'b0110011
+`define FUNCT3_SLL  3'b001
+// sra r1 >> r2 -> rd
+`define OP_SRA      7'b0110011
+`define FUNCT3_SRA  3'b101
 // mul  (rs2 * rs1)[31: 0] -> rd 
 `define OP_MUL      7'b0110011
 `define FUNCT7_MUL  7'b0000001
@@ -48,12 +58,6 @@
 // addi imm + rs1 -> rd
 `define OP_ADDI     7'b0010011
 `define FUNCT3_ADDI 3'b000
-// slli r1 << imm[4:0] -> rd
-`define OP_SLLI     7'b0010011
-`define FUNCT3_SLLI 3'b001
-// srli r1 >> imm[4:0] -> rd
-`define OP_SRLI     7'b0010011
-`define FUNCT3_SRLI 3'b101
 // xori imm ^ rs1 -> rd
 `define OP_XORI     7'b0010011
 `define FUNCT3_XORI 3'b110
@@ -63,7 +67,17 @@
 // sw   mem(imm + rs1) <- rs2
 `define OP_SW       7'b0100011
 `define FUNCT3_SW   3'b010
+// beq  pc <- ({imm,0} + pc) if (rs1 == rs2)
+`define OP_BEQ      7'b1100011
+`define FUNCT3_BEQ  3'b000
+// bne  pc <- ({imm,0} + pc) if (rs1 != rs2)
+`define OP_BNE      7'b1100011
+`define FUNCT3_BNE  3'b001
 // blt  pc <- ({imm,0} + pc) if (rs1 < rs2)
 `define OP_BLT      7'b1100011
 `define FUNCT3_BLT  3'b100
+// bge  pc <- ({imm,0} + pc) if (rs1 >= rs2)
+`define OP_BGE      7'b1100011
+`define FUNCT3_BGE  3'b101
+
 // -----------------------------------------------------------------------------------
