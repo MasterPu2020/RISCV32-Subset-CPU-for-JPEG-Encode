@@ -30,11 +30,20 @@
 - RAM Size:  8x2^32bit =  4GB
 ---
 
+## 分支指令的等效替换
+- if x0 != x1, then () <=> skip () if x0 == x1 # this go downwards
+- if x0 == x1, then () <=> skip () if x0 != x1 # this go downwards
+- while x0 != x1, then () <=> loop () until x0 != x1 # this go upwards
+- while x0 == x1, then () <=> loop () until x0 == x1 # this go upwards
+- break <=> x1 = 1, goto () if x0 != x1 # this go anywhere
+- if x0 < x1 <=> skip () if x0 >= x1 # this go downwards
+
+
 ## 必须使用的指令
 **[ I type ]**
 - addi   :  用于加载立即数和立即数的加法
-- slli   :  shift left logic imm, huffman编码按1比特堆栈时候会用到
-- srli   :  shift right logic imm, 整数化回小数的运算会使用
+- slai   :  arithmetic shift left by imm
+- srli   :  logic shift right by imm
 - xori   :  与立即数异或，用于实现按位取反的非常重要的位操作
 - lw     :  所有的运算均是32位整数运算，load word很重要
 
@@ -46,6 +55,7 @@
 - and    :  按位与，非常重要的位截取操作
 - or     :  按位或，非常重要的位拼接操作
 - mul    ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
+- mulh   ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
 
 **[ B type ]** 12位地址范围跳转，6.5k行汇编够用了
 - blt    :  jump if less than，CORDIC会使用到大小判断，所以必须要用判断signed-int32大小的电路

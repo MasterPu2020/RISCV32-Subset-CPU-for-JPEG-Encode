@@ -224,8 +224,9 @@ x28 = img_row_in_uart[0]
 x29 = img_row_in_uart[1]
 sw(x0, x28, 1187)
 sw(x0, x28, 1188)
-x28 = x28 >> 4
-x27 = x29 >> 4
+x1 = 4
+x28 = x28 >> x1
+x27 = x29 >> x1
 sw(x0, x28, 1189)
 sw(x0, x27, 1190)
 x1 = 46341
@@ -289,10 +290,10 @@ while x2 != x28:
                         x15 = x15 + x14
                         x19 = 255
                         x16 = img_row_in_uart[x15]
-                        x16 = x16 >> 16
+                        x16 = x16 >> x26
                         x16 = x16 & x19
                         x17 = img_row_in_uart[x15]
-                        x17 = x17 >> 8
+                        x17 = x17 >> x25
                         x17 = x17 & x19
                         x18 = img_row_in_uart[x15]
                         x18 = x18 & x19
@@ -454,7 +455,7 @@ def linemark1():
                     x9 = x9 * x23
                     linemark2()
                     x13 = x13 * x1
-                    x13 = x13 >> 8
+                    x13 = x13 >> x15
                     x9 = x17 * x6
                     x9 = x9 + 1
                     x9 = x9 * x4
@@ -462,18 +463,21 @@ def linemark1():
                     x9 = x9 * x23
                     linemark2()
                     x13 = x13 * x1
-                    x13 = x13 >> 8
+                    x13 = x13 >> x15
                     x14 = x14 + x13
                     x6 = x6 + 1
                 x6 = 0
                 x5 = x5 + 1
             x16 = (x11 * x12) >> 31
             x13 = (x11 * x12) & (2**31-1)
-            x16 = x16 << 15
-            x13 = x13 >> 16
+            x18 = 15
+            x16 = x16 << x18
+            x18 = x18 + 1
+            x13 = x13 >> x18
             x13 = x13 | x16
             x13 = (x13 * x14) >> 31
-            x13 = x13 >> 3
+            x18 = 3
+            x13 = x13 >> x18
             if x13 != 0:
                 x13 = x13 + 1
             x16 = x3 * x15
@@ -563,13 +567,13 @@ def linemark1():
             x15 = 1
         x2 = x1
         while x1 != x0:
-            x1 = x1 >> 1
+            x1 = x1 >> x17
             x14 = x14 + 1
         x3 = x14
         if x15 == x17:
             x16 = 0
             while x14 != x0:
-                x16 = x16 << 1
+                x16 = x16 << x17
                 x16 = x16 + 1
                 x14 = x14 - 1
             x2 = ~ x2
@@ -579,7 +583,7 @@ def linemark1():
     def linemark4():
         global x26, x4, x5, x14, x15, x16, x17, x18
         x14 = huffman_bit_stack[-1]
-        if x5 <= x26:
+        if x5 < x26 or x5 == x26:
             x18 = x26 - x5
             x18 = x4 << x18
             x14 = x14 + x18
@@ -610,7 +614,8 @@ def linemark1():
     x6 = lw(x14, 0)
     x14 = x11 + x3
     x7 = lw(x14, 0)
-    x4 = (x6 << x3) + x2
+    x4 = x6 << x3
+    x4 = x4 + x2
     x5 = x3 + x7
     linemark4()
 
@@ -632,7 +637,8 @@ def linemark1():
             # Assembly
             x1 = lw(x20, 1408)
             linemark3()
-            x8 = x9 << 4
+            x17 = 4
+            x8 = x9 << x17
             x8 = x8 + x3
             x14 = x12 + x8
             x6 = lw(x14, 0)
@@ -702,7 +708,8 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x9 = lw(x7, 1280)
-                x9 = x9 >> 2 
+                x5 = 2
+                x9 = x9 >> x5
                 sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1205)
@@ -713,7 +720,8 @@ while x1 != x4:
             x7 = 0 + x0
             while x7 != x6:
                 x9 = lw(x7, 1344)
-                x9 = x9 >> 2
+                x5 = 2
+                x9 = x9 >> x5
                 sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1206)
@@ -743,11 +751,16 @@ while x1 != x4:
 
 # Post process: read in byte and insert '00' for 'FF', and fill the last byte
 x13 = 0
+x1 = 1
 while x26 != 0:
-    x13 = x13 << 1
+    x13 = x13 << x1
     x13 = x13 + 1
-    x26 = x26 + (-1)
+    x26 = x26 - 1
 huffman_bit_stack[-1] += x13
+
+# ------------------------------------------------------------------
+# RegFile Work Aera 5: Post Process
+# ------------------------------------------------------------------
 
 # String process, only for simulation usage
 hex_huffman_string = ''
