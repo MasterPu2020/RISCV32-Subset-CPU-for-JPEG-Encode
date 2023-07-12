@@ -7,6 +7,8 @@
 # --------------------------------------------------------------------------
 
 import compile
+import sys
+import os
 
 # if it is a 12-bit signed integer
 def is_int12(string:str):
@@ -107,6 +109,7 @@ def demacro(path, comment=False, newfilepath=None):
         file.write(newfile)
     return
 
+# remove empty lines, spaces
 def remove_empty(li:list):
     for i in li:
         if i == '\n':
@@ -115,6 +118,10 @@ def remove_empty(li:list):
             li.remove('')
         if i == None:
             li.remove(None)
+    # i = 0
+    # while i < len(li):
+    #     li[i] = li[i].lstrip()
+    #     i += 1
     return li
 
 # if to macro:
@@ -138,6 +145,10 @@ def if2macro(path, newfilepath=None):
             endlevel.append(iftotal - endiftotal)
     assert endiftotal == iftotal
     if iftotal == 0:
+        with open(path, 'r') as text:
+            text = text.read()
+        with open(newfilepath, 'w') as newfile:
+            newfile.write(text)
         return
     ifcounter = [0] * (max(iflevel) + 1)
     endcounter = [0] * (max(endlevel) + 1)
@@ -163,20 +174,83 @@ def if2macro(path, newfilepath=None):
                 line = line.replace('==','!=', 1)
             elif '!=' in file[line]:
                 line = line.replace('!=','==', 1)
+            else:
+                raise 'if statement error: line ' + str(file.index(line))
             line = line.replace(',', ' goto ' + ifmark[if_id], 1)
+            assert 'goto' in line, 'if statement error: line ' + str(file.index(line)) + '. need ,'
             if_id += 1
         if line.split()[0] == 'endif':
             line = line.replace('endif', endmark[end_id] + ':', 1)
             end_id += 1
         text += line
+
     with open(newfilepath, 'w') as newfile:
         newfile.write(text)
 
 # while to macro:
-
+def while2macro(path, newfilepath=None):
+    if newfilepath == None:
+        newfilepath = path
+    with open(path, 'r') as file:
+        file = file.readlines()
+    file = remove_empty(file)
+    headtotal = 0
+    endtotal = 0
+    headlevel = []
+    endlevel = []
+    for line in file:
+        if line.split()[0] == 'while':
+            headlevel.append(headtotal - endtotal)
+            headtotal += 1
+        if line.split()[0] == 'endwhile':
+            endtotal += 1
+            endlevel.append(headtotal - endtotal)
+    assert endtotal == headtotal
+    if headtotal == 0:
+        with open(path, 'r') as text:
+            text = text.read()
+        with open(newfilepath, 'w') as newfile:
+            newfile.write(text)
+        return
+    headcounter = [0] * (max(headlevel) + 1)
+    endcounter = [0] * (max(endlevel) + 1)
+    headmark = []
+    endmark = []
+    for i in headlevel:
+        headmark.append('whilemark' + str(i) + '_' + str(headcounter[i]))
+        headcounter[i] += 1
+    for i in endlevel:
+        endmark.append('whilemark' + str(i) + '_' + str(endcounter[i]))
+        endcounter[i] += 1
+    text = ''
+    head_id = 0
+    end_id = 0
+    for line in file:
+        if line.split()[0] == 'while':
+            line = line.replace('while ', '', 1)
+            if '<' in line:
+                line = line.replace('<','>=', 1)
+            elif '>=' in file[line]:
+                line = line.replace('>=','<', 1)
+            elif '==' in file[line]:
+                line = line.replace('==','!=', 1)
+            elif '!=' in file[line]:
+                line = line.replace('!=','==', 1)
+            else:
+                raise 'while statement error: line ' + str(file.index(line))
+            line = line.replace(',', ' goto end' + headmark[head_id], 1)
+            line = 'start' + endmark[end_id] + ':\n' + line
+            assert 'goto' in line, 'while statement error: line ' + str(file.index(line)) + '. need ,'
+            head_id += 1
+        if line.split()[0] == 'endwhile':
+            line = line.replace('endwhile', 'end' + endmark[end_id] + ':', 1)
+            line = 'x0 == x0 goto start' + endmark[end_id] + '\n' + line
+            end_id += 1
+        text += line
+    with open(newfilepath, 'w') as newfile:
+        newfile.write(text)
 
 # riscv core optimizing compiling
-# don't use x20 - x31 for saving data, this range is for auto manage
 class core():
 
     def __init__(self, memsize=2**12):
@@ -392,7 +466,61 @@ class core():
             self.mem[addr+self.x[offsetreg]] = table[addr-startaddr]
             addr += 1
 
+# Main:
+if __name__ == '__main__':
 
-if2macro('initiate.s')
-demacro('initiate.s', True)
-compile.compile('initiate.s', debug=True)
+    confirm = 'y'
+    if len(sys.argv) <= 1: 
+        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
+        confirm = 'n'
+    else:
+        filepath = sys.argv[1]
+        if not os.path.exists(filepath):
+            print('\n Input file not exists. \n')
+            confirm = 'n'
+
+        newfilepath = None
+        try:
+            newfilepath = sys.argv[2]
+        except:
+            ValueError
+            pass
+        if newfilepath == None or newfilepath[0] == '+':
+            newfilepath = filepath.split('.s')[0] + '.bin'
+        if os.path.exists(newfilepath):
+            confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
+
+    debug = False
+    bystep = False
+    comment = False
+    for option in sys.argv:
+        if option == '+debug':
+            debug = True
+        if option == '+bystep':
+            bystep = True
+        if option == '+comment':
+            comment = True
+
+    # start here
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        if2macro(filepath, newfilepath)
+
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        while2macro(newfilepath, newfilepath)
+
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        demacro(newfilepath, comment, newfilepath)
+
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        compile.compile(newfilepath, newfilepath, debug)
+
+    if confirm != 'y':
+        print('\n Compilation give up.\n')

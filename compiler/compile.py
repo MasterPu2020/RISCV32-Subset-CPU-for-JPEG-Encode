@@ -35,18 +35,16 @@
 #   S  rs2 rs1 imm
 #   B  rs2 rs1 pc_imm 
 
-import sys
-
 # parameters:
 opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
 opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
 funct7 = ['0000000', '0000000', '0000000', '0000000', '0100000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '',        '']
 funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     '001',     '101',     '110',     '010',     '010',     '000',     '001',     '100',     '101']
 
+global bin_file_line, assem_file_line, debug
 bin_file_line = 0
 assem_file_line = 0
 debug = False
-
 
 # functions:
 def reg(string):
@@ -113,7 +111,7 @@ class var():
 # integer type
 class integer(var):
     type = 'int'
-    def get(self, string:str): # get binary imm value. if it has offset, find offset value
+    def get(self, string:str, debug=False): # get binary imm value. if it has offset, find offset value
         if len(string.split('[')) == 1:
             return self.bin(self.search(string))
         else:
@@ -128,7 +126,7 @@ class integer(var):
 # address type
 class address(var):
     type = 'addr'
-    def get(self, name:str): # get imm for address offset for branch less than
+    def get(self, name:str, debug=False): # get imm for address offset for branch less than
         addr = self.search(name)
         value = addr - bin_file_line
         if debug:
@@ -137,19 +135,9 @@ class address(var):
 
 # compile the assembly code
 def compile(file:str, output_file=None, debug=False):
-    # # python .\compiler\compile.py .\compiler\code.s +output=.\compiler\code.bin
-    # assert len(sys.argv) > 1, '\n[Usage]: Python ./compile.py ./file \n[Options]: +debug +output=./file'
-    # file = sys.argv[1]
-    # output_file = './'+file.split('/')[-1].split('.')[0]+'.bin'
-    # for option in sys.argv[1:]:
-    #     if option == '+debug':
-    #         debug = True
-    #     if option[:8] == '+output=':
-    #         output_file = option[8:]
-
+    global bin_file_line, assem_file_line
     if output_file == None:
-        output_file = file.split('.s')[0] + '.bin'
-    print(output_file)
+        output_file = file
     
     # from string get imm value
     def get_imm(string:str):
@@ -162,7 +150,7 @@ def compile(file:str, output_file=None, debug=False):
             immstring = bin(int(string[2:], 16))[2:]
             return '0' * (12 - len(immstring)) + immstring
         else:
-            return int12.get(string)
+            return int12.get(string, debug)
 
     # initiate
     int12 = integer(12)
@@ -240,7 +228,7 @@ def compile(file:str, output_file=None, debug=False):
                         if is_int(line[3]):
                             imm = getbin(line[3]) + '0'
                         else:
-                            imm = addr12.get(line[3]) + '0'
+                            imm = addr12.get(line[3], debug) + '0'
                         line_bin = tranc(imm,12) + tranc(imm,10,5) + reg(line[1]) + reg(line[2]) + funct3[op_id] + tranc(imm,4,1) + tranc(imm,11) + opbin[op_id]
                         machine_code += line_bin + '\n'
                         if debug:

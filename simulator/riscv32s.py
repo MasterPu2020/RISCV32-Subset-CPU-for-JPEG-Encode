@@ -195,8 +195,8 @@ if __name__ == '__main__':
             print('\033c',end='') # clear screen
         show()
         print('\n [CPU Instruction Information]')
-        print(' Instruction:', bin_code[pc])
         print(' Program Counter (>>1):', pc)
+        print(' Instruction:', bin_code[pc])
         print(' Operation:', inst_op)
         print(' Rd:       ', rd)
         print(' Rs1:      ', rs1)
