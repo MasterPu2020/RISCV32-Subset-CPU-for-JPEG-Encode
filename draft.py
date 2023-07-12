@@ -1,3 +1,1 @@
-a = 32
-b = (-1 ^ (2**11-1))
-print(b)
+print(not False)

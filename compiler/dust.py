@@ -42,7 +42,7 @@ class regfile():
             self.busy[id] = False
     
     def write(self, id, data:int):
-        assert range(-2**(self.size[id]-1), 2**(self.size[id]-1)-1), '\n Data Invaild: Data of range.'
+        assert data in range(-2**(self.size[id]-1), 2**(self.size[id]-1)-1), '\n Data Invaild: Data of range.'
         assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
         self.data[id] = data
         self.history[id].pop(0)
@@ -188,29 +188,19 @@ def demacro(path, comment=False, newfilepath=None):
     return
 
 # remove empty lines, spaces
-def remove_empty(li:list):
-    i = 0
-    while i < len(li):
-        li[i] = li[i].lstrip()
-        i += 1
-    for i in li:
-        if i == '\n':
-            li.remove('\n')
-        if i == '':
-            li.remove('')
-        if i == []:
-            li.remove([])
-        if i == None:
-            li.remove(None)
-    return li
+def remove_empty(file:str):
+    file = file.split('\n')
+    m = ''
+    for i in file:
+        if len(i.split()) == 0:
+            continue
+        m += i + '\n'
+    m = m[:-1]
+    return m
 
 # if to macro:
-def if2macro(path, newfilepath=None):
-    if newfilepath == None:
-        newfilepath = path
-    with open(path, 'r') as file:
-        file = file.readlines()
-    file = remove_empty(file)
+def if2macro(oldfile:str):
+    file = remove_empty(oldfile).split('\n')
     # if style: if x1 > x2,  ...  endif
     iftotal = 0
     endiftotal = 0
@@ -225,11 +215,7 @@ def if2macro(path, newfilepath=None):
             endlevel.append(iftotal - endiftotal)
     assert endiftotal == iftotal
     if iftotal == 0:
-        with open(path, 'r') as text:
-            text = text.read()
-        with open(newfilepath, 'w') as newfile:
-            newfile.write(text)
-        return
+        return oldfile
     ifcounter = [0] * (max(iflevel) + 1)
     endcounter = [0] * (max(endlevel) + 1)
     ifmark = []
@@ -263,17 +249,11 @@ def if2macro(path, newfilepath=None):
             line = line.replace('endif', endmark[end_id] + ':', 1)
             end_id += 1
         text += line
-
-    with open(newfilepath, 'w') as newfile:
-        newfile.write(text)
+    return text
 
 # while to macro:
-def while2macro(path, newfilepath=None):
-    if newfilepath == None:
-        newfilepath = path
-    with open(path, 'r') as file:
-        file = file.readlines()
-    file = remove_empty(file)
+def while2macro(oldfile):
+    file = remove_empty(oldfile).split('\n')
     headtotal = 0
     endtotal = 0
     headlevel = []
@@ -287,11 +267,7 @@ def while2macro(path, newfilepath=None):
             endlevel.append(headtotal - endtotal)
     assert endtotal == headtotal
     if headtotal == 0:
-        with open(path, 'r') as text:
-            text = text.read()
-        with open(newfilepath, 'w') as newfile:
-            newfile.write(text)
-        return
+        return oldfile
     headcounter = [0] * (max(headlevel) + 1)
     endcounter = [0] * (max(endlevel) + 1)
     headmark = []
@@ -327,15 +303,14 @@ def while2macro(path, newfilepath=None):
             line = 'x0 == x0 goto start' + endmark[end_id] + '\n' + line
             end_id += 1
         text += line
-    with open(newfilepath, 'w') as newfile:
-        newfile.write(text)
+    return text
 
 # long int to macro (less than 32 bit, over than 12 bit signed int)
 def int2macro(line:str):
     
     # search for a springboard in registers
     def springboard(sregd, imm):
-        id = 1
+        id = 0
         while id != 32:
             value = riscv.x.data[id]
             if imm + value in range(-2**11, 2**11-1):
@@ -364,117 +339,171 @@ def int2macro(line:str):
             assert imm in range(-2**31, 2**31-1), 'Error: signed value given over than 32 bit.'
             if imm == riscv.x.data[int(sregd[1:])]:
                 return '// removed\n'
-            if imm in range(-2**11, 2**11-1):
+            text = springboard(sregd, imm)
+            if text != None:
                 riscv.x.write(int(sregd[1:]), imm)
-                return sregd + ' = x0 + ' + statement[2]
+                return text
             else:
-                text = springboard(sregd, imm)
-                if text != None:
-                    riscv.x.write(int(sregd[1:]), imm)
-                    return text
-                else:
-                    text = ''
-                    sreg0 = xidle()
-                    sreg1 = xidle()
-                    sreg2 = xidle()
-                    if imm in range(-2**22, 2**22-1):
-                        # int signed 22-11 bit
-                        simm0 = str(imm & (2**11-1)) + ' '
-                        simm1 = str(imm >> 11) + ' '
-                        # put signed 22-11 bit
-                        if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
-                            text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
-                        else:
-                            text += sreg1 + ' = x0 + ' + simm1 + '\n'
-                            text += sreg0 + ' = x0 + 11 \n'
-                            text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
-                        # put unsigned 11-0 bit and connect 
-                        text += sreg0 + ' = x0 + ' + simm0 + '\n'
-                        text += sreg0 + ' = ' + sreg1 + ' | ' + sreg0 + '\n'
+                text = ''
+                sreg0 = xidle()
+                sreg1 = xidle()
+                sreg2 = xidle()
+                if imm in range(-2**22, 2**22-1):
+                    # int signed 22-11 bit
+                    simm0 = str(imm & (2**11-1)) + ' '
+                    simm1 = str(imm >> 11) + ' '
+                    # put signed 22-11 bit
+                    if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
+                        text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
                     else:
-                        simm0 = str(imm & (2**11-1)) + ' '
-                        simm1 = str((imm >> 11) & (2**11-1)) + ' '
-                        simm2 = str(imm >> 22) + ' '
-                        # put signed 32-22 bit
-                        if springboard(sreg2, (imm & (-1 ^ (2**22-1)))) != None:
-                            text += springboard(sreg2, (imm & (-1 ^ (2**22-1))))
-                        else:
-                            text += sreg0 + ' = x0 + 22 \n'
-                            text += sreg2 + ' = x0 + ' + simm2 + '\n'
-                            text += sreg2 + ' = ' + sreg2 + ' << ' + sreg0 + '\n'
-                        # put unsigned 21-11 bit and connect 
-                        if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
-                            text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
-                        else:
-                            text += sreg0 + ' = x0 + 11 \n'
-                            text += sreg1 + ' = x0 + ' + simm1 + '\n'
-                            text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
-                        text += sreg2 + ' = ' + sreg1 + ' | ' + sreg2 + '\n'
-                        # put unsigned 11-0 bit and connect 
-                        text += sreg0 + ' = x0 + ' + simm0 + '\n'
-                        text += sreg0 + ' = ' + sreg0 + ' | ' + sreg2 + '\n'
-                    riscv.free('int2macro')
-                    riscv.x.write(int(sregd[1:]), imm)
-                    return text
+                        text += sreg1 + ' = x0 + ' + simm1 + '\n'
+                        text += sreg0 + ' = x0 + 11 \n'
+                        text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
+                    # put unsigned 11-0 bit and connect 
+                    text += sreg0 + ' = x0 + ' + simm0 + '\n'
+                    text += sreg0 + ' = ' + sreg1 + ' | ' + sreg0 + '\n'
+                else:
+                    simm0 = str(imm & (2**11-1)) + ' '
+                    simm1 = str((imm >> 11) & (2**11-1)) + ' '
+                    simm2 = str(imm >> 22) + ' '
+                    # put signed 32-22 bit
+                    if springboard(sreg2, (imm & (-1 ^ (2**22-1)))) != None:
+                        text += springboard(sreg2, (imm & (-1 ^ (2**22-1))))
+                    else:
+                        text += sreg0 + ' = x0 + 22 \n'
+                        text += sreg2 + ' = x0 + ' + simm2 + '\n'
+                        text += sreg2 + ' = ' + sreg2 + ' << ' + sreg0 + '\n'
+                    # put unsigned 21-11 bit and connect 
+                    if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
+                        text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
+                    else:
+                        text += sreg0 + ' = x0 + 11 \n'
+                        text += sreg1 + ' = x0 + ' + simm1 + '\n'
+                        text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
+                    text += sreg2 + ' = ' + sreg1 + ' | ' + sreg2 + '\n'
+                    # put unsigned 11-0 bit and connect 
+                    text += sreg0 + ' = x0 + ' + simm0 + '\n'
+                    text += sreg0 + ' = ' + sreg0 + ' | ' + sreg2 + '\n'
+                riscv.free('int2macro')
+                riscv.x.write(int(sregd[1:]), imm)
+                return text
 
-# beta function: generate memory
-
-
+# beta function: generate memory, this only works with define area
+# before enter the define area, free all the registers
+def genmem2macro(file:str):
+    
+    def storeworthy(value:int, id:int):
+        i = 31
+        while i != 0:
+            if i != id:
+                data = riscv.x.data[i]
+                if (value - data) in range(-2**11, 2**11-1) or (value + data) in range(-2**11, 2**11-1):
+                    return False
+            i -= 1
+        return True
+    
+    # define area style: define ... endefine
+    # in define area: address <- data
+    linefile = remove_empty(file).split('\n')
+    entered = False
+    id = 1
+    text = ''
+    newfile = ''
+    for line in linefile:
+        if line.split()[0] == 'define' or line.split()[0] == 'endefine':
+            if entered == True:
+                newfile += text
+                text = ''
+            entered = not entered
+            continue
+        if entered:
+            line = line.split()
+            addr = int(line[0])
+            data = int(line[2])
+            assert line[1] == '<-'
+            if data in riscv.x.data:
+                text += 'mem[x0 + ' + str(addr) + '] = x' + str(riscv.x.data.index(data)) + '\n'
+            else:
+                infor = 'x' + str(id) + ' = ' + str(data)
+                text += int2macro(infor)
+                text += 'mem[x0 + ' + str(addr) + '] = x' + str(id) + '\n'
+                if storeworthy(data, id):
+                    if id < 31:
+                        id += 1
+                    else:
+                        id = 1
+        else:
+            newfile += line + '\n'
+    return newfile
+    
 # Main:
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#     confirm = 'y'
-#     if len(sys.argv) <= 1: 
-#         print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
-#         confirm = 'n'
-#     else:
-#         filepath = sys.argv[1]
-#         if not os.path.exists(filepath):
-#             print('\n Input file not exists. \n')
-#             confirm = 'n'
+    confirm = 'y'
+    if len(sys.argv) <= 1: 
+        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
+        confirm = 'n'
+    else:
+        filepath = sys.argv[1]
+        if not os.path.exists(filepath):
+            print('\n Input file not exists. \n')
+            confirm = 'n'
 
-#         newfilepath = None
-#         try:
-#             newfilepath = sys.argv[2]
-#         except:
-#             ValueError
-#             pass
-#         if newfilepath == None or newfilepath[0] == '+':
-#             newfilepath = filepath.split('.s')[0] + '.bin'
-#         if os.path.exists(newfilepath):
-#             confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
+        newfilepath = None
+        try:
+            newfilepath = sys.argv[2]
+        except:
+            ValueError
+            pass
+        if newfilepath == None or newfilepath[0] == '+':
+            newfilepath = filepath.split('.s')[0] + '.bin'
+        if os.path.exists(newfilepath):
+            confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
 
-#     debug = False
-#     bystep = False
-#     comment = False
-#     for option in sys.argv:
-#         if option == '+debug':
-#             debug = True
-#         if option == '+bystep':
-#             bystep = True
-#         if option == '+comment':
-#             comment = True
+    debug = False
+    bystep = False
+    comment = False
+    for option in sys.argv:
+        if option == '+debug':
+            debug = True
+        if option == '+bystep':
+            bystep = True
+        if option == '+comment':
+            comment = True
 
-#     # start here
-#     if bystep and confirm == 'y':
-#         confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
-#     if confirm == 'y':
-#         if2macro(filepath, newfilepath)
+    # start here
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting define memory into dust macros. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        with open(filepath, 'r') as thisfile:
+            thisfile = thisfile.read()
+        thisfile = genmem2macro(thisfile)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
 
-#     if bystep and confirm == 'y':
-#         confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
-#     if confirm == 'y':
-#         while2macro(newfilepath, newfilepath)
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        thisfile = if2macro(thisfile)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
 
-#     if bystep and confirm == 'y':
-#         confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
-#     if confirm == 'y':
-#         demacro(newfilepath, comment, newfilepath)
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        thisfile = while2macro(thisfile)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
 
-#     if bystep and confirm == 'y':
-#         confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
-#     if confirm == 'y':
-#         compile.compile(newfilepath, newfilepath, debug)
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        demacro(newfilepath, comment, newfilepath)
 
-#     if confirm != 'y':
-#         print('\n Compilation give up.\n')
+    if bystep and confirm == 'y':
+        confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
+    if confirm == 'y':
+        compile.compile(newfilepath, newfilepath, debug)
+
+    if confirm != 'y':
+        print('\n Compilation give up.\n')
