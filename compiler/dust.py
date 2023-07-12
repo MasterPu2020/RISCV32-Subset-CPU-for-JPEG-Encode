@@ -10,16 +10,94 @@ import compile
 import sys
 import os
 
+# register file
+class regfile():
+
+    def __init__(self, size:int=32):
+        self.data = [0] * 32
+        self.busy = [False] * 32
+        self.access = [0] * 32
+        self.release = [''] * 32
+        self.history = [[0] * 10] * 32
+        self.size = [size] * 32
+        self.readonly = [False] * 32
+    
+    def reset(self):
+        self.data = [0] * 32
+        self.busy = [False] * 32
+        self.access = [0] * 32
+        self.release = [''] * 32
+        self.history = [[0] * 10] * 32
+
+    def use(self, id, releasemark:str):
+        assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
+        self.busy[id] = True
+        self.release[id] = releasemark
+    
+    def free(self, id, releasemark:str, force=False):
+        assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
+        if self.release[id] == releasemark:
+            self.busy[id] = False
+        elif force == True:
+            self.busy[id] = False
+    
+    def write(self, id, data:int):
+        assert range(-2**(self.size[id]-1), 2**(self.size[id]-1)-1), '\n Data Invaild: Data of range.'
+        assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
+        self.data[id] = data
+        self.history[id].pop(0)
+        self.history[id].append(data)
+        self.access[id] += 1
+    
+    def read(self, id):
+        return self.data[id]
+
+# riscv core
+class core():
+
+    def __init__(self, size:int=32, clock:int=1e9):
+        self.x = regfile(size)
+        self.clock = clock
+        self.opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
+        self.opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
+        self.funct7 = ['0000000', '0000000', '0000000', '0000000', '0100000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '',        '']
+        self.funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     '001',     '101',     '110',     '010',     '010',     '000',     '001',     '100',     '101']
+        self.x.readonly[0] = True
+
+    def request(self, releasemark:str):
+        id = 31
+        best = 31
+        minaccess = None
+        while id != 1:
+            if self.x.busy[id] == False:
+                best = id
+                minaccess = self.x.access[id]
+                break
+            id -= 1
+        if minaccess == None:
+            return None
+        id = 31
+        while id != 1:
+            if (not self.x.busy[id]) and (minaccess > self.x.access[id]):
+                best = id
+                minaccess = self.x.access[id]
+            id -= 1
+        self.x.use(best, releasemark)
+        return best
+
+    def free(self, releasemark, force=False):
+        id = 31
+        while id != 1:
+            self.x.free(id, releasemark, force)
+            id -= 1
+        return
+
+# Simulated riscv core for code optimization
+riscv = core(32, 50e6)
+
 # if it is a 12-bit signed integer
 def is_int12(string:str):
-    def is_int(string:str):
-        try:
-            int(string)
-            return True
-        except ValueError:
-            pass
-        return False
-    if is_int(string):
+    if compile.is_int(string):
         assert int(string) in range(-2**12, 2**12-1), 'ImmRangeError: '+string
         return True
     else:
@@ -252,277 +330,151 @@ def while2macro(path, newfilepath=None):
     with open(newfilepath, 'w') as newfile:
         newfile.write(text)
 
-# riscv core optimizing compiling
-class core():
-
-    def __init__(self, memsize=2**12):
-        # recorded reg file and mem file
-        self.x = [0] * 32
-        self.mem = [0] * memsize
-        self.endaddr = [0]
-        self.linemark = 0
-        # generated assembly code
-        self.assem = ''
-
-    # show cpu status
-    def show(self, reglen=5, memlen=5):
-        print('\n[Register File: 32 x 32bit]')
-        print('+','-'*77,'+')
-        for i in range(0,4):
-            text = '|'
-            for j in range(0,8):
-                text += ' ' * (2-len(str(j + i*8))) + 'x' + str(j + i*8) + ':' + ' ' * (reglen - len(str(self.x[j + i*8]))) + str(self.x[j + i*8]) + '|'
-            print(text)
-        print('+','-'*77,'+')
-        print('\n[Memory File: 4k x 32bit]')
-        print('+','-'*85,'+')
-        j = 0
-        text = '|'
-        for i in range(0, len(self.mem)):
-            if self.mem[i] == 0:
-                continue
-            else:
-                text += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(self.mem[i]))) + str(self.mem[i]) + '|'
-                j += 1
-                if j == 8:
-                    print(text)
-                    text = '|'
-                    j = 0
-        if len(text) != 0:
-            print(text+' '*(88-len(text))+'|')
-        print('+','-'*85,'+')
-
+# long int to macro (less than 32 bit, over than 12 bit signed int)
+def int2macro(line:str):
+    
     # search for a springboard in registers
-    def sb(self, imm):
-        for value in self.x:
+    def springboard(sregd, imm):
+        id = 1
+        while id != 32:
+            value = riscv.x.data[id]
             if imm + value in range(-2**11, 2**11-1):
-                sreg = 'x' + str(self.x.index(value)) + ' '
-                simm = str((imm + value)) + ' '
-                return simm ,sreg
+                sreg = 'x' + str(id)
+                simm = str(imm + value)
+                return sregd + ' = ' + sreg + ' + ' + simm + '\n'
             elif imm - value in range(-2**11, 2**11-1):
-                sreg = 'x' + str(self.x.index(value)) + ' '
-                simm = str((imm - value)) + ' '
-                return simm ,sreg
+                sreg = 'x' + str(id)
+                simm = str(imm - value)
+                return sregd + ' = ' + sreg + ' + ' + simm + '\n'
+            id += 1
         return None
     
-    # put a 32-bit integer to riscv core using subset
-    def int32(self, imm32:int, reg0=30, reg1=31, reg2=None, comment=False):
-        assert imm32 in range(-2**32, 2**32-1), 'Error: signed value given over than 32 bit.'
-        
-        # load imm to reg0, reg1 use for computing, reg2 is optional can used for optimize the pipline
-        if reg2 == None:
-            reg2 = reg0
-        sreg0 = 'x' + str(reg0) + ' '
+    # search for a register not in use:
+    def xidle():
+        id = riscv.request('int2macro')
+        assert id != None, 'registers are all in the use'
+        return 'x' + str(id)
 
-        # if reg0 already == im32
-        if self.x[reg0] == imm32:
-            return
-
-        if comment:
-            self.assem += '// load imm into ' + sreg0 + '\n'
-
-        # use springboard to load the value to register
-        if self.sb(imm32) != None:
-            self.assem += 'addi ' + self.sb(imm32)[0] + self.sb(imm32)[1] + sreg0 + '\n' 
-        # regularly load from the imm input
-        # reg2: imm[31:23] reg1: imm[22:11] reg0: imm[10:0]
-        else:
-            sreg1 = 'x' + str(reg1) + ' '
-            sreg2 = 'x' + str(reg2) + ' '
-            if imm32 in range(-2**11, 2**11-1):
-                simm0 = str(imm32) + ' '
-                self.assem += 'addi ' + simm0 + 'x0 ' + sreg0 + '\n'
-            elif imm32 in range(-2**22, 2**22-1):
-                imm1 = imm32 >> 11
-                imm0 = imm32 & (2**11-1)
-                simm1 = str(imm1) + ' '
-                simm0 = str(imm0) + ' '
-                # int signed 22-11 bit
-                simm1 = str(imm32 >> 11) + ' '
-                simm0 = str(imm32 & (2**11-1)) + ' '
-                # put signed 22-11 bit
-                self.assem += 'addi ' + simm1 + 'x0 ' + sreg1 + '\n'
-                self.assem += 'slli 11 ' + sreg1 + sreg1 + '\n'
-                # put unsigned 11-0 bit and connect 
-                self.assem += 'addi ' + simm0 + 'x0 ' + sreg0 + '\n'
-                self.assem += 'or ' + sreg1 + sreg0 + sreg0 + '\n'
-                # record operation result
-                self.x[reg1] = imm1 << 11
+    # macro input style: x1 = 9999
+    statement = line.split('//')[0].split()
+    if len(statement) == 3:
+        if statement[0][0] == 'x' and statement[1] == '=' and compile.is_int(statement[2]):
+            sregd = statement[0]
+            imm = int(statement[2])
+            assert imm in range(-2**31, 2**31-1), 'Error: signed value given over than 32 bit.'
+            if imm == riscv.x.data[int(sregd[1:])]:
+                return '// removed\n'
+            if imm in range(-2**11, 2**11-1):
+                riscv.x.write(int(sregd[1:]), imm)
+                return sregd + ' = x0 + ' + statement[2]
             else:
-                simm2 = str(imm32 >> 22) + ' '
-                simm1 = str((imm32 >> 11) & (2**11-1)) + ' '
-                simm0 = str(imm32 & (2**11-1)) + ' '
-                # put signed 32-22 bit
-                self.assem += 'addi ' + simm2 + 'x0 ' + sreg2 + '\n'
-                self.assem += 'slli 22 ' + sreg2 + sreg2 + '\n'
-                # put unsigned 21-11 bit and connect 
-                self.assem += 'addi ' + simm1 + 'x0 ' + sreg1 + '\n'
-                self.assem += 'slli 11 ' + sreg1 + sreg1 + '\n'
-                self.assem += 'or ' + sreg2 + sreg1 + sreg1 + '\n'
-                # put unsigned 11-0 bit and connect 
-                self.assem += 'addi ' + simm0 + 'x0 ' + sreg0 + '\n'
-                self.assem += 'or ' + sreg1 + sreg0 + sreg0 + '\n'
-                # record operation result
-                self.x[reg2] = (imm32 >> 22) << 22
-                self.x[reg1] = (((imm32 >> 11) & (2**11-1)) << 11) | self.x[reg2]
-        # record operation result
-        self.x[reg0] = imm32
-
-    # create a loop, developing
-    def loop(self, rega=1, judge='<', regb=2, line=None, reg0=31):
-        sreg0 = 'x' + str(reg0) + ' '
-        srega = 'x' + str(rega) + ' '
-        sregb = 'x' + str(regb) + ' '
-        if line != None:
-            self.linemark = line
-        self.assem += '// while ' + srega + judge + ' ' + sregb + ':\n'
-        if judge == '<':
-            self.int32(1,reg0)
-            self.assem += 'blt ' + sreg0 + 'x0 ' + 'linemark' + str(self.linemark+1) + '\n'
-            self.assem += 'linemark' + str(self.linemark) + ':\n'
-            self.linemark += 1
-            self.assem += '    // loop \n'
-            self.assem += 'linemark' + str(self.linemark) + ':\n'
-            self.linemark += 1
-            self.assem += 'blt ' + sregb + srega + 'linemark' + str(self.linemark-2) + '\n'
-
-    # store a continuous address table in memory
-    def store(self, table:list, offsetreg=29, startaddr=None, comment=False):
-        if startaddr == None:
-            startaddr = self.endaddr[-1]
-        assert len(table) in range(0,2**12-1), 'Table too long to store, try spliting it.'
-        endaddr = startaddr + len(table)
-        self.endaddr.append(endaddr)
-        
-        # use offset address or not
-        if not (startaddr in range(0,2**12-1) and endaddr in range(0,2**12-1)):
-            if comment:
-                self.assem += '// use offset, start address: ' + str(startaddr) + '\n'
-            self.int32(startaddr, offsetreg)
-            startaddr = 0
-        else:
-            offsetreg = 0
-        soffsetreg = 'x' + str(offsetreg) + ' '
-
-        if comment:
-            self.assem += '// Table length: ' + str(len(table)) + ' RAM start address: ' + str(startaddr) + '\n'
-
-        # storing the table
-        # sw  rs2 rs1 imm // sw  mem(imm + rs1) <- rs2
-        reg = 20
-        addr = startaddr
-
-        # detection: increasing, decreasing, steady
-        def detect(table:list, i):
-            counter = 1
-            detection = 0
-            lastdetection = 0
-            start = i
-            while i < len(table) - 1:
-                if table[i] == table[i + 1] - 1:
-                    detection = 1
-                elif table[i] == table[i + 1] + 1:
-                    detection = 2
-                elif table[i] == table[i + 1]:
-                    detection = 3
+                text = springboard(sregd, imm)
+                if text != None:
+                    riscv.x.write(int(sregd[1:]), imm)
+                    return text
                 else:
-                    detection = 0
-                if (detection != lastdetection and start != i) or detection == 0:
-                    break
-                else:
-                    lastdetection = detection
-                    counter += 1
-                i += 1
-            return counter, lastdetection
-            
-        while addr < len(table) + startaddr:
-
-            # detection: increasing, decreasing, steady
-            counter, rule = detect(table, addr-startaddr)
-            if (counter > 5):
-                if rule == 1:
-                    print('Increasing!', counter, table[addr-startaddr:addr-startaddr+counter])
-                elif rule == 2:
-                    print('Decreasing!', counter, table[addr-startaddr:addr-startaddr+counter])
-                elif rule == 3:
-                    print('steady!', counter, table[addr-startaddr:addr-startaddr+counter])
-                    
-
-            # store with no optimization
-            saddr = str(addr) + ' '
-            if table[addr-startaddr] != 0:
-                if table[addr-startaddr] in self.x:
-                    regn = self.x.index(table[addr-startaddr])
-                    sregn = 'x' + str(regn) + ' '
-                    self.assem += 'sw ' + sregn + soffsetreg + saddr + '\n'
-                else:
-                    self.int32(table[addr-startaddr],reg)
-                    sreg = 'x' + str(reg) + ' '
-                    self.assem += 'sw ' + sreg + soffsetreg + saddr + '\n'
-                    if reg == 31:
-                        reg = 20
+                    text = ''
+                    sreg0 = xidle()
+                    sreg1 = xidle()
+                    sreg2 = xidle()
+                    if imm in range(-2**22, 2**22-1):
+                        # int signed 22-11 bit
+                        simm0 = str(imm & (2**11-1)) + ' '
+                        simm1 = str(imm >> 11) + ' '
+                        # put signed 22-11 bit
+                        if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
+                            text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
+                        else:
+                            text += sreg1 + ' = x0 + ' + simm1 + '\n'
+                            text += sreg0 + ' = x0 + 11 \n'
+                            text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
+                        # put unsigned 11-0 bit and connect 
+                        text += sreg0 + ' = x0 + ' + simm0 + '\n'
+                        text += sreg0 + ' = ' + sreg1 + ' | ' + sreg0 + '\n'
                     else:
-                        reg += 1
+                        simm0 = str(imm & (2**11-1)) + ' '
+                        simm1 = str((imm >> 11) & (2**11-1)) + ' '
+                        simm2 = str(imm >> 22) + ' '
+                        # put signed 32-22 bit
+                        if springboard(sreg2, (imm & (-1 ^ (2**22-1)))) != None:
+                            text += springboard(sreg2, (imm & (-1 ^ (2**22-1))))
+                        else:
+                            text += sreg0 + ' = x0 + 22 \n'
+                            text += sreg2 + ' = x0 + ' + simm2 + '\n'
+                            text += sreg2 + ' = ' + sreg2 + ' << ' + sreg0 + '\n'
+                        # put unsigned 21-11 bit and connect 
+                        if springboard(sreg1, (imm & (-1 ^ (2**11-1)))) != None:
+                            text += springboard(sreg1, (imm & (-1 ^ (2**11-1))))
+                        else:
+                            text += sreg0 + ' = x0 + 11 \n'
+                            text += sreg1 + ' = x0 + ' + simm1 + '\n'
+                            text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
+                        text += sreg2 + ' = ' + sreg1 + ' | ' + sreg2 + '\n'
+                        # put unsigned 11-0 bit and connect 
+                        text += sreg0 + ' = x0 + ' + simm0 + '\n'
+                        text += sreg0 + ' = ' + sreg0 + ' | ' + sreg2 + '\n'
+                    riscv.free('int2macro')
+                    riscv.x.write(int(sregd[1:]), imm)
+                    return text
 
-            # record operation on riscv
-            self.mem[addr+self.x[offsetreg]] = table[addr-startaddr]
-            addr += 1
+# beta function: generate memory
+
 
 # Main:
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    confirm = 'y'
-    if len(sys.argv) <= 1: 
-        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
-        confirm = 'n'
-    else:
-        filepath = sys.argv[1]
-        if not os.path.exists(filepath):
-            print('\n Input file not exists. \n')
-            confirm = 'n'
+#     confirm = 'y'
+#     if len(sys.argv) <= 1: 
+#         print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
+#         confirm = 'n'
+#     else:
+#         filepath = sys.argv[1]
+#         if not os.path.exists(filepath):
+#             print('\n Input file not exists. \n')
+#             confirm = 'n'
 
-        newfilepath = None
-        try:
-            newfilepath = sys.argv[2]
-        except:
-            ValueError
-            pass
-        if newfilepath == None or newfilepath[0] == '+':
-            newfilepath = filepath.split('.s')[0] + '.bin'
-        if os.path.exists(newfilepath):
-            confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
+#         newfilepath = None
+#         try:
+#             newfilepath = sys.argv[2]
+#         except:
+#             ValueError
+#             pass
+#         if newfilepath == None or newfilepath[0] == '+':
+#             newfilepath = filepath.split('.s')[0] + '.bin'
+#         if os.path.exists(newfilepath):
+#             confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
 
-    debug = False
-    bystep = False
-    comment = False
-    for option in sys.argv:
-        if option == '+debug':
-            debug = True
-        if option == '+bystep':
-            bystep = True
-        if option == '+comment':
-            comment = True
+#     debug = False
+#     bystep = False
+#     comment = False
+#     for option in sys.argv:
+#         if option == '+debug':
+#             debug = True
+#         if option == '+bystep':
+#             bystep = True
+#         if option == '+comment':
+#             comment = True
 
-    # start here
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
-    if confirm == 'y':
-        if2macro(filepath, newfilepath)
+#     # start here
+#     if bystep and confirm == 'y':
+#         confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
+#     if confirm == 'y':
+#         if2macro(filepath, newfilepath)
 
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
-    if confirm == 'y':
-        while2macro(newfilepath, newfilepath)
+#     if bystep and confirm == 'y':
+#         confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
+#     if confirm == 'y':
+#         while2macro(newfilepath, newfilepath)
 
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
-    if confirm == 'y':
-        demacro(newfilepath, comment, newfilepath)
+#     if bystep and confirm == 'y':
+#         confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
+#     if confirm == 'y':
+#         demacro(newfilepath, comment, newfilepath)
 
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
-    if confirm == 'y':
-        compile.compile(newfilepath, newfilepath, debug)
+#     if bystep and confirm == 'y':
+#         confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
+#     if confirm == 'y':
+#         compile.compile(newfilepath, newfilepath, debug)
 
-    if confirm != 'y':
-        print('\n Compilation give up.\n')
+#     if confirm != 'y':
+#         print('\n Compilation give up.\n')
