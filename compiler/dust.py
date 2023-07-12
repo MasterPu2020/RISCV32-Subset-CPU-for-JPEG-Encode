@@ -248,7 +248,7 @@ def if2macro(oldfile:str):
         if line.split()[0] == 'endif':
             line = line.replace('endif', endmark[end_id] + ':', 1)
             end_id += 1
-        text += line
+        text += line + '\n'
     return text
 
 # while to macro:
@@ -302,7 +302,7 @@ def while2macro(oldfile):
             line = line.replace('endwhile', 'end' + endmark[end_id] + ':', 1)
             line = 'x0 == x0 goto start' + endmark[end_id] + '\n' + line
             end_id += 1
-        text += line
+        text += line + '\n'
     return text
 
 # long int to macro (less than 32 bit, over than 12 bit signed int)
@@ -345,10 +345,9 @@ def int2macro(line:str):
                 return text
             else:
                 text = ''
-                sreg0 = xidle()
-                sreg1 = xidle()
-                sreg2 = xidle()
                 if imm in range(-2**22, 2**22-1):
+                    sreg0 = xidle()
+                    sreg1 = xidle()
                     # int signed 22-11 bit
                     simm0 = str(imm & (2**11-1)) + ' '
                     simm1 = str(imm >> 11) + ' '
@@ -361,8 +360,11 @@ def int2macro(line:str):
                         text += sreg1 + ' = ' + sreg1 + ' << ' + sreg0 + '\n'
                     # put unsigned 11-0 bit and connect 
                     text += sreg0 + ' = x0 + ' + simm0 + '\n'
-                    text += sreg0 + ' = ' + sreg1 + ' | ' + sreg0 + '\n'
+                    text += sregd + ' = ' + sreg1 + ' | ' + sreg0 + '\n'
                 else:
+                    sreg0 = xidle()
+                    sreg1 = xidle()
+                    sreg2 = xidle()
                     simm0 = str(imm & (2**11-1)) + ' '
                     simm1 = str((imm >> 11) & (2**11-1)) + ' '
                     simm2 = str(imm >> 22) + ' '
@@ -383,7 +385,7 @@ def int2macro(line:str):
                     text += sreg2 + ' = ' + sreg1 + ' | ' + sreg2 + '\n'
                     # put unsigned 11-0 bit and connect 
                     text += sreg0 + ' = x0 + ' + simm0 + '\n'
-                    text += sreg0 + ' = ' + sreg0 + ' | ' + sreg2 + '\n'
+                    text += sregd + ' = ' + sreg0 + ' | ' + sreg2 + '\n'
                 riscv.free('int2macro')
                 riscv.x.write(int(sregd[1:]), imm)
                 return text
