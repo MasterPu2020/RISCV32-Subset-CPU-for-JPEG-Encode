@@ -28,15 +28,15 @@ def is_int12(string:str):
 # translation of simple arithmetic opertation macro:
 def macro2assem(line:str, comment=False):
     opcode = [['add','and','or','sll','sra','mul','mulh'], ['addi','xori', 'lw'], [ 'sw'], ['beq','bne','blt','bge']]
-    opsign = [[  '+',  '&', '|', '<<', '>>',  '*','*top'], [   '+',   '^','mem'], ['mem'], [ '==', '!=',  '<', '>=']]
+    opsign = [[  '+',  '&', '|', '<<', '>>',  '*l','*h'], [   '+',   '^','mem'], ['mem'], [ '==', '!=',  '<', '>=']]
     macro = line.replace(' ', '').replace('\n', '')
     while '//' in macro:
         macro = macro.split('//')[0]
     for op in opsign[0]:
         if op in macro and not ('mem' in macro):
             rd = macro.split('=')[0]
-            rs1 = macro.split('=')[1].split(op)[0]
-            rs2 = macro.split(op)[1]
+            rs1 = macro.split(op)[1]
+            rs2 = macro.split('=')[1].split(op)[0]
             if is_int12(rs1) or is_int12(rs2):
                 break
             op = opcode[0][opsign[0].index(op)]
@@ -51,7 +51,7 @@ def macro2assem(line:str, comment=False):
                 if macro.split('mem')[0] == '':
                     break
                 rs1 = macro.split('[')[1].split('+')[0]
-                rs2 = macro.split('+')[1].split(']')[1]
+                rs2 = macro.split('+')[1].split(']')[0]
             else:
                 rs1 = macro.split('=')[1].split(op)[0]
                 rs2 = macro.split(op)[1]
@@ -111,17 +111,19 @@ def demacro(path, comment=False, newfilepath=None):
 
 # remove empty lines, spaces
 def remove_empty(li:list):
+    i = 0
+    while i < len(li):
+        li[i] = li[i].lstrip()
+        i += 1
     for i in li:
         if i == '\n':
             li.remove('\n')
         if i == '':
             li.remove('')
+        if i == []:
+            li.remove([])
         if i == None:
             li.remove(None)
-    # i = 0
-    # while i < len(li):
-    #     li[i] = li[i].lstrip()
-    #     i += 1
     return li
 
 # if to macro:
@@ -168,11 +170,11 @@ def if2macro(path, newfilepath=None):
             line = line.replace('if ', '', 1)
             if '<' in line:
                 line = line.replace('<','>=', 1)
-            elif '>=' in file[line]:
+            elif '>=' in line:
                 line = line.replace('>=','<', 1)
-            elif '==' in file[line]:
+            elif '==' in line:
                 line = line.replace('==','!=', 1)
-            elif '!=' in file[line]:
+            elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
                 raise 'if statement error: line ' + str(file.index(line))
@@ -230,16 +232,16 @@ def while2macro(path, newfilepath=None):
             line = line.replace('while ', '', 1)
             if '<' in line:
                 line = line.replace('<','>=', 1)
-            elif '>=' in file[line]:
+            elif '>=' in line:
                 line = line.replace('>=','<', 1)
-            elif '==' in file[line]:
+            elif '==' in line:
                 line = line.replace('==','!=', 1)
-            elif '!=' in file[line]:
+            elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
                 raise 'while statement error: line ' + str(file.index(line))
             line = line.replace(',', ' goto end' + headmark[head_id], 1)
-            line = 'start' + endmark[end_id] + ':\n' + line
+            line = 'start' + headmark[head_id] + ':\n' + line
             assert 'goto' in line, 'while statement error: line ' + str(file.index(line)) + '. need ,'
             head_id += 1
         if line.split()[0] == 'endwhile':

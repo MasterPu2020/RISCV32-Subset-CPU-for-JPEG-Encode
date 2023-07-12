@@ -223,7 +223,7 @@ mem[0:1186] = hufftable + quantable + mem1180_1186
 x28 = img_row_in_uart[0]
 x29 = img_row_in_uart[1]
 sw(x0, x28, 1187)
-sw(x0, x28, 1188)
+sw(x0, x29, 1188)
 x1 = 4
 x28 = x28 >> x1
 x27 = x29 >> x1

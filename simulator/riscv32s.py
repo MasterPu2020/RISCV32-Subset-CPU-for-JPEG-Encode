@@ -80,9 +80,9 @@ def execute(inst, pc):
         x[rd] = op32(x[rs2] & x[rs1])
     elif inst_op == 'or':
         x[rd] = op32(x[rs2] | x[rs1])
-    elif inst_op == 'slli':
+    elif inst_op == 'sll':
         x[rd] = op32(x[rs2] << x[rs1])
-    elif inst_op == 'srli':
+    elif inst_op == 'sra':
         x[rd] = op32(x[rs2] >> x[rs1])
     elif inst_op == 'mul':
         x[rd] = op32(x[rs2] * x[rs1])
@@ -116,11 +116,11 @@ def execute(inst, pc):
             pc = (pc + immb) & (2**32-1)
             branch = True
     else:
-        raise 'Opcode not find'
+        exit('\n Error: Opcode not find: opcode is ' + inst_opbin)
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
-def show(reglen=5, memlen=5):
+def show(save=False, reglen=5, memlen=5):
     print('\n[Register File: 32 x 32bit]')
     print('+','-'*77,'+')
     for i in range(0,4):
@@ -129,10 +129,11 @@ def show(reglen=5, memlen=5):
             text += ' ' * (2-len(str(j + i*8))) + 'x' + str(j + i*8) + ':' + ' ' * (reglen - len(str(x[j + i*8]))) + str(x[j + i*8]) + '|'
         print(text)
     print('+','-'*77,'+')
-    print('\n[Memory File: 4k x 32bit]')
+    print('\n[Memory File]')
     print('+','-'*85,'+')
     j = 0
     text = '|'
+    line = 0
     for i in range(0, len(mem)):
         if mem[i] == 0:
             continue
@@ -141,25 +142,41 @@ def show(reglen=5, memlen=5):
             j += 1
             if j == 8:
                 print(text)
+                line += 1
                 text = '|'
                 j = 0
+        if line > 10:
+            text = "| Use 'savelog' command to save the whole Memory File into mem.log... "
+            break
     if len(text) != 0:
         print(text+' '*(88-len(text))+'|')
     print('+','-'*85,'+')
-
+    if save:
+        k = 0
+        logtext = '[Memory File]:\n|'
+        for i in range(0, len(mem)):
+            logtext += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
+            k += 1
+            if k == 32:
+                k = 0
+                logtext += '\n|'
+        with open('mem.log', 'w') as memlog:
+            memlog.write(logtext)
+    return
 
 # Main:
 # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
 if __name__ == '__main__':
     
     # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
-    assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear'
+    assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear +savelog'
     file = sys.argv[1]
     goto_runtime = 0
     dontclear = False
     branchcount = 0
     pause = False
     wait = 0
+    finalsave = False
     for option in sys.argv[1:]:
         if option == '+pause':
             pause = True
@@ -169,6 +186,8 @@ if __name__ == '__main__':
             goto_runtime = float(option[7:])
         if option == '+dontclear':
             dontclear = True
+        if option == '+savelog':
+            finalsave = True
 
     # Load Instructions
     with open(file, 'r') as bin_file:
@@ -176,6 +195,8 @@ if __name__ == '__main__':
     
     runtime = 0
     last_op = ''
+    savelog = False
+    hide = False
     # Start programm
     while pc < len(bin_code):
 
@@ -187,37 +208,49 @@ if __name__ == '__main__':
         inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch = execute(bin_code[pc], pc)
         if inst_op in opcode[11:]:
             branchcount += 1
+        if pc >= len(bin_code):
+            exit('\n Error: PC: ' + str(pc) + ' > ProgramLength: ' + str(bin_code))
         runtime += 1
         x[0] = 0
 
-        # Display CPU state
-        if not dontclear:
-            print('\033c',end='') # clear screen
-        show()
-        print('\n [CPU Instruction Information]')
-        print(' Program Counter (>>1):', pc)
-        print(' Instruction:', bin_code[pc])
-        print(' Operation:', inst_op)
-        print(' Rd:       ', rd)
-        print(' Rs1:      ', rs1)
-        print(' Rs2:      ', rs2)
-        print(' Imm[I]:   ', immi)
-        print(' Imm[S]:   ', imms)
-        print(' Imm[B]:   ', immb)
-        print(' Run Time: ', runtime)
-        print(' Branch Counter: ', branchcount)
-        print(' Last Operation: ', last_op)
-        last_op = inst_op
+        if not hide:
+            # Display CPU state
+            if not dontclear:
+                print('\033c',end='') # clear screen
+            show(savelog)
+            print('\n [CPU Instruction Information]')
+            print(' Program Counter (>>1):', pc)
+            print(' Instruction:', bin_code[pc])
+            print(' Operation:', inst_op)
+            print(' Rd:       ', rd)
+            print(' Rs1:      ', rs1)
+            print(' Rs2:      ', rs2)
+            print(' Imm[I]:   ', immi)
+            print(' Imm[S]:   ', imms)
+            print(' Imm[B]:   ', immb)
+            print(' Run Time: ', runtime)
+            print(' Branch Counter: ', branchcount)
+            print(' Last Operation: ', last_op)
+            last_op = inst_op
+        else:
+            print('\r Process: (', runtime, '/', goto_runtime, ')', end='')
 
         if runtime >= goto_runtime:
             if pause:
                 key = input('\nPress Enter to continue or debug...\n')
+                goto_runtime = runtime
                 if key.lower() == 'q' or key.lower() == 'quit' or key.lower() == 'exit':
                     break
-                if key.lower()[:9] == '+runtime=':
-                    goto_runtime = runtime + int(key[9:])
                 if key.lower()[:1] == '+':
-                    goto_runtime = runtime + int(key[1:])
+                    goto_runtime = runtime + int(key[1:].split()[0])
+                    if 'hide' in key.lower():
+                        hide = True
+                    else:
+                        hide = False
+                if key.lower() == 'savelog':
+                    savelog = True
+                else:
+                    savelog = False
             elif wait > 0:
                 time.sleep(wait)
         
@@ -225,15 +258,17 @@ if __name__ == '__main__':
             pc += 1
 
     # Exit programm
-    print('[Simulation Finished]\n')
-    
-    j = 0
-    text = '\n[Memory File: 4k x 32bit]\n|'
-    for i in range(0, 0x420):
-        text += ' ' * (6 - len(str(mem[i]))) + str(mem[i]) + '|'
-        j += 1
-        if j == 16:
-            text += '\n|'
-            j = 0
-    with open('mem.log', 'w') as memlog:
-        memlog.write(text)
+    print('\n[Simulation Finished]\n')
+
+    if finalsave:
+        k = 0
+        logtext = '[Memory File]:\n|'
+        for i in range(0, len(mem)):
+            logtext += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (5 - len(str(mem[i]))) + str(mem[i]) + '|'
+            k += 1
+            if k == 32:
+                k = 0
+                logtext += '\n|'
+        with open('mem.log', 'w') as memlog:
+            memlog.write(logtext)
+        print('[mem.log saved]\n')
