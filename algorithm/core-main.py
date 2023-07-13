@@ -318,7 +318,7 @@ while x2 != x28:
 
                         x19 = x19 + 16
                         img_row.append(x19)
-                        x22 = x19 + 0  # Cr
+                        x22 = x19 + 0  # Y
 
                         x19 = lw(x0, 1211)
                         x19 = (x19 * x16) >> 31
@@ -361,7 +361,8 @@ while x2 != x28:
     x1 = 0 + x0
     x2 = x2 + 1
 
-print(mem[x21-32*32:x21])
+# print(mem[x21-32*32:x21])
+# savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 2: Huffman endcode
@@ -373,7 +374,7 @@ x26 = 32
 
 def linemark1():
     global x29, x28, x27, x26, x30, x31
-    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25
+    global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23
 
     # 8x8 matrix subtraction: Sub Area 1
     # ------------------------------------------------------------------
@@ -459,7 +460,7 @@ def linemark1():
     x5 = 0
     x6 = 0
     while x3 != x15:
-        if x3 == 0:
+        if x3 == x0:
             x11 = lw(x0, 1198)
         else:
             x11 = lw(x0, 1199)
@@ -517,7 +518,7 @@ def linemark1():
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
     x2 = 1052 + x0
-    if x28 == 0:
+    if x28 == x0:
         x2 = 1116 + x0
     x1 = 0 + x0
     x5 = 64 + x0 
@@ -544,7 +545,9 @@ def linemark1():
     x9 = 1
     # Differential DC Value:
     x27 = lw(x0, 1472)
-    x11 = x27 - x29
+    x29 = x29 ^ -1
+    x29 = x29 + 1
+    x11 = x27 + x29
     sw(x0, x11, 1408)
     while x0 == x0:
         if x1 == x0 or x1 == x6:
@@ -565,7 +568,9 @@ def linemark1():
         if x1 == x6 and x2 == x6:
             break
         x5 = x5 + 1
-        x1 -= x3
+        x13 = x3 ^ -1
+        x13 = x13 + 1
+        x1 = x13 + x1
         x2 = x2 + x3
         x12 = x2 * x7
         x12 = x12 + x1
@@ -575,7 +580,7 @@ def linemark1():
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
     # 0 for Luminace
-    if x28 == 0:
+    if x28 == x0:
         x10 = 0
         x11 = 12
         x12 = 24
@@ -634,6 +639,9 @@ def linemark1():
             x26 = 32 - x5
             x17 = x16 << x26
             huffman_bit_stack.append(x17)
+        x19 = 1 + x0
+        x18 = 2 + x0
+        x5 = 3 + x0
         return
     
     # DC
@@ -696,7 +704,7 @@ sw(x0, x0, 1203)
 sw(x0, x0, 1204)
 sw(x0, x0, 1205)
 sw(x0, x0, 1206)
-x1 = 256 + x0 # 16*16*3
+x1 = 256 + x0 # 16 * 16
 x2 = lw(x0, 1189)
 x1 = x1 * x2
 x2 = lw(x0, 1190)
@@ -736,11 +744,12 @@ while x1 != x4:
             sw(x7, x9, 1408)
             x7 = x7 + 1
         x29 = lw(x0, 1204)
-        x28 = 0 
+        x28 = 0 # return sign
         linemark1() 
         sw(x0, x27, 1204)
         x3 = lw(x0, 1203)
-        if x3 == 3:
+        x8 = 3
+        if x3 == x8:
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6:
@@ -750,7 +759,7 @@ while x1 != x4:
                 sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1205)
-            x28 = 1 
+            x28 = 1 # return sign
             linemark1() 
             sw(x0, x27, 1205)
             x6 = 64 + x0
@@ -762,7 +771,7 @@ while x1 != x4:
                 sw(x7, x9, 1408)
                 x7 = x7 + 1
             x29 = lw(x0, 1206)
-            x28 = 2
+            x28 = 2 # return sign
             linemark1()
             sw(x0, x27, 1206)
             x6 = 64 + x0
@@ -796,7 +805,7 @@ while x26 != 0:
 huffman_bit_stack[-1] += x13
 mem[923100:923100+len(huffman_bit_stack)] = huffman_bit_stack
 
-# savemem()
+savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process

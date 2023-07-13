@@ -146,6 +146,7 @@ def macro2assem(line:str, comment=False):
             if 'mem' in macro:
                 if macro.split('mem')[0] == '':
                     break
+                op = 'mem'
                 rs1 = macro.split('[')[1].split('+')[0]
                 rs2 = macro.split('+')[1].split(']')[0]
             else:
@@ -324,7 +325,7 @@ def while2macro(oldfile:str):
     return text
 
 # long int to macro (less than 32 bit, over than 12 bit signed int)
-def int2macro(line:str):
+def int2macro(line:str, dontremove=False):
     
     # search for a springboard in registers
     def springboard(sregd, imm):
@@ -355,7 +356,7 @@ def int2macro(line:str):
             sregd = statement[0]
             imm = int(statement[2])
             assert imm in range(-2**31, 2**31-1), 'Error: signed value given over than 32 bit.'
-            if imm == riscv.x.data[int(sregd[1:])]:
+            if imm == riscv.x.data[int(sregd[1:])] and not dontremove:
                 return '// removed\n'
             text = springboard(sregd, imm)
             if text != None:
@@ -472,7 +473,7 @@ def genmem2macro(file:str, comment=False):
         else:
             newfile += line + '\n'
     return newfile
-    
+
 # beta function: save a long int into register:
 # DANGER: it does not know what register has been used
 def long2macro(file:str):
@@ -480,7 +481,7 @@ def long2macro(file:str):
     text = ''
     for line in linefile:
         riscv.x.reset()
-        text += int2macro(line + '\n')
+        text += int2macro(line + '\n', True)
     return text
 
 # Main:

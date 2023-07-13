@@ -121,16 +121,13 @@ def execute(inst, pc):
 
 # display reg file and mem file
 def show(save=False, reglen=7, memlen=7):
-    print('\n[Register File: 32 x 32bit]')
-    print('+','-'*77,'+')
+    print('\n[Register File: 32 x 32bit]\n')
     for i in range(0,4):
         text = '|'
         for j in range(0,8):
             text += ' ' * (2-len(str(j + i*8))) + 'x' + str(j + i*8) + ':' + ' ' * (reglen - len(str(x[j + i*8]))) + str(x[j + i*8]) + '|'
         print(text)
-    print('+','-'*77,'+')
-    print('\n[Memory File]')
-    print('+','-'*85,'+')
+    print('\n[Memory File]\n')
     j = 0
     text = '|'
     line = 0
@@ -149,8 +146,7 @@ def show(save=False, reglen=7, memlen=7):
             text = "| Use 'savelog' command to save the whole Memory File into mem.log... "
             break
     if len(text) != 0:
-        print(text+' '*(88-len(text))+'|')
-    print('+','-'*85,'+')
+        print(text+'|')
     if save:
         k = 0
         logtext = '[Memory File]:\n|'
@@ -235,7 +231,7 @@ if __name__ == '__main__':
         if inst_op in opcode[11:]:
             branchcount += 1
         if pc >= len(bin_code):
-            exit('\n Error: PC: ' + str(pc) + ' > ProgramLength: ' + str(bin_code))
+            exit('\n Error: PC: ' + str(pc) + ' > ProgramLength: ' + str(len(bin_code)))
         runtime += 1
         x[0] = 0
 

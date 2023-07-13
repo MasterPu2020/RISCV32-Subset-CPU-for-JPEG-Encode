@@ -506,10 +506,13 @@ endefine
 
 // Main function
 // ------------------------------------------------------------------
-// RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
-// Avialiable register remaind: x21 ~ x23
+// RegFile Work Aera 1: Re-Order Minimum coded (MCU)
+// Avialiable register remaind: x23
 // ------------------------------------------------------------------
-x20 = 1500
+
+// blocks: 1216 Y 1280 U 1344 V 1408 Block 1472 MidBlock
+x20 = 206800
+x21 = 2000
 x28 = mem[x20 + 0]
 x29 = mem[x20 + 1]
 mem[x0 + 1187] = x28
@@ -519,13 +522,6 @@ x28 = x28 >> x1
 x27 = x29 >> x1
 mem[x0 + 1189] = x28
 mem[x0 + 1190] = x27
-
-// block start here
-// 1216 Y
-// 1280 U
-// 1344 V
-// 1408 Block
-// 1472 MidBlock
 
 x1 = 0
 x2 = 0
@@ -556,45 +552,51 @@ while x2 != x28,
                     while x6 != x25,
                         x15 = x29 *l x6
                         x15 = x15 + x14
+                        x15 = x20 + x15
                         x19 = 255 + x0
-                        x16 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x16 = mem[x15 + 0] // uart[x15]
                         x16 = x16 >> x26
                         x16 = x16 & x19
-                        x17 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x17 = mem[x15 + 0] // uart[x15]
                         x17 = x17 >> x25
                         x17 = x17 & x19
-                        x18 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x18 = mem[x15 + 0] // uart[x15]
                         x18 = x18 & x19
-                        x19 = lw(x0, 1208)
+                        x19 = mem[x0 + 1208]
                         x19 = x19 *h x16
-                        x30 = lw(x0, 1209)
+                        x30 = mem[x0 + 1209]
                         x30 = x30 *h x17
                         x19 = x19 + x30
-                        x30 = lw(x0, 1210)
+                        x30 = mem[x0 + 1210]
                         x30 = x30 *h x18
                         x19 = x19 + x30
                         x19 = x19 + 16
-                        img_row.append(x19)
-                        x19 = lw(x0, 1211)
+                        x22 = x19 + 0  // Y
+                        x19 = mem[x0 + 1211]
                         x19 = x19 *h x16
-                        x30 = lw(x0, 1212)
+                        x30 = mem[x0 + 1212]
                         x30 = x30 *h x17
                         x19 = x19 + x30
-                        x30 = lw(x0, 1213)
+                        x30 = mem[x0 + 1213]
                         x30 = x30 *h x18
                         x19 = x19 + x30
                         x19 = x19 + 128
-                        img_row.append(x19)
-                        x19 = lw(x0, 1214)
+                        x19 = x19 << x25
+                        x22 = x19 + x22 // Cb
+                        x19 = mem[x0 + 1214]
                         x19 = x19 *h x17
-                        x30 = lw(x0, 1213)
+                        x30 = mem[x0 + 1213]
                         x30 = x30 *h x16 
                         x19 = x19 + x30
-                        x30 = lw(x0, 1215)
+                        x30 = mem[x0 + 1215]
                         x30 = x30 *h x18
                         x19 = x19 + x30
                         x19 = x19 + 128
-                        img_row.append(x19)
+                        x19 = x19 << x26
+                        x22 = x19 + x22 // Cr
+                        mem[x21 + 0] = x22
+                        x21 = x21 + 1
+
                         x6 = x6 + 1
                     endwhile
                     x6 = 0 + x0
@@ -612,3 +614,583 @@ while x2 != x28,
     x1 = 0 + x0
     x2 = x2 + 1
 endwhile
+
+// ------------------------------------------------------------------
+// RegFile Work Aera 2: Block Process and Huffman endcode
+// ------------------------------------------------------------------
+
+// Function used regiters
+x26 = 32 // Huffman code stack space very 32 bit
+x25 = 206800 // UART interface, where to save Huffman code
+// x28 return key and mode
+// x29 differential DC value
+
+// Function Entry
+x0 == x0 goto EndBlockProcess
+BlockProcess:
+
+// ------------------------------------
+// 8x8 matrix subtraction: Sub Area 1
+// ------------------------------------
+
+x1 = 0 + x0
+x2 = 64 + x0
+while x1 != x2,
+    x3 = mem[x1 + 1408]
+    x3 = x3 + -128
+    mem[x1 + 1472] = x3
+    mem[x1 + 1408] = x0
+    x1 = x1 + 1
+endwhile
+
+// ------------------------------------
+// Discrete Cosine Transform: Sub Area 2
+// ------------------------------------
+
+// SubFunction: CORDIC cosine
+x0 == x0 goto ENDCORDIC
+CORDIC:
+    x8 = 0 + x0
+    x20 = 205887  // dust will help
+    x21 = -411775 // dust will help
+    x22 = 102944  // dust will help
+    while x20 < x9, 
+        x9 = x9 + x21
+    endwhile
+    if x22 < x9,
+        x8 = 1 + x0
+        x20 = x20 ^ -1
+        x20 = x20 + 1
+        x9 = x9 + x20
+        x0 == x0 goto endelse2
+    endif
+        x22 = x22 ^ -1 
+        x22 = x22 + 1
+        if x9 < x22,
+            x8 = 1 + x0
+            x9 = x9 + x20
+        endif
+    endelse2:
+    x10 = 0 + x0
+    mem[x0 + 1191] = x0
+    mem[x0 + 1192] = x0
+    mem[x0 + 1193] = x0
+    mem[x0 + 1194] = x0
+    mem[x0 + 1195] = x0
+    mem[x0 + 1196] = x0
+    mem[x0 + 1197] = x0
+    x7 = 0 + x0
+    while x7 != 7,
+        if x9 < x10: 
+            x20 = mem[x7 + 1180]
+            x20 = ~ x20 + 1
+            x10 = x10 + x20
+            x21 = 1 + x0
+            mem[x7 + 1191] = x21
+            x0 == x0 goto endelse3
+        endif
+            x20 = mem[x7 + 1180]
+            x10 = x10 + x20
+            mem[x7 + 1191] = x0
+        endelse3:
+        x7 = x7 + 1
+    endwhile
+    x1 = 39797 // dust will help
+    x2 = 0 + x0
+    x7 = 6 + x0
+    x21 = 1 + x0
+    x23 = -1 + x0
+    while x7 != x23,
+        x20 = mem[x7 + 1191]
+        x22 = x2 >> x7
+        if x20 == x21,
+            x22 = x22 ^ -1
+            x22 = x22 + 1
+            x1 = x1 + x22
+            x22 = x1 >> x7
+            x0 == x0 goto endelse4
+        endif
+            x1 = x1 + x22
+            x22 = x1 >> x7
+            x22 = x22 ^ -1
+            x22 = x22 + 1
+        endelse4:
+        x2 = x22 + x2
+        x7 = x7 + -1
+    endwhile
+    if x8 == x21,
+        x1 = x1 ^ -1
+        x1 = x1 + 1
+    endif
+// CORDIC return gate
+// return key: x24
+x21 = 1 + x0
+x24 == x0 goto CORDICGate0
+x24 == x21 goto CORDICGate1
+ENDCORDIC:
+
+// DCT
+x15 = 8 + x0
+x17 = 2 + x0
+x3 = 0 + x0
+x4 = 0 + x0
+x5 = 0 + x0
+x6 = 0 + x0
+while x3 != x15,
+    if x3 == x0,
+        x11 = mem[x0 + 1198]
+        x0 == x0 goto endelse5
+    endif
+        x11 = mem[x0 + 1199]
+    endelse5:
+    while x4 != x15,
+        if x4 == 0,
+            x12 = mem[x0 + 1198]
+            x0 == x0 goto endelse6
+        endif
+            x12 = mem[x0 + 1199]
+        endelse6:
+        x14 = 0 + x0
+        while x5 != x15,
+            while x6 != x15,
+                x16 = x5 *l x15
+                x16 = x16 + x6
+                x13 = mem[x16 + 1472]
+                x9 = x17 *l x5
+                x9 = x9 + 1
+                x9 = x9 *l x3
+                x23 = mem[x0 + 1200]
+                x9 = x9 *l x23
+                x24 = 0 + x0 // return key
+                x0 == x0 goto CORDIC // call function
+                CORDICGate0: // return gate
+                x13 = x13 *l x1
+                x13 = x13 >> x15
+                x9 = x17 *l x6
+                x9 = x9 + 1
+                x9 = x9 *l x4
+                x23 = mem[x0 + 1200]
+                x9 = x9 *l x23
+                x24 = 1 + x0// return key
+                x0 == x0 goto CORDIC // call function
+                CORDICGate1: // return gate
+                x13 = x13 *l x1
+                x13 = x13 >> x15
+                x14 = x14 + x13
+                x6 = x6 + 1
+            endwhile
+            x6 = 0 + x0
+            x5 = x5 + 1
+        endwhile
+        x16 = x11 *h x12
+        x13 = x11 *l x12
+        x18 = 15 + x0
+        x16 = x16 << x18
+        x18 = x18 + 1
+        x13 = x13 >> x18
+        x13 = x13 | x16
+        x13 = x13 *h x14
+        x18 = 3 + x0
+        x13 = x13 >> x18
+        if x13 != 0,
+            x13 = x13 + 1
+        endif
+        x16 = x3 *l x15
+        x16 = x4 + x16
+        mem[x16 + 1408] = x13
+        x5 = 0 + x0
+        x4 = x4 + 1
+    endwhile
+    x4 = 0 + x0
+    x3 = x3 + 1
+endwhile
+
+// ------------------------------------
+// Quantization: Sub Area 3
+// ------------------------------------
+
+x2 = 1052 + x0
+if x28 == x0,
+    x2 = 1116 + x0
+endif
+x1 = 0 + x0
+x5 = 64 + x0 
+x7 = 16 + x0
+while x1 != x5,
+    x6 = x1 + x2
+    x3 = mem[x6 + 0]
+    x4 = mem[x1 + 1408]
+    x3 = x3 *l x4
+    x3 = x3 >> x7
+    mem[x1 + 1408] = x0
+    mem[x1 + 1472] = x3
+    x1 = x1 + 1
+endwhile
+
+// ------------------------------------
+// Zigzag Scan: Sub Area 4
+// ------------------------------------
+
+x1 = 0 + x0
+x2 = 0 + x0
+x5 = 0 + x0
+x3 = 1 + x0
+x4 = 0 + x0
+x6 = 7 + x0
+x7 = 8 + x0
+x9 = 1 + x0
+// Differential DC Value:
+x27 = mem[x0 + 1472]
+x29 = x29 ^ -1
+x29 = x29 + 1
+x11 = x27 + x29
+mem[x0 + 1408] = x11
+while x0 == x0,
+    // special if structure
+    x1 == x0 goto iformark0
+    x1 == x6 goto iformark0
+    x0 == x0 goto endiformark0
+    iformark0:
+        x2 = x2 + 1
+        x4 = 1 + x0
+        x0 == x0 goto endelseifmark0
+    endiformark0:
+    x2 == x0 goto iformark1
+    x2 == x6 goto iformark1
+    x0 == x0 goto endelseifmark0
+    iformark1:
+        x1 = x1 + 1
+        x4 = 1 + x0
+    endelseifmark0:
+    if x4 == x9,
+        x4 = 0 + x0
+        x3 = x3 ^ -1
+        x3 = x3 + 1
+        x5 = x5 + 1
+        x12 = x2 *l x7
+        x12 = x12 + x1
+        x11 = mem[x12 + 1472]
+        mem[x5 + 1408] = x11
+    endif
+    // if x1 == x6 and x2 == x6:
+    x2 != x6 goto ifandmark0
+    x1 != x6 goto ifandmark0
+        x0 == x0 goto breakmark0
+    ifandmark0:
+    x5  = x5  + 1
+    x13 = x3  ^ -1
+    x13 = x13 + 1
+    x1  = x13 + x1
+    x2  = x2  + x3
+    x12 = x2 *l x7
+    x12 = x12 + x1
+    x11 = mem[x12 + 1472]
+    mem[x5 + 1408] = x11
+endwhile
+breakmark0:
+
+// ------------------------------------
+// Huffman Encode: Sub Area 6
+// ------------------------------------
+
+// 0 for Luminace
+if x28 == x0,
+    x10 = 0 + x0
+    x11 = 12 + x0
+    x12 = 24 + x0
+    x13 = 275 + x0
+    x0 == x0 goto endelse7
+endif
+    x10 = 526 + x0
+    x11 = 538 + x0
+    x12 = 550 + x0
+    x13 = 801 + x0
+endelse7:
+
+// SubFunction: Get data and size
+x0 == x0 goto EndGetDataAndSize
+GetDataAndSize:
+    x14 = 0 + x0
+    x15 = 0 + x0
+    x17 = 1 + x0
+    if x1 < x0,
+        x1 = x1 ^ -1
+        x1 = x1 + 1
+        x15 = 1 + x0
+    endif
+    x2 = x1 + 0
+    while x1 != x0,
+        x1 = x1 >> x17
+        x14 = x14 + 1
+    endwhile
+    x3 = x14 + 0
+    if x15 == x17,
+        x16 = 0 + x0
+        while x14 != x0,
+            x16 = x16 << x17
+            x16 = x16 + 1
+            x14 = x14 + -1
+        endwhile
+        x2 = x2 ^ -1
+        x2 = x2 & x16
+    endif
+
+// Get data and size return gate
+// return key: x24
+x19 = 1 + x0
+x23 == x0 goto GetDataAndSizeReturnGate0
+x23 == x19 goto GetDataAndSizeReturnGate1
+EndGetDataAndSize:
+
+// SubFunction: Push Huffman bit stack
+x0 == x0 goto EndPushHuffmanBitStack
+PushHuffmanBitStack:
+    x14 = mem[x25 + 0]
+    if x26 >= x5,
+        x5 = x5 ^ -1
+        x5 = x5 + 1
+        x18 = x26 + x5
+        x18 = x4 << x18
+        x14 = x14 + x18
+        mem[x25 + 0] = x14
+        x26 = x26 + x5
+        x0 == x0 goto endelse8
+    endif
+        x19 = x26 ^ -1
+        x19 = x19 + 1
+        x18 = x5 + x19
+        x18 = x4 >> x18
+        x14 = x14 | x18
+        mem[x25 + 0] = x14 
+        x5 = x5 + x19
+        x15 = x5 + 0
+        x16 = 0 + x0
+        while x15 != x0,
+            x16 = x16 << 1
+            x16 = x16 + 1
+            x15 = x15 + -1
+        endwhile
+        x16 = x16 & x4
+        x19 = x5 ^ -1
+        x19 = x19 + 1
+        x26 = 32 + x19
+        x17 = x16 << x26
+        x25 = x25 + 1
+        mem[x25 + 0] = x17
+    endelse8:
+
+// Push Huffman bit stack return gate
+// return key: x23
+x19 = 1 + x0
+x18 = 2 + x0
+x5 = 3 + x0
+x23 == x0 goto PushHuffmanBitStackReturnGate0
+x23 == x19 goto PushHuffmanBitStackReturnGate1
+x23 == x18 goto PushHuffmanBitStackReturnGate2
+x23 == x5 goto PushHuffmanBitStackReturnGate3
+EndPushHuffmanBitStack:
+
+# DC
+x1 = mem[x0 + 1408]
+x24 = x0 + 0
+x0 == x0 goto GetDataAndSize
+GetDataAndSizeReturnGate0:
+x14 = x10 + x3
+x6 = mem[x14 + 0]
+x14 = x11 + x3
+x7 = mem[x14 + 0]
+x4 = x6 << x3
+x4 = x4 + x2
+x5 = x3 + x7
+x23 = x0 + 0
+x0 == x0 goto PushHuffmanBitStack
+PushHuffmanBitStackReturnGate0:
+
+# AC
+x9 = 0 + x0
+x20 = 1 + x0
+x21 = 64 + x0
+x22 = 15 + x0
+while x20 != x21,
+    x15 = mem[x20 + 1408]
+    if x15 == x0,
+        x9 = x9 + 1
+        x0 == x0 goto endelse9
+    endif
+        while x22 < x9, // zeros over than 15
+            x9 = x9 - 16
+            x4 = mem[x12 + 240]
+            x5 = mem[x13 + 240]
+            x23 = x0 + 0
+            x0 == x0 goto PushHuffmanBitStack
+            PushHuffmanBitStackReturnGate1:
+        endwhile
+        // Assembly
+        x1 = mem[x20 + 1408]
+        x24 = x0 + 1
+        x0 == x0 goto GetDataAndSize
+        GetDataAndSizeReturnGate1:
+        x17 = 4
+        x8 = x9 << x17
+        x8 = x8 + x3
+        x14 = x12 + x8
+        x6 = mem[x14 + 0]
+        x14 = x13 + x8
+        x7 = mem[x14 + 0]
+        x4 = x6 << x3
+        x4 = x4 + x2
+        x5 = x3 + x7
+        x23 = x0 + 0
+        x0 == x0 goto PushHuffmanBitStack
+        PushHuffmanBitStackReturnGate2:
+        x9 = 0 + x0
+    endelse9:
+    x20 = x20 + 1
+endwhile
+
+# EOB
+if x9 != x0,
+    x4 = mem[x12 + 0]
+    x5 = mem[x13 + 0]
+    x23 = x0 + 0
+    x0 == x0 goto PushHuffmanBitStack
+    PushHuffmanBitStackReturnGate3:
+endif
+
+// ------------------------------------
+// Function Return Gate
+// ------------------------------------
+
+x1 = 0 + x0
+x2 = 1 + x0
+x3 = 2 + x0
+x28 == x1 goto BlockProcessReturnGate0
+x28 == x2 goto BlockProcessReturnGate1
+x28 == x3 goto BlockProcessReturnGate2
+EndBlockProcess:
+
+// ------------------------------------------------------------------
+// RegFile Work Aera 3: Sampling
+// ------------------------------------------------------------------
+
+mem[x0 + 1201] = x0
+mem[x0 + 1202] = x0
+mem[x0 + 1203] = x0
+mem[x0 + 1204] = x0
+mem[x0 + 1205] = x0
+mem[x0 + 1206] = x0
+x1 = 256 + x0 // 16 * 16
+x2 = mem[x0 + 1189]
+x1 = x1 *l x2
+x2 = mem[x0 + 1190]
+x4 = x1 *l x2
+mem[x0 + 1207] = x4
+x1 = 0 + x0
+x2 = 0 + x0
+x3 = 0 + x0
+
+while x1 != x4,
+    x6 = mem[x1 + 2000]
+    x10 = 255 + x0
+    x11 = 8 + x0
+    x12 = 16 + x0
+    x6 = x10 & x6
+    mem[x2 + 1216] = x6
+    x6 = mem[x1 + 2000]
+    x6 = x6 >> x11
+    x6 = x6 & x10
+    x7 = mem[x2 + 1280]
+    x6 = x6 + x7
+    mem[x2 + 1280] = x6
+    x6 = mem[x1 + 2000]
+    x7 = mem[x2 + 1344]
+    x6 = x6 >> x12
+    x6 = x6 & x10
+    x6 = x6 + x7
+    mem[x2 + 1344] = x6
+    x6 = 63 + x0
+    if x2 == x6,
+        mem[x0 + 1201] = x1
+        mem[x0 + 1203] = x3
+        x6 = 64 + x0
+        x7 = 0 + x0
+        while x7 != x6,
+            x9 = mem[x7 + 1216]
+            mem[x7 + 1408] = x9
+            x7 = x7 + 1
+        endwhile
+        x29 = mem[x0 + 1204]
+        x28 = 0 + x0// return key
+        x0 == x0 goto BlockProcess // Call function
+        BlockProcessReturnGate0: // Return Gate 0
+        mem[x0 + 1204] = x27
+        x3 = mem[x0 + 1203]
+        x8 = 3 + x0
+        if x3 == x8,
+            x6 = 64 + x0
+            x7 = 0 + x0
+            while x7 != x6,
+                x9 = mem[x7 + 1280]
+                x5 = 2 + x0
+                x9 = x9 >> x5
+                mem[x7 + 1408] = x9
+                x7 = x7 + 1
+            endwhile
+            x29 = mem[x0 + 1205]
+            x28 = 1 + x0 // return key
+            x0 == x0 goto BlockProcess // Call function
+            BlockProcessReturnGate1: // Return Gate 1
+            mem[x0 + 1205] = x27
+            x6 = 64 + x0
+            x7 = 0 + x0
+            while x7 != x6,
+                x9 = mem[x7 + 1344]
+                x5 = 2 + x0
+                x9 = x9 >> x5
+                mem[x7 + 1408] = x9
+                x7 = x7 + 1
+            endwhile
+            x29 = mem[x0 + 1206]
+            x28 = 2 + x0 // return key
+            x0 == x0 goto BlockProcess // Call function
+            BlockProcessReturnGate2: // Return Gate 2
+            mem[x0 + 1206] = x27
+            x6 = 64 + x0
+            x7 = 0 + x0
+            while x7 != x6,
+                mem[x7 + 1280] = x0
+                mem[x7 + 1344] = x0
+                x7 = x7 + 1
+            endwhile
+            x3 = 0 + x0
+            x0 == x0 goto endelse0
+        endif
+            x3 = x3 + 1
+        endelse0:
+        x2 = 0 + x0
+        x1 = mem[x0 + 1201]
+        x4 = mem[x0 + 1207]
+        x0 == x0 goto endelse1
+    endif
+        x2 = x2 + 1
+    endelse1:
+    x1 = x1 + 1
+endwhile
+
+// ------------------------------------------------------------------
+// RegFile Work Aera 4: Post Process
+// ------------------------------------------------------------------
+
+x13 = 0
+x1 = 1
+while x26 != 0,
+    x13 = x13 << x1
+    x13 = x13 + 1
+    x26 = x26 + -1
+x2 = mem[x25 + 0]
+x13 = x13 + x2
+mem[x25 + 0] = x13
+
+// end of program signature
+
+x31 = 9999
