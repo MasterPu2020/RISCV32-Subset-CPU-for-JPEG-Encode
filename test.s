@@ -680,10 +680,12 @@ CORDIC:
     mem[x0 + 1196] = x0
     mem[x0 + 1197] = x0
     x7 = 0 + x0
-    while x7 != 7,
-        if x9 < x10: 
+    x22 = 7 + x0
+    while x7 != x22,
+        if x9 < x10,
             x20 = mem[x7 + 1180]
-            x20 = ~ x20 + 1
+            x20 = x20 ^ -1
+            x20 = x20 + 1
             x10 = x10 + x20
             x21 = 1 + x0
             mem[x7 + 1191] = x21
@@ -744,7 +746,7 @@ while x3 != x15,
         x11 = mem[x0 + 1199]
     endelse5:
     while x4 != x15,
-        if x4 == 0,
+        if x4 == x0,
             x12 = mem[x0 + 1198]
             x0 == x0 goto endelse6
         endif
@@ -792,7 +794,7 @@ while x3 != x15,
         x13 = x13 *h x14
         x18 = 3 + x0
         x13 = x13 >> x18
-        if x13 != 0,
+        if x13 != x0,
             x13 = x13 + 1
         endif
         x16 = x3 *l x15
@@ -965,8 +967,9 @@ PushHuffmanBitStack:
         x5 = x5 + x19
         x15 = x5 + 0
         x16 = 0 + x0
+        x19 = x0 + 1
         while x15 != x0,
-            x16 = x16 << 1
+            x16 = x16 << x19
             x16 = x16 + 1
             x15 = x15 + -1
         endwhile
@@ -1183,10 +1186,11 @@ endwhile
 
 x13 = 0
 x1 = 1
-while x26 != 0,
+while x26 != x0,
     x13 = x13 << x1
     x13 = x13 + 1
     x26 = x26 + -1
+endwhile
 x2 = mem[x25 + 0]
 x13 = x13 + x2
 mem[x25 + 0] = x13

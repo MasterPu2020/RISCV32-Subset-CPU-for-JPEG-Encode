@@ -20,6 +20,7 @@ funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     
 x = [0] * 32 # registers
 pc = 0
 mem = [0] * 411600 # RAM
+freq = 50e6
 
 # Verilog style trancation
 def tranc(string:str, top:int, buttom:int=-1): 
@@ -120,7 +121,7 @@ def execute(inst, pc):
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
-def show(save=False, reglen=7, memlen=7):
+def show(save=False, start=0, maxcal=20, maxrow=8, reglen=7, memlen=7):
     print('\n[Register File: 32 x 32bit]\n')
     for i in range(0,4):
         text = '|'
@@ -131,18 +132,18 @@ def show(save=False, reglen=7, memlen=7):
     j = 0
     text = '|'
     line = 0
-    for i in range(0, len(mem)):
-        if mem[i] == 0:
+    for i in range(start, len(mem)):
+        if mem[i] == 0 and start == 0:
             continue
         else:
             text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
             j += 1
-            if j == 8:
+            if j == maxcal:
                 print(text)
                 line += 1
                 text = '|'
                 j = 0
-        if line > 10:
+        if line > maxrow:
             text = "| Use 'savelog' command to save the whole Memory File into mem.log... "
             break
     if len(text) != 0:
@@ -193,8 +194,12 @@ if __name__ == '__main__':
     goto_runtime = 0
     dontclear = False
     branchcount = 0
+    branchture = 0
     pause = False
     wait = 0
+    maxcal = 8
+    maxrow = 20
+    memstart = 0
     finalsave = False
     for option in sys.argv[1:]:
         if option == '+pause':
@@ -230,6 +235,8 @@ if __name__ == '__main__':
         inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch = execute(bin_code[pc], pc)
         if inst_op in opcode[11:]:
             branchcount += 1
+            if branch:
+                branchture += 1
         if pc >= len(bin_code):
             exit('\n Error: PC: ' + str(pc) + ' > ProgramLength: ' + str(len(bin_code)))
         runtime += 1
@@ -239,9 +246,9 @@ if __name__ == '__main__':
             # Display CPU state
             if not dontclear:
                 print('\033c',end='') # clear screen
-            show(savelog)
+            show(savelog, memstart, maxcal, maxrow)
             print('\n [CPU Instruction Information]')
-            print(' Program Counter (>>1):', pc)
+            print(' Program Counter:', pc)
             print(' Instruction:', bin_code[pc])
             print(' Operation:', inst_op)
             print(' Rd:       ', rd)
@@ -250,8 +257,8 @@ if __name__ == '__main__':
             print(' Imm[I]:   ', immi)
             print(' Imm[S]:   ', imms)
             print(' Imm[B]:   ', immb)
-            print(' Run Time: ', runtime)
-            print(' Branch Counter: ', branchcount)
+            print(' Run Time(50Mhz): ', round(runtime * (1 / 50e6), 4), '(s), Executed:', runtime)
+            print(' Branch Counter: ', branchcount, 'True:', branchture, 'False:', branchcount - branchture)
             print(' Last Operation: ', last_op)
             last_op = inst_op
         else:
@@ -259,6 +266,7 @@ if __name__ == '__main__':
 
         if runtime >= goto_runtime:
             if pause:
+                hide = False
                 key = input('\nPress Enter to continue or debug...\n')
                 goto_runtime = runtime
                 if key.lower() == 'q' or key.lower() == 'quit' or key.lower() == 'exit':
@@ -267,12 +275,16 @@ if __name__ == '__main__':
                     goto_runtime = runtime + int(key[1:].split()[0])
                     if 'hide' in key.lower():
                         hide = True
-                    else:
-                        hide = False
                 if key.lower() == 'savelog':
                     savelog = True
                 else:
                     savelog = False
+                if 'memcal' in key.lower():
+                    maxcal = int(key.lower().strip('memcal'))
+                if 'memrow' in key.lower():
+                    maxrow = int(key.lower().strip('memrow'))
+                if 'mem:' in key.lower():
+                    memstart = int(key.lower().strip('mem:'))
             elif wait > 0:
                 time.sleep(wait)
         

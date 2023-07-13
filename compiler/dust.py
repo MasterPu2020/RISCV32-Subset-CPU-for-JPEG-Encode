@@ -182,6 +182,7 @@ def macro2assem(line:str, comment=False):
     for op in opsign[3]:
         if op in macro:
             # branch style: rs1 < rs2 goto linemark
+            assert 'goto' in macro, '\n Epression missing:' + macro
             linemark = macro.split('goto')[1]
             rs1 = macro.split(op)[0]
             rs2 = macro.split(op)[1].split('goto')[0]
@@ -248,6 +249,7 @@ def if2macro(oldfile:str):
     text = ''
     if_id = 0
     end_id = 0
+    line_id = 0
     for line in file:
         if line.split()[0] == 'if':
             line = line.replace('if ', '', 1)
@@ -260,14 +262,15 @@ def if2macro(oldfile:str):
             elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
-                raise 'if statement error: line ' + str(file.index(line))
+                raise 'if statement error: line ' + str(line_id)
             line = line.replace(',', ' goto ' + ifmark[if_id], 1)
-            assert 'goto' in line, 'if statement error: line ' + str(file.index(line)) + '. need ,'
+            assert 'goto' in line, 'if statement error: line ' + str(line_id) + '. need ,'
             if_id += 1
         if line.split()[0] == 'endif':
             line = line.replace('endif', endmark[end_id] + ':', 1)
             end_id += 1
         text += line + '\n'
+        line_id += 1
     return text
 
 # while to macro:
@@ -300,6 +303,7 @@ def while2macro(oldfile:str):
     text = ''
     head_id = 0
     end_id = 0
+    line_id = 0
     for line in file:
         if line.split()[0] == 'while':
             line = line.replace('while ', '', 1)
@@ -312,16 +316,17 @@ def while2macro(oldfile:str):
             elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
-                raise 'while statement error: line ' + str(file.index(line))
+                raise 'while statement error: line ' + str(line_id)
             line = line.replace(',', ' goto end' + headmark[head_id], 1)
             line = 'start' + headmark[head_id] + ':\n' + line
-            assert 'goto' in line, 'while statement error: line ' + str(file.index(line)) + '. need ,'
+            assert 'goto' in line, 'while statement error: line ' + str(line_id) + '. need ,'
             head_id += 1
         if line.split()[0] == 'endwhile':
             line = line.replace('endwhile', 'end' + endmark[end_id] + ':', 1)
             line = 'x0 == x0 goto start' + endmark[end_id] + '\n' + line
             end_id += 1
         text += line + '\n'
+        line_id += 1
     return text
 
 # long int to macro (less than 32 bit, over than 12 bit signed int)
@@ -522,20 +527,30 @@ if __name__ == '__main__':
             thisfile = thisfile.read()
         print('\n converting denfine to macro ...', end='')
         thisfile = genmem2macro(thisfile, comment)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
+
         if debug:
             print(thisfile + '\n\n')
         print('\r converting long int to macro ...', end='')
         thisfile = long2macro(thisfile)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
+
         if debug:
             print(thisfile + '\n\n')
         print('\r converting if statement to macro ...', end='')
         thisfile = if2macro(thisfile)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
+
         if debug:
             print(thisfile + '\n\n')
         print('\r converting while statement to macro ...', end='')
         thisfile = while2macro(thisfile)
         with open(newfilepath, 'w') as thisnewfile:
             thisnewfile.write(thisfile)
+
         if debug:
             input('\r Pause Enter to Continue               ')
         print('\r converting macro into assembly code ...  ', end='')
