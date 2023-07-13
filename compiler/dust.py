@@ -9,6 +9,7 @@
 import compile
 import sys
 import os
+from collections import Counter
 
 # register file
 class regfile():
@@ -27,7 +28,7 @@ class regfile():
         self.busy = [False] * 32
         self.access = [0] * 32
         self.release = [''] * 32
-        self.history = [[0] * 10] * 32
+        self.history = [[0 for i in range(10)] for j in range(32)]
 
     def use(self, id, releasemark:str):
         assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
@@ -91,7 +92,24 @@ class core():
             self.x.free(id, releasemark, force)
             id -= 1
         return
-
+    
+    def frequse(self, withcount=False):
+        # max length: 
+        pastvalue = []
+        for id in range(0,32):
+            for pastid in range(0,10):
+                value = self.x.history[id][pastid]
+                if value != 0:
+                    pastvalue.append(value)
+        pastvalue = Counter(pastvalue)
+        pastvalue = sorted(pastvalue.items(), key=lambda x: x[1], reverse=True)
+        if withcount:
+            return pastvalue
+        past = []
+        for value in pastvalue:
+            past.append(value[0])
+        return past
+        
 # Simulated riscv core for code optimization
 riscv = core(32, 50e6)
 
@@ -252,7 +270,7 @@ def if2macro(oldfile:str):
     return text
 
 # while to macro:
-def while2macro(oldfile):
+def while2macro(oldfile:str):
     file = remove_empty(oldfile).split('\n')
     headtotal = 0
     endtotal = 0
@@ -390,11 +408,15 @@ def int2macro(line:str):
                 riscv.x.write(int(sregd[1:]), imm)
                 return text
 
+    return line
+
 # beta function: generate memory, this only works with define area
 # before enter the define area, free all the registers
-def genmem2macro(file:str):
+def genmem2macro(file:str, comment=False):
     
     def storeworthy(value:int, id:int):
+        if value in riscv.frequse()[:16]:
+            return True
         i = 31
         while i != 0:
             if i != id:
@@ -404,18 +426,40 @@ def genmem2macro(file:str):
             i -= 1
         return True
     
+    def sortbyvalue(defines:list):
+        id = 1
+        text = ''
+        defines = sorted(defines)
+        for i in range(0, len(defines)):
+            data, addr = defines[i]
+            if comment:
+                com = ' // mem[' +str(addr)+ '] = ' + str(data)
+            else:
+                com = ''
+            if data in riscv.x.data:
+                text += 'mem[x0 + ' + str(addr) + '] = x' + str(riscv.x.data.index(data)) + com + '\n'
+            else:
+                infor = 'x' + str(id) + ' = ' + str(data)
+                text += int2macro(infor)
+                text += 'mem[x0 + ' + str(addr) + '] = x' + str(id) + com +'\n'
+                if storeworthy(data, id):
+                    if id < 29:
+                        id += 1
+                    else:
+                        id = 1
+        return text
+
     # define area style: define ... endefine
     # in define area: address <- data
     linefile = remove_empty(file).split('\n')
     entered = False
-    id = 1
-    text = ''
     newfile = ''
+    defines = []
     for line in linefile:
         if line.split()[0] == 'define' or line.split()[0] == 'endefine':
             if entered == True:
-                newfile += text
-                text = ''
+                newfile += sortbyvalue(defines)
+                defines = []
             entered = not entered
             continue
         if entered:
@@ -423,21 +467,22 @@ def genmem2macro(file:str):
             addr = int(line[0])
             data = int(line[2])
             assert line[1] == '<-'
-            if data in riscv.x.data:
-                text += 'mem[x0 + ' + str(addr) + '] = x' + str(riscv.x.data.index(data)) + '\n'
-            else:
-                infor = 'x' + str(id) + ' = ' + str(data)
-                text += int2macro(infor)
-                text += 'mem[x0 + ' + str(addr) + '] = x' + str(id) + '\n'
-                if storeworthy(data, id):
-                    if id < 31:
-                        id += 1
-                    else:
-                        id = 1
+            print(data,addr)
+            defines.append((data,addr))
         else:
             newfile += line + '\n'
     return newfile
     
+# beta function: save a long int into register:
+# DANGER: it does not know what register has been used
+def long2macro(file:str):
+    linefile = remove_empty(file).split('\n')
+    text = ''
+    for line in linefile:
+        riscv.x.reset()
+        text += int2macro(line + '\n')
+    return text
+
 # Main:
 if __name__ == '__main__':
 
@@ -463,49 +508,40 @@ if __name__ == '__main__':
             confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
 
     debug = False
-    bystep = False
     comment = False
     for option in sys.argv:
         if option == '+debug':
             debug = True
-        if option == '+bystep':
-            bystep = True
         if option == '+comment':
             comment = True
 
     # start here
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting define memory into dust macros. Keep going? [y/n]:  ')
     if confirm == 'y':
         with open(filepath, 'r') as thisfile:
             thisfile = thisfile.read()
-        thisfile = genmem2macro(thisfile)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
-
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting if statements into dust macros. Keep going? [y/n]:  ')
-    if confirm == 'y':
+        print('\n converting denfine to macro ...', end='')
+        thisfile = genmem2macro(thisfile, comment)
+        if debug:
+            print(thisfile + '\n\n')
+        print('\r converting long int to macro ...', end='')
+        thisfile = long2macro(thisfile)
+        if debug:
+            print(thisfile + '\n\n')
+        print('\r converting if statement to macro ...', end='')
         thisfile = if2macro(thisfile)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
-
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting while statements into dust macros. Keep going? [y/n]:  ')
-    if confirm == 'y':
+        if debug:
+            print(thisfile + '\n\n')
+        print('\r converting while statement to macro ...', end='')
         thisfile = while2macro(thisfile)
         with open(newfilepath, 'w') as thisnewfile:
             thisnewfile.write(thisfile)
-
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting dust macros into assembly code. Keep going? [y/n]:  ')
-    if confirm == 'y':
+        if debug:
+            input('\r Pause Enter to Continue               ')
+        print('\r converting macro into assembly code ...  ', end='')
         demacro(newfilepath, comment, newfilepath)
-
-    if bystep and confirm == 'y':
-        confirm = input('\n Converting assembly code into binary machine code. Keep going? [y/n]:  ')
-    if confirm == 'y':
+        print('\r                                               ', end='')
         compile.compile(newfilepath, newfilepath, debug)
+        
+    else:
+        print('\n Giving up...\n')
 
-    if confirm != 'y':
-        print('\n Compilation give up.\n')

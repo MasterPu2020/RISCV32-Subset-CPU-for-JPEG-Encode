@@ -90,8 +90,8 @@ mem801_1051 = [
  0, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0,  0,  0,  0,
 10, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16]
 hufftable = mem0_11 + mem12_23 + mem24_274 + mem275_525 + mem526_537 + mem538_549 + mem550_800 + mem801_1051
-mem1052_1115 = [1 << 31] * 64 # 1 << 32 (/1)
-mem1116_1179 = [1 << 31] * 64
+mem1052_1115 = [1 << 16] * 64 # 1 << 32 (/1)
+mem1116_1179 = [1 << 16] * 64
 quantable = mem1052_1115 + mem1116_1179
 mem1180_1186 = [51471 , 30385 , 16054 , 8149 , 4090 , 2047 , 1023]
 
@@ -152,37 +152,37 @@ def lw(xoffset, immoffset):
 def exam():
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
     assert  x0 == 0, 'Error: x0 != 0'
-    assert  x1 in range(-2**32, 2**32-1), '\nError:  x1 out of range:' + str(len(bin( x1)[2:])) + ' bit.'
-    assert  x2 in range(-2**32, 2**32-1), '\nError:  x2 out of range:' + str(len(bin( x2)[2:])) + ' bit.'
-    assert  x3 in range(-2**32, 2**32-1), '\nError:  x3 out of range:' + str(len(bin( x3)[2:])) + ' bit.'
-    assert  x4 in range(-2**32, 2**32-1), '\nError:  x4 out of range:' + str(len(bin( x4)[2:])) + ' bit.'
-    assert  x5 in range(-2**32, 2**32-1), '\nError:  x5 out of range:' + str(len(bin( x5)[2:])) + ' bit.'
-    assert  x6 in range(-2**32, 2**32-1), '\nError:  x6 out of range:' + str(len(bin( x6)[2:])) + ' bit.'
-    assert  x7 in range(-2**32, 2**32-1), '\nError:  x7 out of range:' + str(len(bin( x7)[2:])) + ' bit.'
-    assert  x8 in range(-2**32, 2**32-1), '\nError:  x8 out of range:' + str(len(bin( x8)[2:])) + ' bit.'
-    assert  x9 in range(-2**32, 2**32-1), '\nError:  x9 out of range:' + str(len(bin( x9)[2:])) + ' bit.'
-    assert x10 in range(-2**32, 2**32-1), '\nError: x10 out of range:' + str(len(bin(x10)[2:])) + ' bit.'
-    assert x11 in range(-2**32, 2**32-1), '\nError: x11 out of range:' + str(len(bin(x11)[2:])) + ' bit.'
-    assert x12 in range(-2**32, 2**32-1), '\nError: x12 out of range:' + str(len(bin(x12)[2:])) + ' bit.'
-    assert x13 in range(-2**32, 2**32-1), '\nError: x13 out of range:' + str(len(bin(x13)[2:])) + ' bit.'
-    assert x14 in range(-2**32, 2**32-1), '\nError: x14 out of range:' + str(len(bin(x14)[2:])) + ' bit.'
-    assert x15 in range(-2**32, 2**32-1), '\nError: x15 out of range:' + str(len(bin(x15)[2:])) + ' bit.'
-    assert x16 in range(-2**32, 2**32-1), '\nError: x16 out of range:' + str(len(bin(x16)[2:])) + ' bit.'
-    assert x17 in range(-2**32, 2**32-1), '\nError: x17 out of range:' + str(len(bin(x17)[2:])) + ' bit.'
-    assert x18 in range(-2**32, 2**32-1), '\nError: x18 out of range:' + str(len(bin(x18)[2:])) + ' bit.'
-    assert x19 in range(-2**32, 2**32-1), '\nError: x19 out of range:' + str(len(bin(x19)[2:])) + ' bit.'
-    assert x20 in range(-2**32, 2**32-1), '\nError: x20 out of range:' + str(len(bin(x20)[2:])) + ' bit.'
-    assert x21 in range(-2**32, 2**32-1), '\nError: x21 out of range:' + str(len(bin(x21)[2:])) + ' bit.'
-    assert x22 in range(-2**32, 2**32-1), '\nError: x22 out of range:' + str(len(bin(x22)[2:])) + ' bit.'
-    assert x23 in range(-2**32, 2**32-1), '\nError: x23 out of range:' + str(len(bin(x23)[2:])) + ' bit.'
-    assert x24 in range(-2**32, 2**32-1), '\nError: x24 out of range:' + str(len(bin(x24)[2:])) + ' bit.'
-    assert x25 in range(-2**32, 2**32-1), '\nError: x25 out of range:' + str(len(bin(x25)[2:])) + ' bit.'
-    assert x26 in range(-2**32, 2**32-1), '\nError: x26 out of range:' + str(len(bin(x26)[2:])) + ' bit.'
-    assert x27 in range(-2**32, 2**32-1), '\nError: x27 out of range:' + str(len(bin(x27)[2:])) + ' bit.'
-    assert x28 in range(-2**32, 2**32-1), '\nError: x28 out of range:' + str(len(bin(x28)[2:])) + ' bit.'
-    assert x29 in range(-2**32, 2**32-1), '\nError: x29 out of range:' + str(len(bin(x29)[2:])) + ' bit.'
-    assert x30 in range(-2**32, 2**32-1), '\nError: x30 out of range:' + str(len(bin(x30)[2:])) + ' bit.'
-    assert x31 in range(-2**32, 2**32-1), '\nError: x31 out of range:' + str(len(bin(x31)[2:])) + ' bit.'
+    assert  x1 in range(-2**31, 2**31-1), '\nError:  x1 out of range:' + str(len(bin( x1)[2:])) + ' bit.'
+    assert  x2 in range(-2**31, 2**31-1), '\nError:  x2 out of range:' + str(len(bin( x2)[2:])) + ' bit.'
+    assert  x3 in range(-2**31, 2**31-1), '\nError:  x3 out of range:' + str(len(bin( x3)[2:])) + ' bit.'
+    assert  x4 in range(-2**31, 2**31-1), '\nError:  x4 out of range:' + str(len(bin( x4)[2:])) + ' bit.'
+    assert  x5 in range(-2**31, 2**31-1), '\nError:  x5 out of range:' + str(len(bin( x5)[2:])) + ' bit.'
+    assert  x6 in range(-2**31, 2**31-1), '\nError:  x6 out of range:' + str(len(bin( x6)[2:])) + ' bit.'
+    assert  x7 in range(-2**31, 2**31-1), '\nError:  x7 out of range:' + str(len(bin( x7)[2:])) + ' bit.'
+    assert  x8 in range(-2**31, 2**31-1), '\nError:  x8 out of range:' + str(len(bin( x8)[2:])) + ' bit.'
+    assert  x9 in range(-2**31, 2**31-1), '\nError:  x9 out of range:' + str(len(bin( x9)[2:])) + ' bit.'
+    assert x10 in range(-2**31, 2**31-1), '\nError: x10 out of range:' + str(len(bin(x10)[2:])) + ' bit.'
+    assert x11 in range(-2**31, 2**31-1), '\nError: x11 out of range:' + str(len(bin(x11)[2:])) + ' bit.'
+    assert x12 in range(-2**31, 2**31-1), '\nError: x12 out of range:' + str(len(bin(x12)[2:])) + ' bit.'
+    assert x13 in range(-2**31, 2**31-1), '\nError: x13 out of range:' + str(len(bin(x13)[2:])) + ' bit.'
+    assert x14 in range(-2**31, 2**31-1), '\nError: x14 out of range:' + str(len(bin(x14)[2:])) + ' bit.'
+    assert x15 in range(-2**31, 2**31-1), '\nError: x15 out of range:' + str(len(bin(x15)[2:])) + ' bit.'
+    assert x16 in range(-2**31, 2**31-1), '\nError: x16 out of range:' + str(len(bin(x16)[2:])) + ' bit.'
+    assert x17 in range(-2**31, 2**31-1), '\nError: x17 out of range:' + str(len(bin(x17)[2:])) + ' bit.'
+    assert x18 in range(-2**31, 2**31-1), '\nError: x18 out of range:' + str(len(bin(x18)[2:])) + ' bit.'
+    assert x19 in range(-2**31, 2**31-1), '\nError: x19 out of range:' + str(len(bin(x19)[2:])) + ' bit.'
+    assert x20 in range(-2**31, 2**31-1), '\nError: x20 out of range:' + str(len(bin(x20)[2:])) + ' bit.'
+    assert x21 in range(-2**31, 2**31-1), '\nError: x21 out of range:' + str(len(bin(x21)[2:])) + ' bit.'
+    assert x22 in range(-2**31, 2**31-1), '\nError: x22 out of range:' + str(len(bin(x22)[2:])) + ' bit.'
+    assert x23 in range(-2**31, 2**31-1), '\nError: x23 out of range:' + str(len(bin(x23)[2:])) + ' bit.'
+    assert x24 in range(-2**31, 2**31-1), '\nError: x24 out of range:' + str(len(bin(x24)[2:])) + ' bit.'
+    assert x25 in range(-2**31, 2**31-1), '\nError: x25 out of range:' + str(len(bin(x25)[2:])) + ' bit.'
+    assert x26 in range(-2**31, 2**31-1), '\nError: x26 out of range:' + str(len(bin(x26)[2:])) + ' bit.'
+    assert x27 in range(-2**31, 2**31-1), '\nError: x27 out of range:' + str(len(bin(x27)[2:])) + ' bit.'
+    assert x28 in range(-2**31, 2**31-1), '\nError: x28 out of range:' + str(len(bin(x28)[2:])) + ' bit.'
+    assert x29 in range(-2**31, 2**31-1), '\nError: x29 out of range:' + str(len(bin(x29)[2:])) + ' bit.'
+    assert x30 in range(-2**31, 2**31-1), '\nError: x30 out of range:' + str(len(bin(x30)[2:])) + ' bit.'
+    assert x31 in range(-2**31, 2**31-1), '\nError: x31 out of range:' + str(len(bin(x31)[2:])) + ' bit.'
 
 # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
 def get_row(file_path:str):
@@ -497,11 +497,13 @@ def linemark1():
         x2 = 1116 + x0
     x1 = 0 + x0
     x5 = 64 + x0 
+    x7 = 16 + x0
     while x1 != x5:
         x6 = x1 + x2
         x3 = lw(x6, 0)
         x4 = lw(x1, 1408)
-        x3 = (x3 * x4) >> 31
+        x3 = x3 * x4
+        x3 = x3 >> x7
         sw(x1, x0, 1408)
         sw(x1, x3, 1472)
         x1 = x1 + 1
@@ -791,14 +793,14 @@ print('\r [Finished] Size:', int(len(hex_huffman_string) / 8), 'words.          
 
 # Generate file
 file_hex = 'FFD8FFE000104A46494600010100000100010000'
-file_hex += 'FFDB004300'
 
+file_hex += 'FFDB004300'
 for byte in quantable[0:64]:
-    file_hex += '0' * (2 - len(hex(byte >> 32)[2:])) + hex(byte >> 31)[2:].upper()
+    file_hex += '0' * (2 - len(hex(byte >> 16)[2:])) + hex(byte >> 16)[2:].upper()
 
 file_hex += 'FFDB004301'
 for byte in quantable[64:]:
-    file_hex += '0' * (2 - len(hex(byte >> 32)[2:])) + hex(byte >> 31)[2:].upper()
+    file_hex += '0' * (2 - len(hex(byte >> 16)[2:])) + hex(byte >> 16)[2:].upper()
 
 lines = '0' * (4 - len( hex(mem[1187])[2:])) + hex(mem[1187])[2:].upper()
 samples_per_line = '0' * (4 - len( hex(mem[1188])[2:])) + hex(mem[1188])[2:].upper()
