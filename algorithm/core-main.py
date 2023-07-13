@@ -8,12 +8,6 @@
 # Author: Clark Pu
 # -------------------------------------
 
-# if x0 != x1, then () <=> skip () if x0 == x1 # this go downwards
-# if x0 == x1, then () <=> skip () if x0 != x1 # this go downwards
-# while x0 != x1, then () <=> loop () until x0 != x1 # this go upwards
-# while x0 == x1, then () <=> loop () until x0 == x1 # this go upwards
-# break <=> x1 = 1, goto () if x0 != x1 # this go anywhere
-
 import base64
 
 #memory in word size, in real assembly code, always shift left 1 bit before use
@@ -100,7 +94,7 @@ global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16
 
 def reset():
     global mem
-    mem = [0] * 4096
+    mem = [0] * 1000000
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
     x0 = 0
     x1 = 0
@@ -202,6 +196,18 @@ def get_row(file_path:str):
             x1 += 1
     return img_row 
 
+def savemem():
+    global mem
+    k = 0
+    logtext = '[Memory File]:\n|'
+    for i in range(0, len(mem)):
+        logtext += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (7 - len(str(mem[i]))) + str(mem[i]) + '|'
+        k += 1
+        if k == 16:
+            k = 0
+            logtext += '\n|'
+    with open('jpeg.log', 'w') as memlog:
+        memlog.write(logtext)
 
 # JPEG file encode: Real RISCV simulation
 file_path = './algorithm/test'
@@ -214,6 +220,7 @@ img_row_in_uart = get_row(file_path+'.row')
 
 # initiate memory
 mem[0:1186] = hufftable + quantable + mem1180_1186
+mem[1500:1500+len(img_row_in_uart)] = img_row_in_uart
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
@@ -258,6 +265,7 @@ sw(x0, x1, 1215)
 # 1344 V
 # 1408 Block
 # 1472 MidBlock
+savemem()
 
 x1 = 0
 x2 = 0
@@ -762,6 +770,9 @@ while x26 != 0:
     x13 = x13 + 1
     x26 = x26 - 1
 huffman_bit_stack[-1] += x13
+mem[923100:923100+len(huffman_bit_stack)] = huffman_bit_stack
+
+# savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process

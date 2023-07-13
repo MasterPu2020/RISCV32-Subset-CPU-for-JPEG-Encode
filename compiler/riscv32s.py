@@ -19,7 +19,7 @@ funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     
 
 x = [0] * 32 # registers
 pc = 0
-mem = [0] * (2**12) # RAM
+mem = [0] * 1000000 # RAM
 
 # Verilog style trancation
 def tranc(string:str, top:int, buttom:int=-1): 
@@ -120,7 +120,7 @@ def execute(inst, pc):
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
-def show(save=False, reglen=5, memlen=5):
+def show(save=False, reglen=7, memlen=7):
     print('\n[Register File: 32 x 32bit]')
     print('+','-'*77,'+')
     for i in range(0,4):
@@ -138,7 +138,7 @@ def show(save=False, reglen=5, memlen=5):
         if mem[i] == 0:
             continue
         else:
-            text += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
+            text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
             j += 1
             if j == 8:
                 print(text)
@@ -157,12 +157,35 @@ def show(save=False, reglen=5, memlen=5):
         for i in range(0, len(mem)):
             logtext += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
             k += 1
-            if k == 32:
+            if k == 16:
                 k = 0
                 logtext += '\n|'
         with open('mem.log', 'w') as memlog:
             memlog.write(logtext)
     return
+
+# special function load image:
+def loadimg():
+    # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
+    def get_row(file_path:str):
+        with open(file_path, 'rb+') as image:
+            img_row = []
+            byte_file = image.read()
+            double_word = ''
+            x1 = 1
+            for byte in byte_file:
+                text = str(hex(int(byte))[2:].upper())
+                if len(text) < 2:
+                    text = '0' + text
+                double_word += text
+                if x1 % 4 == 0:
+                    img_row.append(int(double_word, 16))
+                    double_word = ''
+                x1 += 1
+        return img_row
+    rowmem = get_row('./algorithm/test.row')
+    mem[1500:1500+len(rowmem)] = rowmem
+
 
 # Main:
 # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
@@ -193,6 +216,9 @@ if __name__ == '__main__':
     with open(file, 'r') as bin_file:
         bin_code = bin_file.read().split()
     
+    # load prepared memory
+    loadimg()
+
     runtime = 0
     last_op = ''
     savelog = False
@@ -264,9 +290,9 @@ if __name__ == '__main__':
         k = 0
         logtext = '[Memory File]:\n|'
         for i in range(0, len(mem)):
-            logtext += ' ' * (4-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (5 - len(str(mem[i]))) + str(mem[i]) + '|'
+            logtext += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (7 - len(str(mem[i]))) + str(mem[i]) + '|'
             k += 1
-            if k == 32:
+            if k == 16:
                 k = 0
                 logtext += '\n|'
         with open('mem.log', 'w') as memlog:

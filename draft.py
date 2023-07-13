@@ -1,12 +1,14 @@
-with open('mem1.log', 'r') as log1:
-    log1 = log1.readlines()
+with open('jpeg.log', 'r') as jpeg:
+    jpeg = jpeg.readlines()
 with open('mem.log', 'r') as log:
     log = log.readlines()
 
+print('\n')
 for i in range(0, len(log)):
-    if log[i] != log1[i]:
-        print('\nNot Match: log, log1')
+    print('\r Checking line: '+str(i),end='')
+    if log[i] != jpeg[i]:
+        print('\n\nNot Match: log, jpeg')
         print(log[i])
-        print(log1[i])
+        print(jpeg[i],'\n\n')
 
-print('\n Check Finished\n')
+print('\n\n Check Finished\n')
