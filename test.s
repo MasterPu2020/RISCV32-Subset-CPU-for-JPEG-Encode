@@ -1,7 +1,8 @@
+// Initiate
 // huffman table Y C
 x1 = 0 + x0
 x2 = 250 + x0
-x3 = 16
+x3 = 16 + x0
 x4 = 0 + x0
 x5 = 11 + x0
 x6 = 16 + x0
@@ -503,3 +504,111 @@ define // save to the memory file
 
 endefine
 
+// Main function
+// ------------------------------------------------------------------
+// RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
+// Avialiable register remaind: x21 ~ x23
+// ------------------------------------------------------------------
+x20 = 1500
+x28 = mem[x20 + 0]
+x29 = mem[x20 + 1]
+mem[x0 + 1187] = x28
+mem[x0 + 1188] = x29
+x1 = 4
+x28 = x28 >> x1
+x27 = x29 >> x1
+mem[x0 + 1189] = x28
+mem[x0 + 1190] = x27
+
+// block start here
+// 1216 Y
+// 1280 U
+// 1344 V
+// 1408 Block
+// 1472 MidBlock
+
+x1 = 0
+x2 = 0
+x3 = 0
+x4 = 0
+x5 = 0
+x6 = 0
+x26 = 16
+x25 = 8
+x24 = 2
+
+while x2 != x28,
+    x10 = x26 *l x29
+    x10 = x10 *l x2
+    x10 = x10 + 2
+    while x1 != x27,
+        x11 = x26 *l x1
+        x11 = x11 + x10
+        while x4 != x24,
+            x12 = x25 *l x29
+            x12 = x12 *l x4 
+            x12 = x12 + x11
+            while x3 != x24,
+                x13 = x25 *l x3
+                x13 = x13 + x12
+                while x5 != x25,
+                    x14 = x5 + x13
+                    while x6 != x25,
+                        x15 = x29 *l x6
+                        x15 = x15 + x14
+                        x19 = 255 + x0
+                        x16 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x16 = x16 >> x26
+                        x16 = x16 & x19
+                        x17 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x17 = x17 >> x25
+                        x17 = x17 & x19
+                        x18 = mem[x15 + 1500] // img_row_in_uart[x15]
+                        x18 = x18 & x19
+                        x19 = lw(x0, 1208)
+                        x19 = x19 *h x16
+                        x30 = lw(x0, 1209)
+                        x30 = x30 *h x17
+                        x19 = x19 + x30
+                        x30 = lw(x0, 1210)
+                        x30 = x30 *h x18
+                        x19 = x19 + x30
+                        x19 = x19 + 16
+                        img_row.append(x19)
+                        x19 = lw(x0, 1211)
+                        x19 = x19 *h x16
+                        x30 = lw(x0, 1212)
+                        x30 = x30 *h x17
+                        x19 = x19 + x30
+                        x30 = lw(x0, 1213)
+                        x30 = x30 *h x18
+                        x19 = x19 + x30
+                        x19 = x19 + 128
+                        img_row.append(x19)
+                        x19 = lw(x0, 1214)
+                        x19 = x19 *h x17
+                        x30 = lw(x0, 1213)
+                        x30 = x30 *h x16 
+                        x19 = x19 + x30
+                        x30 = lw(x0, 1215)
+                        x30 = x30 *h x18
+                        x19 = x19 + x30
+                        x19 = x19 + 128
+                        img_row.append(x19)
+                        x6 = x6 + 1
+                    endwhile
+                    x6 = 0 + x0
+                    x5 = x5 + 1
+                endwhile
+                x5 = 0 + x0
+                x3 = x3 + 1
+            endwhile
+            x3 = 0 + x0
+            x4 = x4 + 1
+        endwhile
+        x4 = 0 + x0
+        x1 = x1 + 1
+    endwhile
+    x1 = 0 + x0
+    x2 = x2 + 1
+endwhile

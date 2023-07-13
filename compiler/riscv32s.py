@@ -19,7 +19,7 @@ funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     
 
 x = [0] * 32 # registers
 pc = 0
-mem = [0] * 1000000 # RAM
+mem = [0] * 411600 # RAM
 
 # Verilog style trancation
 def tranc(string:str, top:int, buttom:int=-1): 
@@ -184,7 +184,7 @@ def loadimg():
                 x1 += 1
         return img_row
     rowmem = get_row('./algorithm/test.row')
-    mem[1500:1500+len(rowmem)] = rowmem
+    mem[206800:206800+len(rowmem)] = rowmem
 
 
 # Main:

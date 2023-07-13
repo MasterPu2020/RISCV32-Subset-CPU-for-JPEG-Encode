@@ -94,7 +94,7 @@ global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16
 
 def reset():
     global mem
-    mem = [0] * 1000000
+    mem = [0] * 411600
     global x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31
     x0 = 0
     x1 = 0
@@ -220,22 +220,7 @@ img_row_in_uart = get_row(file_path+'.row')
 
 # initiate memory
 mem[0:1186] = hufftable + quantable + mem1180_1186
-mem[1500:1500+len(img_row_in_uart)] = img_row_in_uart
-
-# ------------------------------------------------------------------
-# RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
-# Avialiable register remaind: x20 ~ x23
-# ------------------------------------------------------------------
-
-x28 = img_row_in_uart[0]
-x29 = img_row_in_uart[1]
-sw(x0, x28, 1187)
-sw(x0, x29, 1188)
-x1 = 4
-x28 = x28 >> x1
-x27 = x29 >> x1
-sw(x0, x28, 1189)
-sw(x0, x27, 1190)
+mem[206800:206800+len(img_row_in_uart)] = img_row_in_uart
 x1 = 46341
 sw(x0, x1, 1198)
 x2 = 65536
@@ -257,7 +242,23 @@ sw(x0, x2, 1213)
 x1 = -790273982
 sw(x0, x1, 1214)
 x1 = -152471339
-sw(x0, x1, 1215) 
+sw(x0, x1, 1215)
+
+# ------------------------------------------------------------------
+# RegFile Work Aera 1: Re-order Minimum coded x14(MCU)
+# Avialiable register remaind: x21 ~ x23
+# ------------------------------------------------------------------
+
+x20 = 206800
+x28 = mem[x20 + 0]
+x29 = mem[x20 + 1]
+sw(x0, x28, 1187)
+sw(x0, x29, 1188)
+x1 = 4
+x28 = x28 >> x1
+x27 = x29 >> x1
+sw(x0, x28, 1189)
+sw(x0, x27, 1190)
 
 # block start here
 # 1216 Y
@@ -265,7 +266,6 @@ sw(x0, x1, 1215)
 # 1344 V
 # 1408 Block
 # 1472 MidBlock
-savemem()
 
 x1 = 0
 x2 = 0
@@ -346,6 +346,8 @@ while x2 != x28:
         x1 = x1 + 1
     x1 = 0 + x0
     x2 = x2 + 1
+
+
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 2: Huffman endcode
