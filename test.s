@@ -861,11 +861,13 @@ x6 = 7 + x0
 x7 = 8 + x0
 x9 = 1 + x0
 // Differential DC Value:
-x27 = mem[x0 + 1472]
+x29 = mem[x28 + 1204]
+x27 = mem[x28 + 1472]
 x29 = x29 ^ -1
 x29 = x29 + 1
 x11 = x27 + x29
-mem[x0 + 1408] = x11
+mem[x28 + 1204] = x27
+mem[x28 + 1408] = x11
 while x0 == x0,
     // special if structure
     x1 == x0 goto iformark0
@@ -1153,11 +1155,9 @@ while x1 != x4,
             mem[x7 + 1408] = x9
             x7 = x7 + 1
         endwhile
-        x29 = mem[x0 + 1204]
         x28 = 0 + x0// return key
         x0 == x0 goto BlockProcess // Call function
         BlockProcessReturnGate0: // Return Gate 0
-        mem[x0 + 1204] = x27
         x3 = mem[x0 + 1203]
         x8 = 3 + x0
         if x3 == x8,
@@ -1170,11 +1170,9 @@ while x1 != x4,
                 mem[x7 + 1408] = x9
                 x7 = x7 + 1
             endwhile
-            x29 = mem[x0 + 1205]
             x28 = 1 + x0 // return key
             x0 == x0 goto BlockProcess // Call function
             BlockProcessReturnGate1: // Return Gate 1
-            mem[x0 + 1205] = x27
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6,
@@ -1184,11 +1182,9 @@ while x1 != x4,
                 mem[x7 + 1408] = x9
                 x7 = x7 + 1
             endwhile
-            x29 = mem[x0 + 1206]
             x28 = 2 + x0 // return key
             x0 == x0 goto BlockProcess // Call function
             BlockProcessReturnGate2: // Return Gate 2
-            mem[x0 + 1206] = x27
             x6 = 64 + x0
             x7 = 0 + x0
             while x7 != x6,

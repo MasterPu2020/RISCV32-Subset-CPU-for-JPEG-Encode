@@ -83,12 +83,16 @@ def execute(inst, pc):
     elif inst_op == 'or':
         x[rd] = op32(x[rs1] | x[rs2])
     elif inst_op == 'sll':
-        print(inst_opbin,inst_funct7,inst_funct3,inst_op) # debug 1760353
+        assert x[rs2] >= 0, 'At Runtime: ' + str(runtime) + ' At line: ' + str(pc) + ' negtive shift: ' + str(x[rs1]) + '<< ' + str(x[rs2])
         x[rd] = op32(x[rs1] << x[rs2])
     elif inst_op == 'sra':
+        assert x[rs2] >= 0, 'At Runtime: ' + str(runtime) + 'At line: ' + str(pc) + ' negtive shift: ' + str(x[rs1]) + '>> ' + str(x[rs2])
         x[rd] = op32(x[rs1] >> x[rs2])
-    elif inst_op == 'mul':
-        x[rd] = op32(x[rs1] * x[rs2])
+    elif inst_op == 'mul': # it is a signed multiplication
+        if x[rs1] * x[rs2] < 0:
+            x[rd] = (x[rs1] * x[rs2]) | (-2**31)
+        else:
+            x[rd] = (x[rs1] * x[rs2]) & (2**31-1)
     elif inst_op == 'mulh':
         x[rd] = op32((x[rs1] * x[rs2]) >> 31)
     # i type
@@ -168,7 +172,7 @@ def showhuffmanmem():
     j = 0
     text = '|'
     line = 0
-    for i in range(206800, 206800+16):
+    for i in range(206800, 206800+64):
         text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (11 - len(str(mem[i]))) + str(mem[i]) + '|'
         j += 1
         if j == 8:
@@ -208,15 +212,15 @@ if __name__ == '__main__':
     # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
     assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear +savelog'
     file = sys.argv[1]
-    goto_runtime = 0 # debug
-    goto_realtime = 0
+    goto_runtime = 0
+    goto_realtime = 0 # 1765697
     dontclear = False
     branchcount = 0
     branchture = 0
     pause = False
     wait = 0
     savelog = False
-    hide = False # debug
+    hide = False
     maxcal = 16
     maxrow = 20
     memstart = 1216 # debug # 206800
@@ -296,6 +300,11 @@ if __name__ == '__main__':
             else:
                 print('\r Process: (', realtime, '/', goto_realtime, ')', end='')
 
+        # if mem[411600] == 222:
+        #     drop = input('\n\nDebug program pause')
+        #     goto_runtime = runtime
+        #     goto_realtime = realtime
+            
         if runtime >= goto_runtime and realtime >= goto_realtime:
             if pause:
                 hide = False

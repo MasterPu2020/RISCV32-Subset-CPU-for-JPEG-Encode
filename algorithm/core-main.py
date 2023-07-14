@@ -370,8 +370,8 @@ while x2 != x28:
     x1 = 0 + x0
     x2 = x2 + 1
 
-# print(mem[x21-32*32:x21])
-# savemem()
+for i in range(206800, 206800+32*32+2):
+    mem[i] = 0
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 2: Huffman endcode
@@ -395,10 +395,6 @@ def linemark1():
         sw(x1, x3, 1472)
         sw(x1, x0, 1408)
         x1 = x1 + 1
-    
-    print('8x8 matrix subtraction:')
-    show(mem[1408:1472])
-    show(mem[1472:1536])
 
     # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
@@ -528,9 +524,6 @@ def linemark1():
         x4 = 0
         x3 = x3 + 1
     
-    print('Discrete Cosine Transform:')
-    show(mem[1408:1472])
-    show(mem[1472:1536])
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
     x2 = 1052 + x0
@@ -549,9 +542,6 @@ def linemark1():
         sw(x1, x3, 1472)
         x1 = x1 + 1
 
-
-    show(mem[1408:1472])
-    show(mem[1472:1536])
     # Zigzag Scan: Sub Area 4
     # ------------------------------------------------------------------
     x1 = 0
@@ -595,10 +585,6 @@ def linemark1():
         x12 = x12 + x1
         x11 = lw(x12, 1472)
         sw(x5, x11, 1408)
-    
-    print('Zigzag Scan:')
-    show(mem[1408:1472])
-    show(mem[1472:1536])
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
@@ -647,19 +633,26 @@ def linemark1():
             huffman_bit_stack[-1] = x14
             x26 = x26 - x5
         else:
+            x19 = x26 ^ -1
+            x19 = x19 + 1
             x18 = x5 - x26
             x18 = x4 >> x18
             x14 = x14 | x18
             huffman_bit_stack[-1] = x14 
-            x5 = x5 - x26
+            x5 = x5 + x19
+            # x5 = x5 - x26
             x15 = x5
             x16 = 0
+            x19 = x0 + 1
             while x15 != x0:
-                x16 = x16 << 1
+                x16 = x16 << x19
                 x16 = x16 + 1
                 x15 = x15 - 1
             x16 = x16 & x4
-            x26 = 32 - x5
+            x19 = x5 ^ -1
+            x19 = x19 + 1
+            x26 = 32 + x19
+            # x26 = 32 - x5
             x17 = x16 << x26
             huffman_bit_stack.append(x17)
         x19 = 1 + x0
@@ -716,10 +709,6 @@ def linemark1():
         x4 = lw(x12, 0)
         x5 = lw(x13, 0)
         linemark4()
-
-    print('Huffman Encode:')
-    print(huffman_bit_stack)
-    exit('Debug')
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
@@ -832,9 +821,17 @@ while x26 != 0:
 huffman_bit_stack[-1] += x13
 for i in range(206800,41160):
     mem[i] = 0
-mem[206800:206800+len(huffman_bit_stack)] = huffman_bit_stack
 
-# savemem()
+for i in range(0, len(huffman_bit_stack)):
+    binary = bin(huffman_bit_stack[i])[2:]
+    binary = '0'*(32-len(binary)) + binary
+    if binary[0] == '1':
+        mem[206800+i] = huffman_bit_stack[i] | (-2**32)
+    else:
+        mem[206800+i] = huffman_bit_stack[i]
+# print(mem[206800:206800+len(huffman_bit_stack)])
+
+savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process
