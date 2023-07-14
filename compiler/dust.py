@@ -191,21 +191,7 @@ def macro2assem(line:str, comment=False):
                 return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + ' // ' + line.replace('\n', '') + '\n'
             else:
                 return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + '\n'
-    return line
-
-# translate the macros into assembly code:
-def demacro(path, comment=False, newfilepath=None):
-    if newfilepath == None:
-        newfilepath = path
-    newfile = ''
-    with open(path, 'r') as file:
-        file = file.readlines()
-    for line in file:
-        if line != '' or line != '\n':
-            newfile += macro2assem(line, comment)
-    with open(newfilepath, 'w') as file:
-        file.write(newfile)
-    return
+    return line + '\n'
 
 # remove empty lines, spaces
 def remove_empty(file:str):
@@ -217,6 +203,15 @@ def remove_empty(file:str):
         m += i + '\n'
     m = m[:-1]
     return m
+
+# translate the macros into assembly code:
+def demacro(file:str, comment=False):
+    newfile = ''
+    file = file.split('\n')
+    for line in file:
+        line.strip()
+        newfile += macro2assem(line, comment)
+    return newfile
 
 # if to macro:
 def if2macro(oldfile:str):
@@ -473,7 +468,6 @@ def genmem2macro(file:str, comment=False):
             addr = int(line[0])
             data = int(line[2])
             assert line[1] == '<-'
-            print(data,addr)
             defines.append((data,addr))
         else:
             newfile += line + '\n'
@@ -489,12 +483,29 @@ def long2macro(file:str):
         text += int2macro(line + '\n', True)
     return text
 
+# beta function: allocation of pc in assembly code file
+def allocate(file:str, pc:int):
+    file = genmem2macro(file)
+    file = long2macro(file)
+    file = if2macro(file)
+    file = while2macro(file)
+    file = demacro(file)
+    assemindex = 0
+    pcindex = -1
+    file = file.split('\n')
+    for line in file:
+        if line.split()[0] != '//' and line.split()[0][-1] != ':':
+            pcindex += 1
+        assemindex += 1
+        if pcindex == pc:
+            return assemindex
+
 # Main:
 if __name__ == '__main__':
 
     confirm = 'y'
     if len(sys.argv) <= 1: 
-        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +bystep  +comment')
+        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +comment')
         confirm = 'n'
     else:
         filepath = sys.argv[1]
@@ -527,34 +538,41 @@ if __name__ == '__main__':
             thisfile = thisfile.read()
         print('\n converting denfine to macro ...', end='')
         thisfile = genmem2macro(thisfile, comment)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
 
         if debug:
             print(thisfile + '\n\n')
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
         print('\r converting long int to macro ...', end='')
         thisfile = long2macro(thisfile)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
 
         if debug:
             print(thisfile + '\n\n')
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
         print('\r converting if statement to macro ...', end='')
         thisfile = if2macro(thisfile)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
 
         if debug:
             print(thisfile + '\n\n')
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
         print('\r converting while statement to macro ...', end='')
         thisfile = while2macro(thisfile)
-        with open(newfilepath, 'w') as thisnewfile:
-            thisnewfile.write(thisfile)
 
         if debug:
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
             input('\r Pause Enter to Continue               ')
         print('\r converting macro into assembly code ...  ', end='')
-        demacro(newfilepath, comment, newfilepath)
+        thisfile = demacro(thisfile, comment)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
+        if debug:
+            debugfilepath = filepath.split('.s')[0] + '_assembly.s'
+            with open(debugfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+
         print('\r                                               ', end='')
         compile.compile(newfilepath, newfilepath, debug)
         

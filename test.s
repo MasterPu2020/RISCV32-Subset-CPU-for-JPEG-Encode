@@ -509,7 +509,6 @@ endefine
 // RegFile Work Aera 1: Re-Order Minimum coded (MCU)
 // Avialiable register remaind: x23
 // ------------------------------------------------------------------
-
 // blocks: 1216 Y 1280 U 1344 V 1408 Block 1472 MidBlock
 x20 = 206800
 x21 = 2000
@@ -615,6 +614,14 @@ while x2 != x28,
     x2 = x2 + 1
 endwhile
 
+// clear uart
+x10 = 206800
+x11 = 207826
+while x10 != x11,
+    mem[x10 + 0] = x0
+    x10 = x10 + 1
+endwhile
+
 // ------------------------------------------------------------------
 // RegFile Work Aera 2: Block Process and Huffman endcode
 // ------------------------------------------------------------------
@@ -642,6 +649,11 @@ while x1 != x2,
     mem[x1 + 1408] = x0
     x1 = x1 + 1
 endwhile
+
+// debug
+x1 = 111
+x2 = 411600
+mem[x2 + 0] = x1
 
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
@@ -829,6 +841,11 @@ while x1 != x5,
     x1 = x1 + 1
 endwhile
 
+// debug
+x1 = 222
+x2 = 411600
+mem[x2 + 0] = x1
+
 // ------------------------------------
 // Zigzag Scan: Sub Area 4
 // ------------------------------------
@@ -891,6 +908,11 @@ while x0 == x0,
 endwhile
 breakmark0:
 
+// debug
+x1 = 333 
+x2 = 411600
+mem[x2 + 0] = x1
+
 // ------------------------------------
 // Huffman Encode: Sub Area 6
 // ------------------------------------
@@ -940,8 +962,8 @@ GetDataAndSize:
 // Get data and size return gate
 // return key: x24
 x19 = 1 + x0
-x23 == x0 goto GetDataAndSizeReturnGate0
-x23 == x19 goto GetDataAndSizeReturnGate1
+x24 == x0 goto GetDataAndSizeReturnGate0
+x24 == x19 goto GetDataAndSizeReturnGate1
 EndGetDataAndSize:
 
 // SubFunction: Push Huffman bit stack
@@ -993,7 +1015,7 @@ x23 == x18 goto PushHuffmanBitStackReturnGate2
 x23 == x5 goto PushHuffmanBitStackReturnGate3
 EndPushHuffmanBitStack:
 
-# DC
+// DC
 x1 = mem[x0 + 1408]
 x24 = x0 + 0
 x0 == x0 goto GetDataAndSize
@@ -1009,7 +1031,7 @@ x23 = x0 + 0
 x0 == x0 goto PushHuffmanBitStack
 PushHuffmanBitStackReturnGate0:
 
-# AC
+// AC
 x9 = 0 + x0
 x20 = 1 + x0
 x21 = 64 + x0
@@ -1021,7 +1043,7 @@ while x20 != x21,
         x0 == x0 goto endelse9
     endif
         while x22 < x9, // zeros over than 15
-            x9 = x9 - 16
+            x9 = x9 + -16
             x4 = mem[x12 + 240]
             x5 = mem[x13 + 240]
             x23 = x0 + 0
@@ -1051,7 +1073,7 @@ while x20 != x21,
     x20 = x20 + 1
 endwhile
 
-# EOB
+// EOB
 if x9 != x0,
     x4 = mem[x12 + 0]
     x5 = mem[x13 + 0]
@@ -1059,6 +1081,11 @@ if x9 != x0,
     x0 == x0 goto PushHuffmanBitStack
     PushHuffmanBitStackReturnGate3:
 endif
+
+// debug
+x1 = 444
+x2 = 411600
+mem[x2 + 0] = x1
 
 // ------------------------------------
 // Function Return Gate

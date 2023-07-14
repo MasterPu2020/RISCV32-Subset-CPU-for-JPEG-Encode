@@ -209,6 +209,15 @@ def savemem():
     with open('jpeg.log', 'w') as memlog:
         memlog.write(logtext)
 
+# Debug
+def show(block_list):
+    for i in range(0,8):
+        k = ''
+        for j in range(0,8):
+            k += str(block_list[i*8 + j]) + ' '
+        print(k)
+    print()
+
 # JPEG file encode: Real RISCV simulation
 file_path = './algorithm/test'
 print('\n')
@@ -386,6 +395,10 @@ def linemark1():
         sw(x1, x3, 1472)
         sw(x1, x0, 1408)
         x1 = x1 + 1
+    
+    print('8x8 matrix subtraction:')
+    show(mem[1408:1472])
+    show(mem[1472:1536])
 
     # Discrete Cosine Transform: Sub Area 2
     # ------------------------------------------------------------------
@@ -514,7 +527,10 @@ def linemark1():
             x4 = x4 + 1
         x4 = 0
         x3 = x3 + 1
-
+    
+    print('Discrete Cosine Transform:')
+    show(mem[1408:1472])
+    show(mem[1472:1536])
     # Quantization: Sub Area 3
     # ------------------------------------------------------------------
     x2 = 1052 + x0
@@ -533,6 +549,9 @@ def linemark1():
         sw(x1, x3, 1472)
         x1 = x1 + 1
 
+
+    show(mem[1408:1472])
+    show(mem[1472:1536])
     # Zigzag Scan: Sub Area 4
     # ------------------------------------------------------------------
     x1 = 0
@@ -576,6 +595,10 @@ def linemark1():
         x12 = x12 + x1
         x11 = lw(x12, 1472)
         sw(x5, x11, 1408)
+    
+    print('Zigzag Scan:')
+    show(mem[1408:1472])
+    show(mem[1472:1536])
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
@@ -694,6 +717,10 @@ def linemark1():
         x5 = lw(x13, 0)
         linemark4()
 
+    print('Huffman Encode:')
+    print(huffman_bit_stack)
+    exit('Debug')
+
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
 # ------------------------------------------------------------------
@@ -803,9 +830,11 @@ while x26 != 0:
     x13 = x13 + 1
     x26 = x26 - 1
 huffman_bit_stack[-1] += x13
-mem[923100:923100+len(huffman_bit_stack)] = huffman_bit_stack
+for i in range(206800,41160):
+    mem[i] = 0
+mem[206800:206800+len(huffman_bit_stack)] = huffman_bit_stack
 
-savemem()
+# savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process

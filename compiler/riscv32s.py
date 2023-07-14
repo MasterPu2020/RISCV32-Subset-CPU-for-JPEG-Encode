@@ -9,6 +9,7 @@
 
 import sys
 import time
+import os
 
 
 # parameters:
@@ -19,7 +20,7 @@ funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     
 
 x = [0] * 32 # registers
 pc = 0
-mem = [0] * 411600 # RAM
+mem = [0] * 411602 # RAM
 freq = 50e6
 
 # Verilog style trancation
@@ -121,7 +122,7 @@ def execute(inst, pc):
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
-def show(save=False, start=0, maxcal=20, maxrow=8, reglen=7, memlen=7):
+def show(save=False, start=0, maxcal=20, maxrow=8, reglen=4, memlen=7):
     print('\n[Register File: 32 x 32bit]\n')
     for i in range(0,4):
         text = '|'
@@ -136,7 +137,7 @@ def show(save=False, start=0, maxcal=20, maxrow=8, reglen=7, memlen=7):
         if mem[i] == 0 and start == 0:
             continue
         else:
-            text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
+            text += ' ' * (3-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (memlen - len(str(mem[i]))) + str(mem[i]) + '|'
             j += 1
             if j == maxcal:
                 print(text)
@@ -160,6 +161,21 @@ def show(save=False, start=0, maxcal=20, maxrow=8, reglen=7, memlen=7):
         with open('mem.log', 'w') as memlog:
             memlog.write(logtext)
     return
+
+def showhuffmanmem():
+    print('\n[Memory File]\n')
+    j = 0
+    text = '|'
+    line = 0
+    for i in range(206800, 206800+16):
+        text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (7 - len(str(mem[i]))) + str(mem[i]) + '|'
+        j += 1
+        if j == 8:
+            print(text)
+            line += 1
+            text = '|'
+            j = 0
+    print(text)
 
 # special function load image:
 def loadimg():
@@ -191,15 +207,19 @@ if __name__ == '__main__':
     # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
     assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear +savelog'
     file = sys.argv[1]
-    goto_runtime = 0
+    goto_runtime = 0 # debug
+    goto_realtime = 0
     dontclear = False
     branchcount = 0
     branchture = 0
     pause = False
     wait = 0
+    savelog = False
+    hide = False # debug
     maxcal = 8
-    maxrow = 20
-    memstart = 0
+    maxrow = 40
+    memstart = 1216 # debug # 206800
+
     finalsave = False
     for option in sys.argv[1:]:
         if option == '+pause':
@@ -221,9 +241,9 @@ if __name__ == '__main__':
     loadimg()
 
     runtime = 0
+    realtime = 0
     last_op = ''
-    savelog = False
-    hide = False
+    update = 0
     # Start programm
     while pc < len(bin_code):
 
@@ -240,31 +260,42 @@ if __name__ == '__main__':
         if pc >= len(bin_code):
             exit('\n Error: PC: ' + str(pc) + ' > ProgramLength: ' + str(len(bin_code)))
         runtime += 1
+        realtime = round(runtime * (1 / 50e6), 4)
         x[0] = 0
 
-        if not hide:
+        if not hide or update > 10000:
             # Display CPU state
             if not dontclear:
                 print('\033c',end='') # clear screen
+                os.system('clear') # clear screen
             show(savelog, memstart, maxcal, maxrow)
+            showhuffmanmem() # special debug
             print('\n [CPU Instruction Information]')
             print(' Program Counter:', pc)
             print(' Instruction:', bin_code[pc])
             print(' Operation:', inst_op)
-            print(' Rd:       ', rd)
-            print(' Rs1:      ', rs1)
-            print(' Rs2:      ', rs2)
+            print(' Rd:        x' + str(rd))
+            print(' Rs1:       x' + str(rs1))
+            print(' Rs2:       x' + str(rs2))
             print(' Imm[I]:   ', immi)
             print(' Imm[S]:   ', imms)
             print(' Imm[B]:   ', immb)
-            print(' Run Time(50Mhz): ', round(runtime * (1 / 50e6), 4), '(s), Executed:', runtime)
+            print(' Run Time(50Mhz): ', realtime, '(s), Executed:', runtime)
             print(' Branch Counter: ', branchcount, 'True:', branchture, 'False:', branchcount - branchture)
             print(' Last Operation: ', last_op)
+            # Debug Area:
+            print('Debug mem[411600]:', mem[411600])
+
+            update = 0
             last_op = inst_op
         else:
-            print('\r Process: (', runtime, '/', goto_runtime, ')', end='')
+            update += 1
+            if runtime < goto_runtime:
+                print('\r Process: (', runtime, '/', goto_runtime, ')', end='')
+            else:
+                print('\r Process: (', realtime, '/', goto_realtime, ')', end='')
 
-        if runtime >= goto_runtime:
+        if runtime >= goto_runtime and realtime >= goto_realtime:
             if pause:
                 hide = False
                 key = input('\nPress Enter to continue or debug...\n')
@@ -285,6 +316,9 @@ if __name__ == '__main__':
                     maxrow = int(key.lower().strip('memrow'))
                 if 'mem:' in key.lower():
                     memstart = int(key.lower().strip('mem:'))
+                if 'realtime:' in key.lower():
+                    goto_realtime = round(float(key.lower().strip('realtime:')), 4)
+                    hide = True
             elif wait > 0:
                 time.sleep(wait)
         
