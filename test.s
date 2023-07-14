@@ -505,6 +505,7 @@ define // save to the memory file
 endefine
 
 // Main function
+Main:
 // ------------------------------------------------------------------
 // RegFile Work Aera 1: Re-Order Minimum coded (MCU)
 // Avialiable register remaind: x23
@@ -658,7 +659,6 @@ mem[x2 + 0] = x1
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
 // ------------------------------------
-
 // SubFunction: CORDIC cosine
 x0 == x0 goto ENDCORDIC
 CORDIC:
@@ -798,6 +798,8 @@ while x3 != x15,
         endwhile
         x16 = x11 *h x12
         x13 = x11 *l x12
+        x21 = 2147483647 // dust will help
+        x13 = x13 & x21
         x18 = 15 + x0
         x16 = x16 << x18
         x18 = x18 + 1
@@ -964,6 +966,7 @@ GetDataAndSize:
 x19 = 1 + x0
 x24 == x0 goto GetDataAndSizeReturnGate0
 x24 == x19 goto GetDataAndSizeReturnGate1
+x0 == x0 goto Main // debug
 EndGetDataAndSize:
 
 // SubFunction: Push Huffman bit stack
@@ -1013,6 +1016,7 @@ x23 == x0 goto PushHuffmanBitStackReturnGate0
 x23 == x19 goto PushHuffmanBitStackReturnGate1
 x23 == x18 goto PushHuffmanBitStackReturnGate2
 x23 == x5 goto PushHuffmanBitStackReturnGate3
+x0 == x0 goto Main // debug
 EndPushHuffmanBitStack:
 
 // DC
@@ -1046,7 +1050,7 @@ while x20 != x21,
             x9 = x9 + -16
             x4 = mem[x12 + 240]
             x5 = mem[x13 + 240]
-            x23 = x0 + 0
+            x23 = x0 + 1
             x0 == x0 goto PushHuffmanBitStack
             PushHuffmanBitStackReturnGate1:
         endwhile
@@ -1065,7 +1069,7 @@ while x20 != x21,
         x4 = x6 << x3
         x4 = x4 + x2
         x5 = x3 + x7
-        x23 = x0 + 0
+        x23 = x0 + 2
         x0 == x0 goto PushHuffmanBitStack
         PushHuffmanBitStackReturnGate2:
         x9 = 0 + x0
@@ -1077,7 +1081,7 @@ endwhile
 if x9 != x0,
     x4 = mem[x12 + 0]
     x5 = mem[x13 + 0]
-    x23 = x0 + 0
+    x23 = x0 + 3
     x0 == x0 goto PushHuffmanBitStack
     PushHuffmanBitStackReturnGate3:
 endif

@@ -13,7 +13,7 @@ sw x0 x1 801
 addi 1 x0 x7
 startwhilemark1_0:
 bge x5 x7 endwhilemark1_0
-add x7 x1 x8
+add x1 x7 x8
 sw x3 x8 275
 sw x3 x8 801
 addi 1 x7 x7
@@ -21,7 +21,7 @@ beq x0 x0 startwhilemark1_0
     endwhilemark1_0:
 startwhilemark1_1:
 bge x6 x7 endwhilemark1_1
-add x7 x1 x8
+add x1 x7 x8
 sw x0 x8 275
 sw x0 x8 801
 addi 1 x7 x7
@@ -35,9 +35,9 @@ addi 1052 x0 x1
 addi 1179 x0 x2
 addi 32 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 0 x0 x31
-or x30 x31 x3
+or x31 x30 x3
 startwhilemark0_1:
 blt x1 x2 endwhilemark0_1
 sw x3 x1 0
@@ -46,43 +46,43 @@ beq x0 x0 startwhilemark0_1
 endwhilemark0_1:
 addi 22 x0 x31
 addi -189 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 1196 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 66 x0 x31
-or x31 x29 x1
+or x29 x31 x1
 sw x1 x0 1214
 addi 22 x0 x31
 addi -149 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 16 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 787 x0 x31
-or x31 x29 x2
+or x29 x31 x2
 sw x2 x0 1212
 addi 22 x0 x31
 addi -76 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 458 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 1541 x0 x31
-or x31 x29 x3
+or x29 x31 x3
 sw x3 x0 1211
 addi 22 x0 x31
 addi -37 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 1327 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 213 x0 x31
-or x31 x29 x4
+or x29 x31 x4
 sw x4 x0 1215
 addi 1 x0 x5
 sw x5 x0 26
@@ -333,7 +333,7 @@ sw x1 x0 264
 sw x1 x0 759
 addi 2046 x0 x2
 sw x2 x0 537
-addi 6 x1 x3
+addi 2047 x0 x3
 sw x3 x0 1185
 addi 2043 x1 x4
 sw x4 x0 60
@@ -351,31 +351,31 @@ addi 2044 x2 x8
 sw x8 x0 1184
 addi 3 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2005 x0 x31
-or x30 x31 x9
+or x31 x30 x9
 sw x9 x0 1183
 addi 6 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 580 x0 x31
-or x30 x31 x10
+or x31 x30 x10
 sw x10 x0 1200
 addi 1468 x10 x30
 addi 1718 x0 x31
-or x30 x31 x11
+or x31 x30 x11
 sw x11 x0 1182
 addi 298 x11 x12
 sw x12 x0 775
 addi 14 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1713 x0 x31
-or x30 x31 x13
+or x31 x30 x13
 sw x13 x0 1181
 addi 335 x13 x30
 addi 1984 x0 x31
-or x30 x31 x14
+or x31 x30 x14
 sw x14 x0 154
 addi 2 x14 x15
 sw x15 x0 587
@@ -383,21 +383,21 @@ addi 3 x14 x16
 sw x16 x0 791
 addi 22 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1285 x0 x31
-or x30 x31 x17
+or x31 x30 x17
 sw x17 x0 1198
 addi 25 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 271 x0 x31
-or x30 x31 x18
+or x31 x30 x18
 sw x18 x0 1180
 addi 31 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1922 x0 x31
-or x30 x31 x19
+or x31 x30 x19
 sw x19 x0 33
 addi 1 x19 x20
 sw x20 x0 34
@@ -770,45 +770,46 @@ addi 28 x1 x28
 sw x28 x0 1199
 addi 22 x0 x31
 addi 50 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 360 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 917 x0 x31
-or x31 x29 x29
+or x29 x31 x29
 sw x29 x0 1210
 addi 22 x0 x31
 addi 131 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 1196 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 65 x0 x31
-or x31 x29 x1
+or x29 x31 x1
 sw x1 x0 1208
 addi 22 x0 x31
 addi 224 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 1572 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 1769 x0 x31
-or x31 x29 x2
+or x29 x31 x2
 sw x2 x0 1213
 addi 22 x0 x31
 addi 288 x0 x29
-sll x29 x31 x29
+sll x31 x29 x29
 addi 11 x0 x31
 addi 1572 x0 x30
-sll x30 x31 x30
-or x30 x29 x29
+sll x31 x30 x30
+or x29 x30 x29
 addi 1769 x0 x31
-or x31 x29 x3
+or x29 x31 x3
 sw x3 x0 1209
 // Main function
+Main:
 // ------------------------------------------------------------------
 // RegFile Work Aera 1: Re-Order Minimum coded (MCU)
 // Avialiable register remaind: x23
@@ -816,17 +817,17 @@ sw x3 x0 1209
 // blocks: 1216 Y 1280 U 1344 V 1408 Block 1472 MidBlock
 addi 100 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x20
+or x31 x30 x20
 addi 2000 x0 x21
 lw 0 x20 x28
 lw 1 x20 x29
 sw x28 x0 1187
 sw x29 x0 1188
 addi 4 x0 x1
-sra x28 x1 x28
-sra x29 x1 x27
+sra x1 x28 x28
+sra x1 x29 x27
 sw x28 x0 1189
 sw x27 x0 1190
 addi 0 x0 x1
@@ -840,71 +841,71 @@ addi 8 x0 x25
 addi 2 x0 x24
 startwhilemark0_2:
 beq x28 x2 endwhilemark0_2
-mul x26 x29 x10
-mul x10 x2 x10
+mul x29 x26 x10
+mul x2 x10 x10
 addi 2 x10 x10
 startwhilemark1_2:
 beq x27 x1 endwhilemark1_2
-mul x26 x1 x11
-add x11 x10 x11
+mul x1 x26 x11
+add x10 x11 x11
 startwhilemark2_0:
 beq x24 x4 endwhilemark2_0
-mul x25 x29 x12
-mul x12 x4 x12
-add x12 x11 x12
+mul x29 x25 x12
+mul x4 x12 x12
+add x11 x12 x12
 startwhilemark3_0:
 beq x24 x3 endwhilemark3_0
-mul x25 x3 x13
-add x13 x12 x13
+mul x3 x25 x13
+add x12 x13 x13
 startwhilemark4_0:
 beq x25 x5 endwhilemark4_0
-add x5 x13 x14
+add x13 x5 x14
 startwhilemark5_0:
 beq x25 x6 endwhilemark5_0
-mul x29 x6 x15
-add x15 x14 x15
-add x20 x15 x15
+mul x6 x29 x15
+add x14 x15 x15
+add x15 x20 x15
 addi 255 x0 x19
 lw 0 x15 x16
-sra x16 x26 x16
-and x16 x19 x16
+sra x26 x16 x16
+and x19 x16 x16
 lw 0 x15 x17
-sra x17 x25 x17
-and x17 x19 x17
+sra x25 x17 x17
+and x19 x17 x17
 lw 0 x15 x18
-and x18 x19 x18
+and x19 x18 x18
 lw 1208 x0 x19
-mulh x19 x16 x19
+mulh x16 x19 x19
 lw 1209 x0 x30
-mulh x30 x17 x30
-add x19 x30 x19
+mulh x17 x30 x30
+add x30 x19 x19
 lw 1210 x0 x30
-mulh x30 x18 x30
-add x19 x30 x19
+mulh x18 x30 x30
+add x30 x19 x19
 addi 16 x19 x19
 addi 0 x19 x22
 lw 1211 x0 x19
-mulh x19 x16 x19
+mulh x16 x19 x19
 lw 1212 x0 x30
-mulh x30 x17 x30
-add x19 x30 x19
+mulh x17 x30 x30
+add x30 x19 x19
 lw 1213 x0 x30
-mulh x30 x18 x30
-add x19 x30 x19
+mulh x18 x30 x30
+add x30 x19 x19
 addi 128 x19 x19
-sll x19 x25 x19
-add x19 x22 x22
+sll x25 x19 x19
+add x22 x19 x22
 lw 1214 x0 x19
-mulh x19 x17 x19
+mulh x17 x19 x19
 lw 1213 x0 x30
-mulh x30 x16 x30
-add x19 x30 x19
+mulh x16 x30 x30
+add x30 x19 x19
 lw 1215 x0 x30
-mulh x30 x18 x30
-add x19 x30 x19
+mulh x18 x30 x30
+add x30 x19 x19
 addi 128 x19 x19
-sll x19 x26 x19
-add x19 x22 x22
+sll x26 x19 x19
+add x22 x19 x22
 sw x22 x21 0
 addi 1 x21 x21
 addi 1 x6 x6
@@ -933,14 +934,14 @@ endwhilemark0_2:
 // clear uart
 addi 100 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x10
+or x31 x30 x10
 addi 101 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 978 x0 x31
-or x30 x31 x11
+or x31 x30 x11
 startwhilemark0_3:
 beq x11 x10 endwhilemark0_3
 sw x0 x10 0
@@ -954,9 +955,9 @@ endwhilemark0_3:
 addi 32 x0 x26
 addi 100 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x25
+or x31 x30 x25
 // x28 return key and mode
 // x29 differential DC value
 // Function Entry
@@ -980,9 +981,9 @@ endwhilemark0_4:
 addi 111 x0 x1
 addi 200 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x2
+or x31 x30 x2
 sw x1 x2 0
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
@@ -993,36 +994,36 @@ CORDIC:
 addi 0 x0 x8
 addi 100 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1087 x0 x31
-or x30 x31 x20
+or x31 x30 x20
 addi -202 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1921 x0 x31
-or x30 x31 x21
+or x31 x30 x21
 addi 50 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 544 x0 x31
-or x30 x31 x22
+or x31 x30 x22
 startwhilemark0_5:
 bge x9 x20 endwhilemark0_5
-add x9 x21 x9
+add x21 x9 x9
 beq x0 x0 startwhilemark0_5
     endwhilemark0_5:
 bge x9 x22 endifmark0_0
 addi 1 x0 x8
 xori -1 x20 x20
 addi 1 x20 x20
-add x9 x20 x9
+add x20 x9 x9
 beq x0 x0 endelse2
     endifmark0_0:
 xori -1 x22 x22
 addi 1 x22 x22
 bge x22 x9 endifmark0_1
 addi 1 x0 x8
-add x9 x20 x9
+add x20 x9 x9
         endifmark0_1:
     endelse2:
 addi 0 x0 x10
@@ -1041,13 +1042,13 @@ bge x10 x9 endifmark0_2
 lw 1180 x7 x20
 xori -1 x20 x20
 addi 1 x20 x20
-add x10 x20 x10
+add x20 x10 x10
 addi 1 x0 x21
 sw x21 x7 1191
 beq x0 x0 endelse3
         endifmark0_2:
 lw 1180 x7 x20
-add x10 x20 x10
+add x20 x10 x10
 sw x0 x7 1191
         endelse3:
 addi 1 x7 x7
@@ -1055,9 +1056,9 @@ beq x0 x0 startwhilemark0_6
     endwhilemark0_6:
 addi 19 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 885 x0 x31
-or x30 x31 x1
+or x31 x30 x1
 addi 0 x0 x2
 addi 6 x0 x7
 addi 1 x0 x21
@@ -1065,20 +1066,20 @@ addi -1 x0 x23
 startwhilemark0_7:
 beq x23 x7 endwhilemark0_7
 lw 1191 x7 x20
-sra x2 x7 x22
+sra x7 x2 x22
 bne x21 x20 endifmark0_3
 xori -1 x22 x22
 addi 1 x22 x22
-add x1 x22 x1
-sra x1 x7 x22
+add x22 x1 x1
+sra x7 x1 x22
 beq x0 x0 endelse4
         endifmark0_3:
-add x1 x22 x1
-sra x1 x7 x22
+add x22 x1 x1
+sra x7 x1 x22
 xori -1 x22 x22
 addi 1 x22 x22
         endelse4:
-add x22 x2 x2
+add x2 x22 x2
 addi -1 x7 x7
 beq x0 x0 startwhilemark0_7
     endwhilemark0_7:
@@ -1120,30 +1121,30 @@ startwhilemark2_1:
 beq x15 x5 endwhilemark2_1
 startwhilemark3_1:
 beq x15 x6 endwhilemark3_1
-mul x5 x15 x16
-add x16 x6 x16
+mul x15 x5 x16
+add x6 x16 x16
 lw 1472 x16 x13
-mul x17 x5 x9
+mul x5 x17 x9
 addi 1 x9 x9
-mul x9 x3 x9
+mul x3 x9 x9
 lw 1200 x0 x23
-mul x9 x23 x9
+mul x23 x9 x9
 addi 0 x0 x24
 beq x0 x0 CORDIC
                 CORDICGate0: // return gate
-mul x13 x1 x13
-sra x13 x15 x13
-mul x17 x6 x9
+mul x1 x13 x13
+sra x15 x13 x13
+mul x6 x17 x9
 addi 1 x9 x9
-mul x9 x4 x9
+mul x4 x9 x9
 lw 1200 x0 x23
-mul x9 x23 x9
+mul x23 x9 x9
 addi 1 x0 x24
 beq x0 x0 CORDIC
                 CORDICGate1: // return gate
-mul x13 x1 x13
-sra x13 x15 x13
-add x14 x13 x14
+mul x1 x13 x13
+sra x15 x13 x13
+add x13 x14 x14
 addi 1 x6 x6
 beq x0 x0 startwhilemark3_1
             endwhilemark3_1:
@@ -1151,21 +1152,31 @@ addi 0 x0 x6
 addi 1 x5 x5
 beq x0 x0 startwhilemark2_1
         endwhilemark2_1:
-mulh x11 x12 x16
-mul x11 x12 x13
+mulh x12 x11 x16
+mul x12 x11 x13
+addi 22 x0 x31
+addi 511 x0 x29
+sll x31 x29 x29
+addi 11 x0 x31
+addi 2047 x0 x30
+sll x31 x30 x30
+or x29 x30 x29
+addi 2047 x0 x31
+or x29 x31 x21
+and x21 x13 x13
 addi 15 x0 x18
-sll x16 x18 x16
+sll x18 x16 x16
 addi 1 x18 x18
-sra x13 x18 x13
-or x13 x16 x13
-mulh x13 x14 x13
+sra x18 x13 x13
+or x16 x13 x13
+mulh x14 x13 x13
 addi 3 x0 x18
-sra x13 x18 x13
+sra x18 x13 x13
 beq x0 x13 endifmark0_7
 addi 1 x13 x13
         endifmark0_7:
-mul x3 x15 x16
-add x4 x16 x16
+mul x15 x3 x16
+add x16 x4 x16
 sw x13 x16 1408
 addi 0 x0 x5
 addi 1 x4 x4
@@ -1187,11 +1198,11 @@ addi 64 x0 x5
 addi 16 x0 x7
 startwhilemark0_9:
 beq x5 x1 endwhilemark0_9
-add x1 x2 x6
+add x2 x1 x6
 lw 0 x6 x3
 lw 1408 x1 x4
-mul x3 x4 x3
-sra x3 x7 x3
+mul x4 x3 x3
+sra x7 x3 x3
 sw x0 x1 1408
 sw x3 x1 1472
 addi 1 x1 x1
@@ -1201,9 +1212,9 @@ endwhilemark0_9:
 addi 222 x0 x1
 addi 200 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x2
+or x31 x30 x2
 sw x1 x2 0
 // ------------------------------------
 // Zigzag Scan: Sub Area 4
@@ -1220,7 +1231,7 @@ addi 1 x0 x9
 lw 1472 x0 x27
 xori -1 x29 x29
 addi 1 x29 x29
-add x27 x29 x11
+add x29 x27 x11
 sw x11 x0 1408
 startwhilemark0_10:
 bne x0 x0 endwhilemark0_10
@@ -1245,8 +1256,8 @@ addi 0 x0 x4
 xori -1 x3 x3
 addi 1 x3 x3
 addi 1 x5 x5
-mul x2 x7 x12
-add x12 x1 x12
+mul x7 x2 x12
+add x1 x12 x12
 lw 1472 x12 x11
 sw x11 x5 1408
     endifmark0_9:
@@ -1258,10 +1269,10 @@ beq x0 x0 breakmark0
 addi 1 x5 x5
 xori -1 x3 x13
 addi 1 x13 x13
-add x13 x1 x1
-add x2 x3 x2
-mul x2 x7 x12
-add x12 x1 x12
+add x1 x13 x1
+add x3 x2 x2
+mul x7 x2 x12
+add x1 x12 x12
 lw 1472 x12 x11
 sw x11 x5 1408
 beq x0 x0 startwhilemark0_10
@@ -1271,9 +1282,9 @@ breakmark0:
 addi 333 x0 x1
 addi 200 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x2
+or x31 x30 x2
 sw x1 x2 0
 // ------------------------------------
 // Huffman Encode: Sub Area 6
@@ -1305,7 +1316,7 @@ addi 1 x0 x15
 addi 0 x1 x2
 startwhilemark0_11:
 beq x0 x1 endwhilemark0_11
-sra x1 x17 x1
+sra x17 x1 x1
 addi 1 x14 x14
 beq x0 x0 startwhilemark0_11
     endwhilemark0_11:
@@ -1314,19 +1325,20 @@ bne x17 x15 endifmark0_12
 addi 0 x0 x16
 startwhilemark0_12:
 beq x0 x14 endwhilemark0_12
-sll x16 x17 x16
+sll x17 x16 x16
 addi 1 x16 x16
 addi -1 x14 x14
 beq x0 x0 startwhilemark0_12
         endwhilemark0_12:
 xori -1 x2 x2
-and x2 x16 x2
+and x16 x2 x2
     endifmark0_12:
 // Get data and size return gate
 // return key: x24
 addi 1 x0 x19
 beq x0 x24 GetDataAndSizeReturnGate0
 beq x19 x24 GetDataAndSizeReturnGate1
+beq x0 x0 Main
 EndGetDataAndSize:
 // SubFunction: Push Huffman bit stack
 beq x0 x0 EndPushHuffmanBitStack
@@ -1335,35 +1347,35 @@ lw 0 x25 x14
 blt x5 x26 endifmark0_13
 xori -1 x5 x5
 addi 1 x5 x5
-add x26 x5 x18
-sll x4 x18 x18
-add x14 x18 x14
+add x5 x26 x18
+sll x18 x4 x18
+add x18 x14 x14
 sw x14 x25 0
-add x26 x5 x26
+add x5 x26 x26
 beq x0 x0 endelse8
     endifmark0_13:
 xori -1 x26 x19
 addi 1 x19 x19
-add x5 x19 x18
-sra x4 x18 x18
-or x14 x18 x14
+add x19 x5 x18
+sra x18 x4 x18
+or x18 x14 x14
 sw x14 x25 0
-add x5 x19 x5
+add x19 x5 x5
 addi 0 x5 x15
 addi 0 x0 x16
 addi 1 x0 x19
 startwhilemark0_13:
 beq x0 x15 endwhilemark0_13
-sll x16 x19 x16
+sll x19 x16 x16
 addi 1 x16 x16
 addi -1 x15 x15
 beq x0 x0 startwhilemark0_13
         endwhilemark0_13:
-and x16 x4 x16
+and x4 x16 x16
 xori -1 x5 x19
 addi 1 x19 x19
 addi 32 x19 x26
-sll x16 x26 x17
+sll x26 x16 x17
 addi 1 x25 x25
 sw x17 x25 0
     endelse8:
@@ -1376,19 +1388,20 @@ beq x0 x23 PushHuffmanBitStackReturnGate0
 beq x19 x23 PushHuffmanBitStackReturnGate1
 beq x18 x23 PushHuffmanBitStackReturnGate2
 beq x5 x23 PushHuffmanBitStackReturnGate3
+beq x0 x0 Main
 EndPushHuffmanBitStack:
 // DC
 lw 1408 x0 x1
 addi 0 x0 x24
 beq x0 x0 GetDataAndSize
 GetDataAndSizeReturnGate0:
-add x10 x3 x14
+add x3 x10 x14
 lw 0 x14 x6
-add x11 x3 x14
+add x3 x11 x14
 lw 0 x14 x7
-sll x6 x3 x4
-add x4 x2 x4
-add x3 x7 x5
+sll x3 x6 x4
+add x2 x4 x4
+add x7 x3 x5
 addi 0 x0 x23
 beq x0 x0 PushHuffmanBitStack
 PushHuffmanBitStackReturnGate0:
@@ -1406,10 +1419,10 @@ beq x0 x0 endelse9
     endifmark0_14:
 startwhilemark1_4:
 bge x9 x22 endwhilemark1_4
-            x9 = x9 - 16
+addi -16 x9 x9
 lw 240 x12 x4
 lw 240 x13 x5
-addi 0 x0 x23
+addi 1 x0 x23
 beq x0 x0 PushHuffmanBitStack
             PushHuffmanBitStackReturnGate1:
 beq x0 x0 startwhilemark1_4
@@ -1420,16 +1433,16 @@ addi 1 x0 x24
 beq x0 x0 GetDataAndSize
         GetDataAndSizeReturnGate1:
 addi 4 x0 x17
-sll x9 x17 x8
-add x8 x3 x8
-add x12 x8 x14
+sll x17 x9 x8
+add x3 x8 x8
+add x8 x12 x14
 lw 0 x14 x6
-add x13 x8 x14
+add x8 x13 x14
 lw 0 x14 x7
-sll x6 x3 x4
-add x4 x2 x4
-add x3 x7 x5
-addi 0 x0 x23
+sll x3 x6 x4
+add x2 x4 x4
+add x7 x3 x5
+addi 2 x0 x23
 beq x0 x0 PushHuffmanBitStack
         PushHuffmanBitStackReturnGate2:
 addi 0 x0 x9
@@ -1441,7 +1454,7 @@ endwhilemark0_14:
 beq x0 x9 endifmark0_15
 lw 0 x12 x4
 lw 0 x13 x5
-addi 0 x0 x23
+addi 3 x0 x23
 beq x0 x0 PushHuffmanBitStack
     PushHuffmanBitStackReturnGate3:
 endifmark0_15:
@@ -1449,9 +1462,9 @@ endifmark0_15:
 addi 444 x0 x1
 addi 200 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 2000 x0 x31
-or x30 x31 x2
+or x31 x30 x2
 sw x1 x2 0
 // ------------------------------------
 // Function Return Gate
@@ -1474,9 +1487,9 @@ sw x0 x0 1205
 sw x0 x0 1206
 addi 256 x0 x1
 lw 1189 x0 x2
-mul x1 x2 x1
+mul x2 x1 x1
 lw 1190 x0 x2
-mul x1 x2 x4
+mul x2 x1 x4
 sw x4 x0 1207
 addi 0 x0 x1
 addi 0 x0 x2
@@ -1487,19 +1500,19 @@ lw 2000 x1 x6
 addi 255 x0 x10
 addi 8 x0 x11
 addi 16 x0 x12
-and x10 x6 x6
+and x6 x10 x6
 sw x6 x2 1216
 lw 2000 x1 x6
-sra x6 x11 x6
-and x6 x10 x6
+sra x11 x6 x6
+and x10 x6 x6
 lw 1280 x2 x7
-add x6 x7 x6
+add x7 x6 x6
 sw x6 x2 1280
 lw 2000 x1 x6
 lw 1344 x2 x7
-sra x6 x12 x6
-and x6 x10 x6
-add x6 x7 x6
+sra x12 x6 x6
+and x10 x6 x6
+add x7 x6 x6
 sw x6 x2 1344
 addi 63 x0 x6
 bne x6 x2 endifmark0_16
@@ -1528,7 +1541,7 @@ startwhilemark1_6:
 beq x6 x7 endwhilemark1_6
 lw 1280 x7 x9
 addi 2 x0 x5
-sra x9 x5 x9
+sra x5 x9 x9
 sw x9 x7 1408
 addi 1 x7 x7
 beq x0 x0 startwhilemark1_6
@@ -1544,7 +1557,7 @@ startwhilemark1_7:
 beq x6 x7 endwhilemark1_7
 lw 1344 x7 x9
 addi 2 x0 x5
-sra x9 x5 x9
+sra x5 x9 x9
 sw x9 x7 1408
 addi 1 x7 x7
 beq x0 x0 startwhilemark1_7
@@ -1585,18 +1598,18 @@ addi 0 x0 x13
 addi 1 x0 x1
 startwhilemark0_16:
 beq x0 x26 endwhilemark0_16
-sll x13 x1 x13
+sll x1 x13 x13
 addi 1 x13 x13
 addi -1 x26 x26
 beq x0 x0 startwhilemark0_16
 endwhilemark0_16:
 lw 0 x25 x2
-add x13 x2 x13
+add x2 x13 x13
 sw x13 x25 0
 // end of program signature
 addi 4 x0 x30
 addi 11 x0 x31
-sll x30 x31 x30
+sll x31 x30 x30
 addi 1807 x0 x31
-or x30 x31 x31
+or x31 x30 x31
 

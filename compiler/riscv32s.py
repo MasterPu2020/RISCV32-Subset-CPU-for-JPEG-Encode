@@ -77,19 +77,20 @@ def execute(inst, pc):
             break
     # r type
     if inst_op == 'add':
-        x[rd] = op32(x[rs2] + x[rs1])
+        x[rd] = op32(x[rs1] + x[rs2])
     elif inst_op == 'and':
-        x[rd] = op32(x[rs2] & x[rs1])
+        x[rd] = op32(x[rs1] & x[rs2])
     elif inst_op == 'or':
-        x[rd] = op32(x[rs2] | x[rs1])
+        x[rd] = op32(x[rs1] | x[rs2])
     elif inst_op == 'sll':
-        x[rd] = op32(x[rs2] << x[rs1])
+        print(inst_opbin,inst_funct7,inst_funct3,inst_op) # debug 1760353
+        x[rd] = op32(x[rs1] << x[rs2])
     elif inst_op == 'sra':
-        x[rd] = op32(x[rs2] >> x[rs1])
+        x[rd] = op32(x[rs1] >> x[rs2])
     elif inst_op == 'mul':
-        x[rd] = op32(x[rs2] * x[rs1])
+        x[rd] = op32(x[rs1] * x[rs2])
     elif inst_op == 'mulh':
-        x[rd] = op32((x[rs2] * x[rs1]) >> 31)
+        x[rd] = op32((x[rs1] * x[rs2]) >> 31)
     # i type
     elif inst_op == 'addi':
         x[rd] = op32(x[rs1] + immi)
@@ -122,7 +123,7 @@ def execute(inst, pc):
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file
-def show(save=False, start=0, maxcal=20, maxrow=8, reglen=4, memlen=7):
+def show(save=False, start=0, maxcal=20, maxrow=8, reglen=11, memlen=7):
     print('\n[Register File: 32 x 32bit]\n')
     for i in range(0,4):
         text = '|'
@@ -168,7 +169,7 @@ def showhuffmanmem():
     text = '|'
     line = 0
     for i in range(206800, 206800+16):
-        text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (7 - len(str(mem[i]))) + str(mem[i]) + '|'
+        text += ' ' * (5-len(hex(i)[2:])) + hex(i)[2:].upper() + ':' + ' ' * (11 - len(str(mem[i]))) + str(mem[i]) + '|'
         j += 1
         if j == 8:
             print(text)
@@ -216,8 +217,8 @@ if __name__ == '__main__':
     wait = 0
     savelog = False
     hide = False # debug
-    maxcal = 8
-    maxrow = 40
+    maxcal = 16
+    maxrow = 20
     memstart = 1216 # debug # 206800
 
     finalsave = False

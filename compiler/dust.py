@@ -43,7 +43,7 @@ class regfile():
             self.busy[id] = False
     
     def write(self, id, data:int):
-        assert data in range(-2**(self.size[id]-1), 2**(self.size[id]-1)-1), '\n Data Invaild: Data of range.'
+        assert data in range(-2**(self.size[id]-1), 2**(self.size[id]-1)), '\n Data Invaild: Data of range.'
         assert self.readonly[id] == False, '\n Access Denied: Register Read Only.'
         self.data[id] = data
         self.history[id].pop(0)
@@ -116,7 +116,7 @@ riscv = core(32, 50e6)
 # if it is a 12-bit signed integer
 def is_int12(string:str):
     if compile.is_int(string):
-        assert int(string) in range(-2**12, 2**12-1), 'ImmRangeError: '+string
+        assert int(string) in range(-2**12, 2**12), 'ImmRangeError: '+string
         return True
     else:
         return False
@@ -131,8 +131,8 @@ def macro2assem(line:str, comment=False):
     for op in opsign[0]:
         if op in macro and not ('mem' in macro):
             rd = macro.split('=')[0]
-            rs1 = macro.split(op)[1]
-            rs2 = macro.split('=')[1].split(op)[0]
+            rs2 = macro.split(op)[1]
+            rs1 = macro.split('=')[1].split(op)[0]
             if is_int12(rs1) or is_int12(rs2):
                 break
             op = opcode[0][opsign[0].index(op)]
@@ -332,11 +332,11 @@ def int2macro(line:str, dontremove=False):
         id = 0
         while id != 32:
             value = riscv.x.data[id]
-            if imm + value in range(-2**11, 2**11-1):
+            if imm + value in range(-2**11, 2**11):
                 sreg = 'x' + str(id)
                 simm = str(imm + value)
                 return sregd + ' = ' + sreg + ' + ' + simm + '\n'
-            elif imm - value in range(-2**11, 2**11-1):
+            elif imm - value in range(-2**11, 2**11):
                 sreg = 'x' + str(id)
                 simm = str(imm - value)
                 return sregd + ' = ' + sreg + ' + ' + simm + '\n'
@@ -355,7 +355,7 @@ def int2macro(line:str, dontremove=False):
         if statement[0][0] == 'x' and statement[1] == '=' and compile.is_int(statement[2]):
             sregd = statement[0]
             imm = int(statement[2])
-            assert imm in range(-2**31, 2**31-1), 'Error: signed value given over than 32 bit.'
+            assert imm in range(-2**31, 2**31), 'Error: signed value given over than 32 bit.'
             if imm == riscv.x.data[int(sregd[1:])] and not dontremove:
                 return '// removed\n'
             text = springboard(sregd, imm)
@@ -364,7 +364,7 @@ def int2macro(line:str, dontremove=False):
                 return text
             else:
                 text = ''
-                if imm in range(-2**22, 2**22-1):
+                if imm in range(-2**22, 2**22):
                     sreg0 = xidle()
                     sreg1 = xidle()
                     # int signed 22-11 bit
@@ -422,7 +422,7 @@ def genmem2macro(file:str, comment=False):
         while i != 0:
             if i != id:
                 data = riscv.x.data[i]
-                if (value - data) in range(-2**11, 2**11-1) or (value + data) in range(-2**11, 2**11-1):
+                if (value - data) in range(-2**11, 2**11) or (value + data) in range(-2**11, 2**11):
                     return False
             i -= 1
         return True
