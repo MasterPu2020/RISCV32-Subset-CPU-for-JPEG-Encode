@@ -586,6 +586,8 @@ def linemark1():
         x11 = lw(x12, 1472)
         sw(x5, x11, 1408)
 
+    show(mem[1408:1408+64])
+
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
     # 0 for Luminace
@@ -627,15 +629,17 @@ def linemark1():
         global x26, x4, x5, x14, x15, x16, x17, x18
         x14 = huffman_bit_stack[-1]
         if x26 >= x5:
-            x18 = x26 - x5
+            x5 = x5 ^ -1
+            x5 = x5 + 1
+            x18 = x26 + x5
             x18 = x4 << x18
             x14 = x14 + x18
             huffman_bit_stack[-1] = x14
-            x26 = x26 - x5
+            x26 = x26 + x5
         else:
             x19 = x26 ^ -1
             x19 = x19 + 1
-            x18 = x5 - x26
+            x18 = x5 + x19
             x18 = x4 >> x18
             x14 = x14 | x18
             huffman_bit_stack[-1] = x14 
@@ -655,6 +659,7 @@ def linemark1():
             # x26 = 32 - x5
             x17 = x16 << x26
             huffman_bit_stack.append(x17)
+        print(x26)
         x19 = 1 + x0
         x18 = 2 + x0
         x5 = 3 + x0
@@ -805,7 +810,7 @@ while x1 != x4:
     else:
         x2 += 1
     x1 += 1
-    print('\r [Process]: (', x1, '/', mem[1189] * mem[1190] * 768, ')', end='')
+    # print('\r [Process]: (', x1, '/', mem[1189] * mem[1190] * 768, ')', end='')
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 4: Post Process

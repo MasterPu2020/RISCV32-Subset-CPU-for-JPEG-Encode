@@ -651,11 +651,6 @@ while x1 != x2,
     x1 = x1 + 1
 endwhile
 
-// debug
-x1 = 111
-x2 = 411600
-mem[x2 + 0] = x1
-
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
 // ------------------------------------
@@ -843,11 +838,6 @@ while x1 != x5,
     x1 = x1 + 1
 endwhile
 
-// debug
-x1 = 222
-x2 = 411600
-mem[x2 + 0] = x1
-
 // ------------------------------------
 // Zigzag Scan: Sub Area 4
 // ------------------------------------
@@ -912,11 +902,6 @@ while x0 == x0,
 endwhile
 breakmark0:
 
-// debug
-x1 = 333 
-x2 = 411600
-mem[x2 + 0] = x1
-
 // ------------------------------------
 // Huffman Encode: Sub Area 6
 // ------------------------------------
@@ -941,14 +926,14 @@ GetDataAndSize:
     x14 = 0 + x0
     x15 = 0 + x0
     x17 = 1 + x0
-    if x1 < x0,
+    if x1 < x0, // x1: data < 0 then -x1
         x1 = x1 ^ -1
         x1 = x1 + 1
-        x15 = 1 + x0
+        x15 = 1 + x0 // less than 1 flag
     endif
-    x2 = x1 + 0
+    x2 = x1 + 0 // x2: data
     while x1 != x0,
-        x1 = x1 >> x17
+        x1 = x1 >> x17 // x1 >> 1
         x14 = x14 + 1
     endwhile
     x3 = x14 + 0
@@ -975,11 +960,11 @@ EndGetDataAndSize:
 x0 == x0 goto EndPushHuffmanBitStack
 PushHuffmanBitStack:
     x14 = mem[x25 + 0]
-    if x26 >= x5,
+    if x26 >= x5, // stack spave >= push size
         x5 = x5 ^ -1
         x5 = x5 + 1
         x18 = x26 + x5
-        x18 = x4 << x18
+        x18 = x4 << x18 // push data
         x14 = x14 + x18
         mem[x25 + 0] = x14
         x26 = x26 + x5
@@ -987,11 +972,11 @@ PushHuffmanBitStack:
     endif
         x19 = x26 ^ -1
         x19 = x19 + 1
-        x18 = x5 + x19
-        x18 = x4 >> x18
-        x14 = x14 | x18
-        mem[x25 + 0] = x14 
-        x5 = x5 + x19
+        x18 = x5 + x19 // push size - stack space
+        x18 = x4 >> x18 // push data >> 
+        x14 = x14 | x18 // last data | push data
+        mem[x25 + 0] = x14 // fill the former space
+        x5 = x5 + x19 // rest push size
         x15 = x5 + 0
         x16 = 0 + x0
         x19 = x0 + 1
@@ -1000,11 +985,11 @@ PushHuffmanBitStack:
             x16 = x16 + 1
             x15 = x15 + -1
         endwhile
-        x16 = x16 & x4
+        x16 = x16 & x4 // trim the push data
         x19 = x5 ^ -1
         x19 = x19 + 1
-        x26 = 32 + x19
-        x17 = x16 << x26
+        x26 = 32 + x19 // rest space
+        x17 = x16 << x26 // new data
         x25 = x25 + 1
         mem[x25 + 0] = x17
     endelse8:
@@ -1089,9 +1074,8 @@ if x9 != x0,
 endif
 
 // debug
-x1 = 444
 x2 = 411600
-mem[x2 + 0] = x1
+mem[x2 + 0] = x26
 
 // ------------------------------------
 // Function Return Gate

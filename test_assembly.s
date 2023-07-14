@@ -977,14 +977,6 @@ sw x0 x1 1408 //     mem[x1 + 1408] = x0
 addi 1 x1 x1 //     x1 = x1 + 1
 beq x0 x0 startwhilemark0_4 // x0 == x0 goto startwhilemark0_4
 endwhilemark0_4:
-// debug
-addi 111 x0 x1 // x1 = x0 + 111
-addi 200 x0 x30 // x30 = x0 + 200 
-addi 11 x0 x31 // x31 = x0 + 11 
-sll x31 x30 x30 // x30 = x30 << x31
-addi 2000 x0 x31 // x31 = x0 + 2000 
-or x31 x30 x2 // x2 = x30 | x31
-sw x1 x2 0 // mem[x2 + 0] = x1
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
 // ------------------------------------
@@ -1208,14 +1200,6 @@ sw x3 x1 1472 //     mem[x1 + 1472] = x3
 addi 1 x1 x1 //     x1 = x1 + 1
 beq x0 x0 startwhilemark0_9 // x0 == x0 goto startwhilemark0_9
 endwhilemark0_9:
-// debug
-addi 222 x0 x1 // x1 = x0 + 222
-addi 200 x0 x30 // x30 = x0 + 200 
-addi 11 x0 x31 // x31 = x0 + 11 
-sll x31 x30 x30 // x30 = x30 << x31
-addi 2000 x0 x31 // x31 = x0 + 2000 
-or x31 x30 x2 // x2 = x30 | x31
-sw x1 x2 0 // mem[x2 + 0] = x1
 // ------------------------------------
 // Zigzag Scan: Sub Area 4
 // ------------------------------------
@@ -1280,14 +1264,6 @@ sw x11 x5 1408 //     mem[x5 + 1408] = x11
 beq x0 x0 startwhilemark0_10 // x0 == x0 goto startwhilemark0_10
 endwhilemark0_10:
 breakmark0:
-// debug
-addi 333 x0 x1 // x1 = x0 + 333
-addi 200 x0 x30 // x30 = x0 + 200 
-addi 11 x0 x31 // x31 = x0 + 11 
-sll x31 x30 x30 // x30 = x30 << x31
-addi 2000 x0 x31 // x31 = x0 + 2000 
-or x31 x30 x2 // x2 = x30 | x31
-sw x1 x2 0 // mem[x2 + 0] = x1
 // ------------------------------------
 // Huffman Encode: Sub Area 6
 // ------------------------------------
@@ -1310,15 +1286,15 @@ GetDataAndSize:
 addi 0 x0 x14 //     x14 = 0 + x0
 addi 0 x0 x15 //     x15 = 0 + x0
 addi 1 x0 x17 //     x17 = 1 + x0
-bge x0 x1 endifmark0_11 //     x1 >= x0 goto endifmark0_11
+bge x0 x1 endifmark0_11 //     x1 >= x0 goto endifmark0_11 // x1: data < 0 then -x1
 xori -1 x1 x1 //         x1 = x1 ^ -1
 addi 1 x1 x1 //         x1 = x1 + 1
-addi 1 x0 x15 //         x15 = 1 + x0
+addi 1 x0 x15 //         x15 = 1 + x0 // less than 1 flag
     endifmark0_11:
-addi 0 x1 x2 //     x2 = x1 + 0
+addi 0 x1 x2 //     x2 = x1 + 0 // x2: data
 startwhilemark0_11:
 beq x0 x1 endwhilemark0_11 //     x1 == x0 goto endwhilemark0_11
-sra x17 x1 x1 //         x1 = x1 >> x17
+sra x17 x1 x1 //         x1 = x1 >> x17 // x1 >> 1
 addi 1 x14 x14 //         x14 = x14 + 1
 beq x0 x0 startwhilemark0_11 // x0 == x0 goto startwhilemark0_11
     endwhilemark0_11:
@@ -1346,11 +1322,11 @@ EndGetDataAndSize:
 beq x0 x0 EndPushHuffmanBitStack // x0 == x0 goto EndPushHuffmanBitStack
 PushHuffmanBitStack:
 lw 0 x25 x14 //     x14 = mem[x25 + 0]
-blt x5 x26 endifmark0_13 //     x26 < x5 goto endifmark0_13
+blt x5 x26 endifmark0_13 //     x26 < x5 goto endifmark0_13 // stack spave >= push size
 xori -1 x5 x5 //         x5 = x5 ^ -1
 addi 1 x5 x5 //         x5 = x5 + 1
 add x5 x26 x18 //         x18 = x26 + x5
-sll x18 x4 x18 //         x18 = x4 << x18
+sll x18 x4 x18 //         x18 = x4 << x18 // push data
 add x18 x14 x14 //         x14 = x14 + x18
 sw x14 x25 0 //         mem[x25 + 0] = x14
 add x5 x26 x26 //         x26 = x26 + x5
@@ -1358,11 +1334,11 @@ beq x0 x0 endelse8 //         x0 == x0 goto endelse8
     endifmark0_13:
 xori -1 x26 x19 //         x19 = x26 ^ -1
 addi 1 x19 x19 //         x19 = x19 + 1
-add x19 x5 x18 //         x18 = x5 + x19
-sra x18 x4 x18 //         x18 = x4 >> x18
-or x18 x14 x14 //         x14 = x14 | x18
-sw x14 x25 0 //         mem[x25 + 0] = x14 
-add x19 x5 x5 //         x5 = x5 + x19
+add x19 x5 x18 //         x18 = x5 + x19 // push size - stack space
+sra x18 x4 x18 //         x18 = x4 >> x18 // push data >> 
+or x18 x14 x14 //         x14 = x14 | x18 // last data | push data
+sw x14 x25 0 //         mem[x25 + 0] = x14 // fill the former space
+add x19 x5 x5 //         x5 = x5 + x19 // rest push size
 addi 0 x5 x15 //         x15 = x5 + 0
 addi 0 x0 x16 //         x16 = 0 + x0
 addi 1 x0 x19 //         x19 = x0 + 1
@@ -1373,11 +1349,11 @@ addi 1 x16 x16 //             x16 = x16 + 1
 addi -1 x15 x15 //             x15 = x15 + -1
 beq x0 x0 startwhilemark0_13 // x0 == x0 goto startwhilemark0_13
         endwhilemark0_13:
-and x4 x16 x16 //         x16 = x16 & x4
+and x4 x16 x16 //         x16 = x16 & x4 // trim the push data
 xori -1 x5 x19 //         x19 = x5 ^ -1
 addi 1 x19 x19 //         x19 = x19 + 1
-addi 32 x19 x26 //         x26 = 32 + x19
-sll x26 x16 x17 //         x17 = x16 << x26
+addi 32 x19 x26 //         x26 = 32 + x19 // rest space
+sll x26 x16 x17 //         x17 = x16 << x26 // new data
 addi 1 x25 x25 //         x25 = x25 + 1
 sw x17 x25 0 //         mem[x25 + 0] = x17
     endelse8:
@@ -1461,13 +1437,12 @@ beq x0 x0 PushHuffmanBitStack //     x0 == x0 goto PushHuffmanBitStack
     PushHuffmanBitStackReturnGate3:
 endifmark0_15:
 // debug
-addi 444 x0 x1 // x1 = x0 + 444
 addi 200 x0 x30 // x30 = x0 + 200 
 addi 11 x0 x31 // x31 = x0 + 11 
 sll x31 x30 x30 // x30 = x30 << x31
 addi 2000 x0 x31 // x31 = x0 + 2000 
 or x31 x30 x2 // x2 = x30 | x31
-sw x1 x2 0 // mem[x2 + 0] = x1
+sw x26 x2 0 // mem[x2 + 0] = x26
 // ------------------------------------
 // Function Return Gate
 // ------------------------------------
@@ -1529,11 +1504,9 @@ sw x9 x7 1408 //             mem[x7 + 1408] = x9
 addi 1 x7 x7 //             x7 = x7 + 1
 beq x0 x0 startwhilemark1_5 // x0 == x0 goto startwhilemark1_5
         endwhilemark1_5:
-        // x29 = mem[x0 + 1204]
 addi 0 x0 x28 //         x28 = 0 + x0// return key
 beq x0 x0 BlockProcess //         x0 == x0 goto BlockProcess // Call function
         BlockProcessReturnGate0: // Return Gate 0
-        // mem[x0 + 1204] = x27
 lw 1203 x0 x3 //         x3 = mem[x0 + 1203]
 addi 3 x0 x8 //         x8 = 3 + x0
 bne x8 x3 endifmark1_0 //         x3 != x8 goto endifmark1_0
@@ -1548,11 +1521,9 @@ sw x9 x7 1408 //                 mem[x7 + 1408] = x9
 addi 1 x7 x7 //                 x7 = x7 + 1
 beq x0 x0 startwhilemark1_6 // x0 == x0 goto startwhilemark1_6
             endwhilemark1_6:
-            // x29 = mem[x0 + 1205]
 addi 1 x0 x28 //             x28 = 1 + x0 // return key
 beq x0 x0 BlockProcess //             x0 == x0 goto BlockProcess // Call function
             BlockProcessReturnGate1: // Return Gate 1
-            // mem[x0 + 1205] = x27
 addi 64 x0 x6 //             x6 = 64 + x0
 addi 0 x0 x7 //             x7 = 0 + x0
 startwhilemark1_7:
@@ -1564,11 +1535,9 @@ sw x9 x7 1408 //                 mem[x7 + 1408] = x9
 addi 1 x7 x7 //                 x7 = x7 + 1
 beq x0 x0 startwhilemark1_7 // x0 == x0 goto startwhilemark1_7
             endwhilemark1_7:
-            // x29 = mem[x0 + 1206]
 addi 2 x0 x28 //             x28 = 2 + x0 // return key
 beq x0 x0 BlockProcess //             x0 == x0 goto BlockProcess // Call function
             BlockProcessReturnGate2: // Return Gate 2
-            // mem[x0 + 1206] = x27
 addi 64 x0 x6 //             x6 = 64 + x0
 addi 0 x0 x7 //             x7 = 0 + x0
 startwhilemark1_8:

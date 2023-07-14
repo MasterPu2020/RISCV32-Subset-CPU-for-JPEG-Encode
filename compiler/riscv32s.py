@@ -180,7 +180,6 @@ def showhuffmanmem():
             line += 1
             text = '|'
             j = 0
-    print(text)
 
 # special function load image:
 def loadimg():
@@ -222,7 +221,7 @@ if __name__ == '__main__':
     savelog = False
     hide = False
     maxcal = 16
-    maxrow = 20
+    maxrow = 19
     memstart = 1216 # debug # 206800
 
     finalsave = False
@@ -249,6 +248,12 @@ if __name__ == '__main__':
     realtime = 0
     last_op = ''
     update = 0
+
+    # debug
+    lastspace = 0
+    lastdcy = 0
+    lastdccb = 0
+    lastdccr = 0
     # Start programm
     while pc < len(bin_code):
 
@@ -276,20 +281,23 @@ if __name__ == '__main__':
             show(savelog, memstart, maxcal, maxrow)
             showhuffmanmem() # special debug
             print('\n [CPU Instruction Information]')
-            print(' Program Counter:', pc)
             print(' Instruction:', bin_code[pc])
+            print(' Program Counter:', pc)
             print(' Operation:', inst_op)
-            print(' Rd:        x' + str(rd))
-            print(' Rs1:       x' + str(rs1))
-            print(' Rs2:       x' + str(rs2))
+            print(' Rd:  x' + str(rd))
+            print(' Rs1: x' + str(rs1))
+            print(' Rs2: x' + str(rs2))
             print(' Imm[I]:   ', immi)
-            print(' Imm[S]:   ', imms)
-            print(' Imm[B]:   ', immb)
+            # print(' Imm[S]:   ', imms)
+            # print(' Imm[B]:   ', immb)
             print(' Run Time(50Mhz): ', realtime, '(s), Executed:', runtime)
             print(' Branch Counter: ', branchcount, 'True:', branchture, 'False:', branchcount - branchture)
-            print(' Last Operation: ', last_op)
+            # print(' Last Operation: ', last_op)
             # Debug Area:
-            print('Debug mem[411600]:', mem[411600])
+            print('Debug huffstack sapce: ', mem[411600])
+            print('Debug Last  Y DC value:', mem[1204])
+            print('Debug Last Cb DC value:', mem[1205])
+            print('Debug Last Cr DC value:', mem[1206])
 
             update = 0
             last_op = inst_op
@@ -300,10 +308,22 @@ if __name__ == '__main__':
             else:
                 print('\r Process: (', realtime, '/', goto_realtime, ')', end='')
 
-        # if mem[411600] == 222:
-        #     drop = input('\n\nDebug program pause')
-        #     goto_runtime = runtime
-        #     goto_realtime = realtime
+        if mem[411600] != lastspace:
+            lastspace = mem[411600]
+            with open('riscvrun.log','a+') as runlog:
+                runlog.write('\nDebug huffstack sapce:  '+ str(lastspace))
+        if mem[1204] != lastdcy:
+            lastdcy = mem[1204]
+            with open('riscvrun.log','a+') as runlog:
+                runlog.write('\nDebug Last  Y DC value: '+ str(lastdcy))
+        if mem[1205] != lastdccb:
+            lastdccb = mem[1205]
+            with open('riscvrun.log','a+') as runlog:
+                runlog.write('\nDebug Last Cb DC value: '+ str(lastdccb))
+        if mem[1206] != lastdccr:
+            lastdccr = mem[1206]
+            with open('riscvrun.log','a+') as runlog:
+                runlog.write('\nDebug Last Cr DC value: '+ str(lastdccr))
             
         if runtime >= goto_runtime and realtime >= goto_realtime:
             if pause:
