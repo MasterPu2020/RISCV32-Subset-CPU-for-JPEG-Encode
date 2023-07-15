@@ -28,3 +28,124 @@ Debug huffstack sapce:  20
 Debug huffstack sapce:  14
 Debug huffstack sapce:  10
 Debug huffstack sapce:  6
+
+
+     DC values: -338
+Diff-DC values: -338
+
+Huffman space 16    
+
+     DC values: -338
+Diff-DC values: 0   
+
+Huffman space 14    
+
+     DC values: -338
+Diff-DC values: 0   
+
+Huffman space 12    
+
+     DC values: -338
+Diff-DC values: 0   
+
+Huffman space 10    
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 8  
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 6  
+
+     DC values: 865 
+Diff-DC values: 1203
+
+Huffman space 18    
+
+     DC values: -324 
+Diff-DC values: -1189
+
+Huffman space 5      
+
+     DC values: -324
+Diff-DC values: 0   
+
+Huffman space 9     
+
+     DC values: 865 
+Diff-DC values: 1189
+
+Huffman space 21    
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 19
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 17
+
+     DC values: -288
+Diff-DC values: -1153
+
+Huffman space 29
+
+     DC values: -288
+Diff-DC values: 0
+
+Huffman space 27
+
+     DC values: -288
+Diff-DC values: 0
+
+Huffman space 25
+
+     DC values: -288
+Diff-DC values: 0
+
+Huffman space 23
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 21
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 19
+
+     DC values: 188
+Diff-DC values: 476
+
+Huffman space 3
+
+     DC values: 188
+Diff-DC values: 0
+
+Huffman space 1
+
+     DC values: 188
+Diff-DC values: 0
+
+Huffman space 31
+
+     DC values: 188
+Diff-DC values: 0
+
+Huffman space 29
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 27
+
+     DC values: 0
+Diff-DC values: 0
+
+Huffman space 25
