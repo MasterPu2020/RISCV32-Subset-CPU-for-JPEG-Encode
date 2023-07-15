@@ -29,123 +29,43 @@ Debug huffstack sapce:  14
 Debug huffstack sapce:  10
 Debug huffstack sapce:  6
 
+Bug shot: DC value saves into a wrong location
 
-     DC values: -338
-Diff-DC values: -338
 
-Huffman space 16    
-
-     DC values: -338
-Diff-DC values: 0   
-
-Huffman space 14    
-
-     DC values: -338
-Diff-DC values: 0   
-
-Huffman space 12    
-
-     DC values: -338
-Diff-DC values: 0   
-
-Huffman space 10    
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 8  
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 6  
-
-     DC values: 865 
-Diff-DC values: 1203
-
-Huffman space 18    
-
-     DC values: -324 
-Diff-DC values: -1189
-
-Huffman space 5      
-
-     DC values: -324
-Diff-DC values: 0   
-
-Huffman space 9     
-
-     DC values: 865 
-Diff-DC values: 1189
-
-Huffman space 21    
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 19
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 17
-
-     DC values: -288
-Diff-DC values: -1153
-
-Huffman space 29
-
-     DC values: -288
-Diff-DC values: 0
-
-Huffman space 27
-
-     DC values: -288
-Diff-DC values: 0
-
-Huffman space 25
-
-     DC values: -288
-Diff-DC values: 0
-
-Huffman space 23
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 21
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 19
-
-     DC values: 188
-Diff-DC values: 476
-
-Huffman space 3
-
-     DC values: 188
-Diff-DC values: 0
-
-Huffman space 1
-
-     DC values: 188
-Diff-DC values: 0
-
-Huffman space 31
-
-     DC values: 188
-Diff-DC values: 0
-
-Huffman space 29
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 27
-
-     DC values: 0
-Diff-DC values: 0
-
-Huffman space 25
+Debug Last  Y DC value: -338
+Debug huffstack sapce:  12
+Debug huffstack sapce:  6
+Debug huffstack sapce:  0
+Debug huffstack sapce:  26
+Debug Last Cb DC value: -273
+Debug huffstack sapce:  6
+Debug Last Cr DC value: 800
+Debug huffstack sapce:  16
+Debug Last  Y DC value: 865
+Debug huffstack sapce:  24
+Debug Last  Y DC value: -324
+Debug huffstack sapce:  4
+Debug Last  Y DC value: 865
+Debug huffstack sapce:  12
+Debug Last Cb DC value: -14
+Debug huffstack sapce:  24
+Debug Last Cr DC value: -14
+Debug huffstack sapce:  2
+Debug Last  Y DC value: -288
+Debug huffstack sapce:  10
+Debug huffstack sapce:  4
+Debug huffstack sapce:  30
+Debug huffstack sapce:  24
+Debug Last Cb DC value: 606
+Debug huffstack sapce:  2
+Debug Last Cr DC value: -115
+Debug huffstack sapce:  18
+Debug Last  Y DC value: 188
+Debug huffstack sapce:  30
+Debug huffstack sapce:  24
+Debug huffstack sapce:  18
+Debug huffstack sapce:  12
+Debug Last Cb DC value: -526
+Debug huffstack sapce:  20
+Debug Last Cr DC value: -598
+Debug huffstack sapce:  0

@@ -558,6 +558,8 @@ def linemark1():
     x29 = x29 + 1
     x11 = x27 + x29
     sw(x0, x11, 1408)
+    # print('\n Quan, DC:', x27, 'Last DC:', -x29, 'Diff-DC:', x11)
+    # show(mem[1408:1408+64])
     while x0 == x0:
         if x1 == x0 or x1 == x6:
             x2 += 1
@@ -585,8 +587,6 @@ def linemark1():
         x12 = x12 + x1
         x11 = lw(x12, 1472)
         sw(x5, x11, 1408)
-
-    show(mem[1408:1408+64])
 
     # Huffman Encode: Sub Area 6
     # ------------------------------------------------------------------
@@ -636,6 +636,7 @@ def linemark1():
             x14 = x14 + x18
             huffman_bit_stack[-1] = x14
             x26 = x26 + x5
+            print('stack space:', x26, 'last word', x14)
         else:
             x19 = x26 ^ -1
             x19 = x19 + 1
@@ -658,8 +659,9 @@ def linemark1():
             x26 = 32 + x19
             # x26 = 32 - x5
             x17 = x16 << x26
+            print('stack space:', x26, 'last word', x14, 'this word', x17)
             huffman_bit_stack.append(x17)
-        print(x26)
+        # print(x26)
         x19 = 1 + x0
         x18 = 2 + x0
         x5 = 3 + x0
@@ -668,6 +670,7 @@ def linemark1():
     # DC
     x1 = lw(x0, 1408)
     linemark3()
+    print('\nDC data:', x2)
     x14 = x10 + x3
     x6 = lw(x14, 0)
     x14 = x11 + x3
@@ -675,7 +678,10 @@ def linemark1():
     x4 = x6 << x3
     x4 = x4 + x2
     x5 = x3 + x7
+    print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+    print('Sim:')
     linemark4()
+
 
     # AC
     x9 = 0
@@ -691,10 +697,14 @@ def linemark1():
                 x9 = x9 - 16
                 x4 = lw(x12, 240)
                 x5 = lw(x13, 240)
+                print('\nAC data: 16/0')
+                print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+                print('Core:')
                 linemark4()
             # Assembly
             x1 = lw(x20, 1408)
             linemark3()
+            print('\nAC data:', x2)
             x17 = 4
             x8 = x9 << x17
             x8 = x8 + x3
@@ -705,6 +715,8 @@ def linemark1():
             x4 = x6 << x3
             x4 = x4 + x2
             x5 = x3 + x7
+            print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+            print('Core:')
             linemark4()
             x9 = 0
         x20 = x20 + 1
@@ -713,7 +725,11 @@ def linemark1():
     if x9 != 0:
         x4 = lw(x12, 0)
         x5 = lw(x13, 0)
+        print('\nEOB')
+        print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+        print('Core:')
         linemark4()
+        x0 == x0
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 3: Sampling
@@ -836,7 +852,7 @@ for i in range(0, len(huffman_bit_stack)):
         mem[206800+i] = huffman_bit_stack[i]
 # print(mem[206800:206800+len(huffman_bit_stack)])
 
-savemem()
+# savemem()
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process

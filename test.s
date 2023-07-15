@@ -852,12 +852,12 @@ x7 = 8 + x0
 x9 = 1 + x0
 // Differential DC Value:
 x29 = mem[x28 + 1204]
-x27 = mem[x28 + 1472]
+x27 = mem[x0 + 1472]
 x29 = x29 ^ -1
 x29 = x29 + 1
 x11 = x27 + x29
 mem[x28 + 1204] = x27
-mem[x28 + 1408] = x11
+mem[x0 + 1408] = x11
 while x0 == x0,
     // special if structure
     x1 == x0 goto iformark0

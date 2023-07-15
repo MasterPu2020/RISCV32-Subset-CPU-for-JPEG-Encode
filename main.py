@@ -89,8 +89,7 @@ def mul(rs1, rs2):
 
 mem = [0] * 411600
 x0 = 0
-
-mem[0:1186] = hufftable + quantable + mem1180_1186
+huffman_bit_stack = [0]
 
 def loadimg():
     # This is just a simulation for the real UART interface. // reg [0:31] ram [0:N]
@@ -112,13 +111,16 @@ def loadimg():
         return img_row
     rowmem = get_row('./algorithm/test.row')
     mem[206800:206800+len(rowmem)] = rowmem
+def show(block_list):
+    for i in range(0,8):
+        k = ''
+        for j in range(0,8):
+            k += str(block_list[i*8 + j]) + ' '
+        print(k)
+    print()
 
 # Initiate
 # huffman table Y C
-
-loadimg()
-
-# ----------------------------------------------------------
 
 x1 = 0 + x0
 x2 = 250 + x0
@@ -151,6 +153,9 @@ x3 = 65536
 while x2 >= x1:
     mem[x1 + 0] = x3
     x1 = x1 + 1
+
+mem[0:1186] = hufftable + quantable + mem1180_1186
+loadimg()
 
 mem[1198] = 46341
 mem[1199] = 65536
@@ -509,14 +514,12 @@ def BlockProcess():
     x9 = 1 + x0
     # Differential DC Value:
     x29 = mem[x28 + 1204]
-    x27 = mem[x28 + 1472]
+    x27 = mem[x0 + 1472]
     x29 = x29 ^ -1
     x29 = x29 + 1
     x11 = x27 + x29
     mem[x28 + 1204] = x27
-    mem[x28 + 1408] = x11
-    print('\n     DC values:', x27)
-    print('Diff-DC values:', x11)
+    mem[x0 + 1408] = x11
     while x0 == x0:
         # special if structure
         if x1 == x0 or x1 == x6:
@@ -550,7 +553,6 @@ def BlockProcess():
     # ------------------------------------
     # Huffman Encode: Sub Area 6
     # ------------------------------------
-
     # 0 for Luminace
     if x28 == x0:
         x10 = 0 + x0
@@ -562,6 +564,7 @@ def BlockProcess():
         x11 = 538 + x0
         x12 = 550 + x0
         x13 = 801 + x0
+    # print(x28, '\n',mem[x13 + 0:x13+250])
 
     # SubFunction: Get data and size
     def GetDataAndSize():
@@ -594,13 +597,13 @@ def BlockProcess():
             x2 = x2 & x16
         
 
-    # Get data and size return gate
-    # return key: x24
-    x19 = 1 + x0
-    x24 == x0  # goto GetDataAndSizeReturnGate0
-    x24 == x19 # goto GetDataAndSizeReturnGate1
-    x0 == x0   # goto Main # debug
-    # EndGetDataAndSize:
+        # Get data and size return gate
+        # return key: x24
+        x19 = 1 + x0
+        x24 == x0  # goto GetDataAndSizeReturnGate0
+        x24 == x19 # goto GetDataAndSizeReturnGate1
+        x0 == x0   # goto Main # debug
+        # EndGetDataAndSize:
 
     # SubFunction: Push Huffman bit stack
     def PushHuffmanBitStack():
@@ -617,6 +620,7 @@ def BlockProcess():
             x14 = x14 + x18
             mem[x25 + 0] = x14
             x26 = x26 + x5
+            print('stack space:', x26, 'last word', x14)
         else:
             x19 = x26 ^ -1
             x19 = x19 + 1
@@ -640,6 +644,7 @@ def BlockProcess():
             x17 = x16 << x26 # new data
             x25 = x25 + 1
             mem[x25 + 0] = x17
+            print('stack space:', x26, 'last word', x14, 'this word', x17)
 
         # Push Huffman bit stack return gate
         # return key: x23
@@ -652,23 +657,24 @@ def BlockProcess():
         x23 == x5  # goto PushHuffmanBitStackReturnGate3
         x0 == x0   # goto Main # debug
         return
-
-
+   
     # DC
-    x1 = mem[x0 + 1408]
+    x1 = mem[x0 + 1408] # data
     x24 = x0 + 0
-    GetDataAndSize()
+    GetDataAndSize() # return x2
+    print('\nDC data:', x2)
     # GetDataAndSizeReturnGate0:
     x14 = x10 + x3
     x6 = mem[x14 + 0]
     x14 = x11 + x3
     x7 = mem[x14 + 0]
     x4 = x6 << x3
-    x4 = x4 + x2
-    x5 = x3 + x7
+    x4 = x4 + x2 # push bin
+    x5 = x3 + x7 # push size: data size + code size
     x23 = x0 + 0
+    print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+    print('Core:')
     PushHuffmanBitStack()
-    # PushHuffmanBitStackReturnGate0:
 
     # AC
     x9 = 0 + x0
@@ -685,12 +691,16 @@ def BlockProcess():
                 x4 = mem[x12 + 240]
                 x5 = mem[x13 + 240]
                 x23 = x0 + 1
+                print('\nAC data: 16/0')
+                print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+                print('Core:')
                 PushHuffmanBitStack()
                 # PushHuffmanBitStackReturnGate1:
             # Assembly
             x1 = mem[x20 + 1408]
             x24 = x0 + 1
             GetDataAndSize()
+            print('\nAC data:', x2)
             # GetDataAndSizeReturnGate1:
             x17 = 4
             x8 = x9 << x17
@@ -703,6 +713,8 @@ def BlockProcess():
             x4 = x4 + x2
             x5 = x3 + x7
             x23 = x0 + 2
+            print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+            print('Core:')
             PushHuffmanBitStack()
             # PushHuffmanBitStackReturnGate2:
             x9 = 0 + x0
@@ -714,13 +726,15 @@ def BlockProcess():
         x4 = mem[x12 + 0]
         x5 = mem[x13 + 0]
         x23 = x0 + 3
+        print('\nEOB')
+        print('Huffman space', x26, 'Push Bin:', x4, 'Push size', x5)
+        print('Core:')
         PushHuffmanBitStack()
         # PushHuffmanBitStackReturnGate3:
 
     # debug
     x2 = 411600
     mem[x2 + 0] = x26
-    print('\nHuffman space', x26)
 
     # ------------------------------------
     # Function Return Gate
@@ -741,9 +755,9 @@ def BlockProcess():
 mem[x0 + 1201] = x0
 mem[x0 + 1202] = x0
 mem[x0 + 1203] = x0
-mem[x0 + 1204] = x0
-mem[x0 + 1205] = x0
-mem[x0 + 1206] = x0
+mem[x0 + 1204] = x0 # differential DC Y
+mem[x0 + 1205] = x0 # differential DC Cb
+mem[x0 + 1206] = x0 # differential DC Cr
 x1 = 256 + x0
 x2 = mem[x0 + 1189]
 x1 = mul(x1 , x2 )
@@ -854,6 +868,8 @@ mem[x25 + 0] = x13
 # end of program signature
 
 x31 = 9999
+
+# print(mem[206800:206800+32])
 
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process

@@ -1213,12 +1213,12 @@ addi 8 x0 x7 // x7 = 8 + x0
 addi 1 x0 x9 // x9 = 1 + x0
 // Differential DC Value:
 lw 1204 x28 x29 // x29 = mem[x28 + 1204]
-lw 1472 x28 x27 // x27 = mem[x28 + 1472]
+lw 1472 x0 x27 // x27 = mem[x0 + 1472]
 xori -1 x29 x29 // x29 = x29 ^ -1
 addi 1 x29 x29 // x29 = x29 + 1
 add x29 x27 x11 // x11 = x27 + x29
 sw x27 x28 1204 // mem[x28 + 1204] = x27
-sw x11 x28 1408 // mem[x28 + 1408] = x11
+sw x11 x0 1408 // mem[x0 + 1408] = x11
 startwhilemark0_10:
 bne x0 x0 endwhilemark0_10 // x0 != x0 goto endwhilemark0_10
     // special if structure
