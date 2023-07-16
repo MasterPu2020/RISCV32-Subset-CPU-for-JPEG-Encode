@@ -41,10 +41,10 @@
 `define OP_OR       7'b0110011
 `define FUNCT7_OR   7'b0000000
 `define FUNCT3_OR   3'b110
-// sll r1 << r2 -> rd
+// sll rs1 << rs2 -> rd
 `define OP_SLL      7'b0110011
 `define FUNCT3_SLL  3'b001
-// sra r1 >> r2 -> rd
+// sra rs1 >> rs2 -> rd
 `define OP_SRA      7'b0110011
 `define FUNCT3_SRA  3'b101
 // mul  (rs2 * rs1)[31: 0] -> rd 
