@@ -128,7 +128,7 @@ class address(var):
     type = 'addr'
     def get(self, name:str, debug=False): # get imm for address offset for branch less than
         addr = self.search(name)
-        value = addr - bin_file_line
+        value = (addr - bin_file_line) << 1
         if debug:
             print('offset:', value, 'name:', name, 'address:', addr, 'this line:', bin_file_line) # Debug
         return self.bin(value)

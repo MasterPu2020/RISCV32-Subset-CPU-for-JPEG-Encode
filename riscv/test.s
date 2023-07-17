@@ -11,7 +11,7 @@ x4 = x1 & x2  // x4 = 1
 x4 = x1 | x2  // x4 = -9
 x4 = x2 ^ -1  // x4 = -2
 x4 = x1 >> x2 // x4 = -5
-x0 == x0 goto line1 // branch需要改一下
+x0 == x0 goto line1 // branch
     x31 = 999 + x0
 line1:
 x4 != x0 goto line2

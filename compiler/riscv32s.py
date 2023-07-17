@@ -61,7 +61,7 @@ def execute(inst, pc):
     rs2 = int(tranc(inst,24,20), 2)
     immi = imm32(tranc(inst,31,20))
     imms = imm32(tranc(inst,31,25)+tranc(inst,11,7))
-    immb = imm32(tranc(inst,31)+tranc(inst,7)+tranc(inst,30,25)+tranc(inst,11,8))
+    immb = imm32(tranc(inst,31)+tranc(inst,7)+tranc(inst,30,25)+tranc(inst,11,8)) >> 1
     inst_opbin  = tranc(inst,6,0)
     inst_funct7 = tranc(inst,31,25)
     inst_funct3 = tranc(inst,14,12)

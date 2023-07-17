@@ -521,7 +521,7 @@ if __name__ == '__main__':
             pass
         if newfilepath == None or newfilepath[0] == '+':
             newfilepath = filepath.split('.s')[0] + '.bin'
-        if os.path.exists(newfilepath):
+        if os.path.exists(newfilepath) and confirm == 'y':
             confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
 
     debug = False
