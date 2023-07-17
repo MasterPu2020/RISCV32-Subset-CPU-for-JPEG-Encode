@@ -11,6 +11,6 @@ module mux #(parameter WIDTH = 32) (
   output wire [WIDTH-1:0] datao
 );
 
-  assign datao = sel ? data2 : data1;
+  assign datao = sel ? data1 : data2;
 
 endmodule

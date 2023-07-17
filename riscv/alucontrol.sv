@@ -12,8 +12,6 @@ module alucontrol (
   output wire [13:0] aluop
 );
 
-  `include "define.sv"
-
   logic ADD, SLL, SRA, XOR, AND, OR, MUL, MULH, RBUS0;
   logic EQ, NE, LT, GE, BBUS0;
 
@@ -38,13 +36,11 @@ module alucontrol (
     if (~op[6])
       if (op[5:4] == 2'b11) // R type
         case (funct3)
-          `FUNCT3_ADD  : ADD  = ~funct7[0];
-          `FUNCT3_AND  : AND  = 1;
-          `FUNCT3_OR   : OR   = 1;
-          `FUNCT3_SLL  : SLL  = ~funct7[0];
-          `FUNCT3_SRA  : SRA  = 1;
-          `FUNCT3_MUL  : MUL  = funct7[0];
-          `FUNCT3_MULH : MULH = funct7[0];
+          3'b000 : begin ADD  = ~funct7[0]; MUL  = funct7[0]; end
+          3'b111 : AND  = 1;
+          3'b110 : OR   = 1;
+          3'b001 : begin SLL  = ~funct7[0]; MULH = funct7[0]; end
+          3'b101 : SRA  = 1;
         endcase
       else if (funct3 == 3'b110) // I type: only one xori
         XOR = 1;

@@ -15,11 +15,10 @@ module testbench;
     $monitor("data x2 is: %d", riscv32s.riscvcore.regfile.x[2]);
     $monitor("data x3 is: %d", riscv32s.riscvcore.regfile.x[3]);
     $monitor("data x4 is: %d", riscv32s.riscvcore.regfile.x[4]);
-    #1 nrst<='x;clk<='x;
     #(CLK_PERIOD/4) nrst<=1;
-    #(CLK_PERIOD/4) nrst<=0;clk<=0;
+    #(CLK_PERIOD/2) nrst<=0;clk<=1;
     #(CLK_PERIOD/4) nrst<=1;
-    #(CLK_PERIOD * 50);
+    #(CLK_PERIOD * 22);
     $finish(2);
   end
 

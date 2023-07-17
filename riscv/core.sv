@@ -25,8 +25,8 @@ module core #(parameter WIDTH = 32) (
   assign function7 = programdata[31:25];
   assign function3 = programdata[14:12];
   assign operation = programdata[6:0];
-  assign rs1 = programdata[24:20];
-  assign rs2 = programdata[19:15];
+  assign rs2 = programdata[24:20];
+  assign rs1 = programdata[19:15];
   assign rd  = programdata[11:7];
 
   // program counter
@@ -59,7 +59,7 @@ module core #(parameter WIDTH = 32) (
   // Arithmetic Logic Unit
   wire [WIDTH-1:0] result;
   wire zero;
-  alu #(WIDTH) alu(.aluop(aluoperation), .data1(readdata1), .data2(readdata2), .result, .zero);
+  alu #(WIDTH) alu(.aluop(aluoperation), .datain1(readdata1), .datain2(aludata2), .result, .zero);
 
   // PC branch controller
   pccontrol #(WIDTH) pccontrol(.flag(zero), .pcoffset(imm), .pcin(programaddress), .pcout(newpc));
