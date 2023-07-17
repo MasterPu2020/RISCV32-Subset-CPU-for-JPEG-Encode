@@ -1,6 +1,6 @@
 
-file = './assembly/main.bin'
-fileout = './assembly/main.hex'
+file = './soc/system.bin'
+fileout = './soc/system.hex'
 mem = True
 
 with open(file, 'r') as binfile:

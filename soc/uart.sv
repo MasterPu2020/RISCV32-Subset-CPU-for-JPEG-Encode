@@ -36,7 +36,7 @@ module uart (
   `endif
 
   always_comb begin
-    ramaddress = 32'h00070000; // busy reading
+    ramaddress = 411699; // busy reading, CPU write
     wram = 0;
     datao = 1;
     case (state)
@@ -49,9 +49,13 @@ module uart (
         ramaddress = rramaddr;
         datao = bytedata[0];
       end
-      POSTSEND: ramaddress = rramaddr; // power saving
-      EXCEPTION: begin // write interruption code
-        ramaddress = 32'h00070001;
+      POSTSEND: begin
+        ramaddress = rramaddr; // power saving
+        if (rramdata == 0 || rramdata == 'x)
+          wram = 1;
+      end
+      EXCEPTION: begin 
+        ramaddress = 411698; // write interruption code
         wram = 1;
       end
     endcase
@@ -72,6 +76,7 @@ module uart (
         IDLE: begin
           if (rramdata == 1) begin // program write
             state <= POSTSEND;
+            wramdata <= 0; // clear data in &411699
             rramaddr <= 0; // send restart
           end
           else if (datai == 0)
