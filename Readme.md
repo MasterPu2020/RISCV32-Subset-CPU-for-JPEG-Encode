@@ -1,11 +1,13 @@
 
 # RISCV32 Subset for JPEG Encoding CPU Specification
 
-## Compiler and Simulator使用方法
+## Compiler and Simulator Usage
 
-    python .\compiler\dust.py
-    python .\compiler\compile.py initiate.s 
-    python .\simulator\riscv32s.py initiate.bin +start=0 +pause
+    python .\compiler\dust.py file
+    python .\compiler\compile.py file
+    python .\simulator\riscv32s.py file +pause
+
+## RISC-V 32 Subset
 
                                       RISC-V 32 Subset
     +---------------------------------------------------------------------------------+
@@ -31,25 +33,38 @@
     |  imm[12|10:5] |   rs2   |   rs1   |   101   |  imm[4:1|11] | 1100011 | [B] bge  |
     +---------------------------------------------------------------------------------+
     
-## RISCV32-Subset CPU规格
-- Pipeline：2级
-- Data Forwarding: 不支持
-- Branch Prediction：不支持
-- Architecture：哈佛（可拓展多核设计）
-- Bus：WB
-- ROM Size：32x2^12bit = 16KB
-- RAM Size:  8x2^32bit =  4GB
+## RISCV32-Subset CPU Information
+- Pipeline stage：2
+- Data Forwarding: not yet support
+- Branch Prediction：not yet support
+- Architecture：Haverd
+- Bus：Write back
+- ROM Size Support：32x2^32bit
+- RAM Size Support: 32x2^32bit
 ---
 
-## 分支指令的等效替换
+## Basic while and if replacements
 
-### 7 Types
+### 8 Types of statements include in JEPG encoding algorithm
 
 if A, then():
 
     A is false goto line1 
         ()
     line1:
+
+if A, (1); else if B, (2); else, (3):
+
+    A is false goto line1 
+        (1)
+        goto end-else
+    line1:
+    B is false goto line2
+        (2)
+        goto end-else
+    line2:
+        (3)
+    end-else:
 
 while A, then():
 
@@ -113,25 +128,25 @@ Replacements:
 - not x1 != x2: x1 == x2
 - not x1 < x2: x1 >= x2
 
-### 使用的指令
+### Instruction usage statements
 **[ I type ]**
-- addi   :  用于加载立即数和立即数的加法
-- xori   :  与立即数-1异或，用于实现按位取反的非常重要的位操作
-- lw     :  所有的运算均是32位整数运算，load word很重要
+- addi   :  mainly used for load a 12-bit imm
+- xori   :  to achieve not operation, xor with imm -1
+- lw     :  load word.
 
 **[ S type ]**
-- sw     :  store word，Huffman编码写回时压栈方法，也是保存32位整数数据的重要方法
+- sw     :  store word.
 
 **[ R type ]**
-- add    :  用于常规加法
-- and    :  按位与，非常重要的位截取操作
-- or     :  按位或，非常重要的位拼接操作
+- add    :  regular addition
+- and    :  regular and, used for data trancation
+- or     :  regular or, used for data joint
 - sll    :  logic shift left by reg
 - sra    :  arithmetic shift right by reg
-- mul    ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
-- mulh   ： 乘法用量非常大，并且FPGA上配置了乘法器，可以使用
+- mul    ： multiplication usage is massive, that is why there need a mul
+- mulh   ： multiplication usage is massive, that is why there need a mulh
 
-**[ B type ]** 12位地址范围跳转，6.5k行汇编够用了
+**[ B type ]**
 - blt    :  branch if less than
 - bge    :  branch if greater than or equal
 - beq    :  branch if equal
@@ -140,12 +155,11 @@ Replacements:
 ---
 
 ## Note :
-1. 立即数imm的长度均为12bit
-2. 对于32位CPU，1word = 4byte
+1. imm length are all 12-bit, and need to be extended to save in the register file
+2. for 32-bit CPU, 1word = 4byte
 3. not = xori -1
-4. 主动pipeline stall: addi x0 0
-5. 涉及到小数或除法运算使用 * 2^16化为32bit整数，在结束需要化整时再>>16bit来还原
-6. 所有立即数均有符号位扩展
+4. program pipeline stall: addi x0 0
+5. any calculation involving deciaml number 'n', use n * 2^16 and n >> 16 to proccess it as an integer
 
 ---
 
