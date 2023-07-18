@@ -6,7 +6,7 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module button #(CLKRATE = 25000000, DBMSEC = 150)(
+module buttom #(CLKRATE = 25000000, DBMSEC = 150)(
   input wire clk, nrst, key,
   input wire [31:0] busaddr,
   output wire [31:0] busdata

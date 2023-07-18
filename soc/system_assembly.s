@@ -1,6 +1,19 @@
 // ------------------------------------------------------------------
 // Initiate
 // ------------------------------------------------------------------
+// Reset All Data Memory
+addi 0 x0 x10 // x10 = x0 + 0
+addi 201 x0 x30 // x30 = x0 + 201 
+addi 11 x0 x31 // x31 = x0 + 11 
+sll x31 x30 x30 // x30 = x30 << x31
+addi 52 x0 x31 // x31 = x0 + 52 
+or x31 x30 x1 // x1 = x30 | x31
+startwhilemark0_0:
+beq x1 x10 endwhilemark0_0 // x10 == x1 goto endwhilemark0_0
+sw x0 x10 0 //     mem[x10 + 0] = x0
+addi 1 x10 x10 //     x10 = x10 + 1
+beq x0 x0 startwhilemark0_0 // x0 == x0 goto startwhilemark0_0
+endwhilemark0_0:
 // huffman table Y C
 addi 0 x0 x1 // x1 = 0 + x0
 addi 250 x0 x2 // x2 = 250 + x0
@@ -8,8 +21,8 @@ addi 16 x0 x3 // x3 = 16 + x0
 addi 0 x0 x4 // x4 = 0 + x0
 addi 11 x0 x5 // x5 = 11 + x0
 addi 16 x0 x6 // x6 = 16 + x0
-startwhilemark0_0:
-blt x1 x2 endwhilemark0_0 // x2 < x1 goto endwhilemark0_0
+startwhilemark0_1:
+blt x1 x2 endwhilemark0_1 // x2 < x1 goto endwhilemark0_1
 sw x0 x1 275 //     mem[x1 + 275] = x0
 sw x0 x1 801 //     mem[x1 + 801] = x0
 addi 1 x0 x7 //     x7 = 1 + x0
@@ -30,8 +43,8 @@ addi 1 x7 x7 //         x7 = x7 + 1
 beq x0 x0 startwhilemark1_1 // x0 == x0 goto startwhilemark1_1
     endwhilemark1_1:
 addi 16 x1 x1 //     x1 = x1 + 16
-beq x0 x0 startwhilemark0_0 // x0 == x0 goto startwhilemark0_0
-endwhilemark0_0:
+beq x0 x0 startwhilemark0_1 // x0 == x0 goto startwhilemark0_1
+endwhilemark0_1:
 // quantization table
 addi 1052 x0 x1 // x1 = 1052 + x0
 addi 1179 x0 x2 // x2 = 1179 + x0
@@ -40,12 +53,12 @@ addi 11 x0 x31 // x31 = x0 + 11
 sll x31 x30 x30 // x30 = x30 << x31
 addi 0 x0 x31 // x31 = x0 + 0 
 or x31 x30 x3 // x3 = x30 | x31
-startwhilemark0_1:
-blt x1 x2 endwhilemark0_1 // x2 < x1 goto endwhilemark0_1
+startwhilemark0_2:
+blt x1 x2 endwhilemark0_2 // x2 < x1 goto endwhilemark0_2
 sw x3 x1 0 //     mem[x1 + 0] = x3
 addi 1 x1 x1 //     x1 = x1 + 1
-beq x0 x0 startwhilemark0_1 // x0 == x0 goto startwhilemark0_1
-endwhilemark0_1:
+beq x0 x0 startwhilemark0_2 // x0 == x0 goto startwhilemark0_2
+endwhilemark0_2:
 addi 22 x0 x31 // x31 = x0 + 22 
 addi -189 x0 x29 // x29 = x0 + -189 
 sll x31 x29 x29 // x29 = x29 << x31
@@ -813,6 +826,7 @@ sw x3 x0 1209 // mem[x0 + 1209] = x3 // mem[1209] = 1211180777
 // ------------------------------------------------------------------
 // SoC sub-units management
 // ------------------------------------------------------------------
+lw 2 x1 x1 // x1 = mem[x1 + 2] // clear button request
 systemwait:
 addi 201 x0 x30 // x30 = x0 + 201 
 addi 11 x0 x31 // x31 = x0 + 11 
@@ -827,12 +841,12 @@ addi 11 x0 x31 // x31 = x0 + 11
 sll x31 x30 x30 // x30 = x30 << x31
 addi 2000 x0 x31 // x31 = x0 + 2000 
 or x31 x30 x10 // x10 = x30 | x31
-startwhilemark0_2:
-beq x1 x10 endwhilemark0_2 //     x10 == x1 goto endwhilemark0_2
+startwhilemark0_3:
+beq x1 x10 endwhilemark0_3 //     x10 == x1 goto endwhilemark0_3
 sw x0 x10 0 //         mem[x10 + 0] = x0
 addi 1 x10 x10 //         x10 = x10 + 1
-beq x0 x0 startwhilemark0_2 // x0 == x0 goto startwhilemark0_2
-    endwhilemark0_2:
+beq x0 x0 startwhilemark0_3 // x0 == x0 goto startwhilemark0_3
+    endwhilemark0_3:
 lw 2 x1 x3 //     x3 = mem[x1 + 2] // clear button request
 endifmark0_0:
 lw 2 x1 x3 // x3 = mem[x1 + 2] // read button request
@@ -869,8 +883,8 @@ addi 0 x0 x6 // x6 = x0 + 0
 addi 16 x0 x26 // x26 = x0 + 16
 addi 8 x0 x25 // x25 = x0 + 8
 addi 2 x0 x24 // x24 = x0 + 2
-startwhilemark0_3:
-beq x28 x2 endwhilemark0_3 // x2 == x28 goto endwhilemark0_3
+startwhilemark0_4:
+beq x28 x2 endwhilemark0_4 // x2 == x28 goto endwhilemark0_4
 mul x29 x26 x10 //     x10 = x26 *l x29
 mul x2 x10 x10 //     x10 = x10 *l x2
 addi 2 x10 x10 //     x10 = x10 + 2
@@ -959,8 +973,8 @@ beq x0 x0 startwhilemark1_2 // x0 == x0 goto startwhilemark1_2
     endwhilemark1_2:
 addi 0 x0 x1 //     x1 = 0 + x0
 addi 1 x2 x2 //     x2 = x2 + 1
-beq x0 x0 startwhilemark0_3 // x0 == x0 goto startwhilemark0_3
-endwhilemark0_3:
+beq x0 x0 startwhilemark0_4 // x0 == x0 goto startwhilemark0_4
+endwhilemark0_4:
 // clear uart
 addi 100 x0 x30 // x30 = x0 + 100 
 addi 11 x0 x31 // x31 = x0 + 11 
@@ -972,12 +986,12 @@ addi 11 x0 x31 // x31 = x0 + 11
 sll x31 x30 x30 // x30 = x30 << x31
 addi 50 x0 x31 // x31 = x0 + 50 
 or x31 x30 x11 // x11 = x30 | x31
-startwhilemark0_4:
-beq x11 x10 endwhilemark0_4 // x10 == x11 goto endwhilemark0_4
+startwhilemark0_5:
+beq x11 x10 endwhilemark0_5 // x10 == x11 goto endwhilemark0_5
 sw x0 x10 0 //     mem[x10 + 0] = x0
 addi 1 x10 x10 //     x10 = x10 + 1
-beq x0 x0 startwhilemark0_4 // x0 == x0 goto startwhilemark0_4
-endwhilemark0_4:
+beq x0 x0 startwhilemark0_5 // x0 == x0 goto startwhilemark0_5
+endwhilemark0_5:
 // ------------------------------------------------------------------
 // RegFile Work Aera 2: Block Process and Huffman endcode
 // ------------------------------------------------------------------
@@ -998,15 +1012,15 @@ BlockProcess:
 // ------------------------------------
 addi 0 x0 x1 // x1 = 0 + x0
 addi 64 x0 x2 // x2 = 64 + x0
-startwhilemark0_5:
-beq x2 x1 endwhilemark0_5 // x1 == x2 goto endwhilemark0_5
+startwhilemark0_6:
+beq x2 x1 endwhilemark0_6 // x1 == x2 goto endwhilemark0_6
 lw 1408 x1 x3 //     x3 = mem[x1 + 1408]
 addi -128 x3 x3 //     x3 = x3 + -128
 sw x3 x1 1472 //     mem[x1 + 1472] = x3
 sw x0 x1 1408 //     mem[x1 + 1408] = x0
 addi 1 x1 x1 //     x1 = x1 + 1
-beq x0 x0 startwhilemark0_5 // x0 == x0 goto startwhilemark0_5
-endwhilemark0_5:
+beq x0 x0 startwhilemark0_6 // x0 == x0 goto startwhilemark0_6
+endwhilemark0_6:
 // ------------------------------------
 // Discrete Cosine Transform: Sub Area 2
 // ------------------------------------
@@ -1029,11 +1043,11 @@ addi 11 x0 x31 // x31 = x0 + 11
 sll x31 x30 x30 // x30 = x30 << x31
 addi 544 x0 x31 // x31 = x0 + 544 
 or x31 x30 x22 // x22 = x30 | x31
-startwhilemark0_6:
-bge x9 x20 endwhilemark0_6 //     x20 >= x9 goto endwhilemark0_6 
+startwhilemark0_7:
+bge x9 x20 endwhilemark0_7 //     x20 >= x9 goto endwhilemark0_7 
 add x21 x9 x9 //         x9 = x9 + x21
-beq x0 x0 startwhilemark0_6 // x0 == x0 goto startwhilemark0_6
-    endwhilemark0_6:
+beq x0 x0 startwhilemark0_7 // x0 == x0 goto startwhilemark0_7
+    endwhilemark0_7:
 bge x9 x22 endifmark0_1 //     x22 >= x9 goto endifmark0_1
 addi 1 x0 x8 //         x8 = 1 + x0
 xori -1 x20 x20 //         x20 = x20 ^ -1
@@ -1058,8 +1072,8 @@ sw x0 x0 1196 //     mem[x0 + 1196] = x0
 sw x0 x0 1197 //     mem[x0 + 1197] = x0
 addi 0 x0 x7 //     x7 = 0 + x0
 addi 7 x0 x22 //     x22 = 7 + x0
-startwhilemark0_7:
-beq x22 x7 endwhilemark0_7 //     x7 == x22 goto endwhilemark0_7
+startwhilemark0_8:
+beq x22 x7 endwhilemark0_8 //     x7 == x22 goto endwhilemark0_8
 bge x10 x9 endifmark0_3 //         x9 >= x10 goto endifmark0_3
 lw 1180 x7 x20 //             x20 = mem[x7 + 1180]
 xori -1 x20 x20 //             x20 = x20 ^ -1
@@ -1074,8 +1088,8 @@ add x20 x10 x10 //             x10 = x10 + x20
 sw x0 x7 1191 //             mem[x7 + 1191] = x0
         endelse3:
 addi 1 x7 x7 //         x7 = x7 + 1
-beq x0 x0 startwhilemark0_7 // x0 == x0 goto startwhilemark0_7
-    endwhilemark0_7:
+beq x0 x0 startwhilemark0_8 // x0 == x0 goto startwhilemark0_8
+    endwhilemark0_8:
 addi 19 x0 x30 // x30 = x0 + 19 
 addi 11 x0 x31 // x31 = x0 + 11 
 sll x31 x30 x30 // x30 = x30 << x31
@@ -1085,8 +1099,8 @@ addi 0 x0 x2 //     x2 = 0 + x0
 addi 6 x0 x7 //     x7 = 6 + x0
 addi 1 x0 x21 //     x21 = 1 + x0
 addi -1 x0 x23 //     x23 = -1 + x0
-startwhilemark0_8:
-beq x23 x7 endwhilemark0_8 //     x7 == x23 goto endwhilemark0_8
+startwhilemark0_9:
+beq x23 x7 endwhilemark0_9 //     x7 == x23 goto endwhilemark0_9
 lw 1191 x7 x20 //         x20 = mem[x7 + 1191]
 sra x7 x2 x22 //         x22 = x2 >> x7
 bne x21 x20 endifmark0_4 //         x20 != x21 goto endifmark0_4
@@ -1103,8 +1117,8 @@ addi 1 x22 x22 //             x22 = x22 + 1
         endelse4:
 add x2 x22 x2 //         x2 = x22 + x2
 addi -1 x7 x7 //         x7 = x7 + -1
-beq x0 x0 startwhilemark0_8 // x0 == x0 goto startwhilemark0_8
-    endwhilemark0_8:
+beq x0 x0 startwhilemark0_9 // x0 == x0 goto startwhilemark0_9
+    endwhilemark0_9:
 bne x21 x8 endifmark0_5 //     x8 != x21 goto endifmark0_5
 xori -1 x1 x1 //         x1 = x1 ^ -1
 addi 1 x1 x1 //         x1 = x1 + 1
@@ -1122,8 +1136,8 @@ addi 0 x0 x3 // x3 = 0 + x0
 addi 0 x0 x4 // x4 = 0 + x0
 addi 0 x0 x5 // x5 = 0 + x0
 addi 0 x0 x6 // x6 = 0 + x0
-startwhilemark0_9:
-beq x15 x3 endwhilemark0_9 // x3 == x15 goto endwhilemark0_9
+startwhilemark0_10:
+beq x15 x3 endwhilemark0_10 // x3 == x15 goto endwhilemark0_10
 bne x0 x3 endifmark0_6 //     x3 != x0 goto endifmark0_6
 lw 1198 x0 x11 //         x11 = mem[x0 + 1198]
 beq x0 x0 endelse5 //         x0 == x0 goto endelse5
@@ -1206,8 +1220,8 @@ beq x0 x0 startwhilemark1_3 // x0 == x0 goto startwhilemark1_3
     endwhilemark1_3:
 addi 0 x0 x4 //     x4 = 0 + x0
 addi 1 x3 x3 //     x3 = x3 + 1
-beq x0 x0 startwhilemark0_9 // x0 == x0 goto startwhilemark0_9
-endwhilemark0_9:
+beq x0 x0 startwhilemark0_10 // x0 == x0 goto startwhilemark0_10
+endwhilemark0_10:
 // ------------------------------------
 // Quantization: Sub Area 3
 // ------------------------------------
@@ -1218,8 +1232,8 @@ endifmark0_9:
 addi 0 x0 x1 // x1 = 0 + x0
 addi 64 x0 x5 // x5 = 64 + x0 
 addi 16 x0 x7 // x7 = 16 + x0
-startwhilemark0_10:
-beq x5 x1 endwhilemark0_10 // x1 == x5 goto endwhilemark0_10
+startwhilemark0_11:
+beq x5 x1 endwhilemark0_11 // x1 == x5 goto endwhilemark0_11
 add x2 x1 x6 //     x6 = x1 + x2
 lw 0 x6 x3 //     x3 = mem[x6 + 0]
 lw 1408 x1 x4 //     x4 = mem[x1 + 1408]
@@ -1228,8 +1242,8 @@ sra x7 x3 x3 //     x3 = x3 >> x7
 sw x0 x1 1408 //     mem[x1 + 1408] = x0
 sw x3 x1 1472 //     mem[x1 + 1472] = x3
 addi 1 x1 x1 //     x1 = x1 + 1
-beq x0 x0 startwhilemark0_10 // x0 == x0 goto startwhilemark0_10
-endwhilemark0_10:
+beq x0 x0 startwhilemark0_11 // x0 == x0 goto startwhilemark0_11
+endwhilemark0_11:
 // ------------------------------------
 // Zigzag Scan: Sub Area 4
 // ------------------------------------
@@ -1249,8 +1263,8 @@ addi 1 x29 x29 // x29 = x29 + 1
 add x29 x27 x11 // x11 = x27 + x29
 sw x27 x28 1204 // mem[x28 + 1204] = x27
 sw x11 x0 1408 // mem[x0 + 1408] = x11
-startwhilemark0_11:
-bne x0 x0 endwhilemark0_11 // x0 != x0 goto endwhilemark0_11
+startwhilemark0_12:
+bne x0 x0 endwhilemark0_12 // x0 != x0 goto endwhilemark0_12
     // special if structure
 beq x0 x1 iformark0 //     x1 == x0 goto iformark0
 beq x6 x1 iformark0 //     x1 == x6 goto iformark0
@@ -1291,8 +1305,8 @@ mul x7 x2 x12 //     x12 = x2 *l x7
 add x1 x12 x12 //     x12 = x12 + x1
 lw 1472 x12 x11 //     x11 = mem[x12 + 1472]
 sw x11 x5 1408 //     mem[x5 + 1408] = x11
-beq x0 x0 startwhilemark0_11 // x0 == x0 goto startwhilemark0_11
-endwhilemark0_11:
+beq x0 x0 startwhilemark0_12 // x0 == x0 goto startwhilemark0_12
+endwhilemark0_12:
 breakmark0:
 // ------------------------------------
 // Huffman Encode: Sub Area 6
@@ -1322,22 +1336,22 @@ addi 1 x1 x1 //         x1 = x1 + 1
 addi 1 x0 x15 //         x15 = 1 + x0 // less than 1 flag
     endifmark0_12:
 addi 0 x1 x2 //     x2 = x1 + 0 // x2: data
-startwhilemark0_12:
-beq x0 x1 endwhilemark0_12 //     x1 == x0 goto endwhilemark0_12
+startwhilemark0_13:
+beq x0 x1 endwhilemark0_13 //     x1 == x0 goto endwhilemark0_13
 sra x17 x1 x1 //         x1 = x1 >> x17 // x1 >> 1
 addi 1 x14 x14 //         x14 = x14 + 1
-beq x0 x0 startwhilemark0_12 // x0 == x0 goto startwhilemark0_12
-    endwhilemark0_12:
+beq x0 x0 startwhilemark0_13 // x0 == x0 goto startwhilemark0_13
+    endwhilemark0_13:
 addi 0 x14 x3 //     x3 = x14 + 0
 bne x17 x15 endifmark0_13 //     x15 != x17 goto endifmark0_13
 addi 0 x0 x16 //         x16 = 0 + x0
-startwhilemark0_13:
-beq x0 x14 endwhilemark0_13 //         x14 == x0 goto endwhilemark0_13
+startwhilemark0_14:
+beq x0 x14 endwhilemark0_14 //         x14 == x0 goto endwhilemark0_14
 sll x17 x16 x16 //             x16 = x16 << x17
 addi 1 x16 x16 //             x16 = x16 + 1
 addi -1 x14 x14 //             x14 = x14 + -1
-beq x0 x0 startwhilemark0_13 // x0 == x0 goto startwhilemark0_13
-        endwhilemark0_13:
+beq x0 x0 startwhilemark0_14 // x0 == x0 goto startwhilemark0_14
+        endwhilemark0_14:
 xori -1 x2 x2 //         x2 = x2 ^ -1
 and x16 x2 x2 //         x2 = x2 & x16
     endifmark0_13:
@@ -1372,13 +1386,13 @@ add x19 x5 x5 //         x5 = x5 + x19 // rest push size
 addi 0 x5 x15 //         x15 = x5 + 0
 addi 0 x0 x16 //         x16 = 0 + x0
 addi 1 x0 x19 //         x19 = x0 + 1
-startwhilemark0_14:
-beq x0 x15 endwhilemark0_14 //         x15 == x0 goto endwhilemark0_14
+startwhilemark0_15:
+beq x0 x15 endwhilemark0_15 //         x15 == x0 goto endwhilemark0_15
 sll x19 x16 x16 //             x16 = x16 << x19
 addi 1 x16 x16 //             x16 = x16 + 1
 addi -1 x15 x15 //             x15 = x15 + -1
-beq x0 x0 startwhilemark0_14 // x0 == x0 goto startwhilemark0_14
-        endwhilemark0_14:
+beq x0 x0 startwhilemark0_15 // x0 == x0 goto startwhilemark0_15
+        endwhilemark0_15:
 and x4 x16 x16 //         x16 = x16 & x4 // trim the push data
 xori -1 x5 x19 //         x19 = x5 ^ -1
 addi 1 x19 x19 //         x19 = x19 + 1
@@ -1418,8 +1432,8 @@ addi 0 x0 x9 // x9 = 0 + x0
 addi 1 x0 x20 // x20 = 1 + x0
 addi 64 x0 x21 // x21 = 64 + x0
 addi 15 x0 x22 // x22 = 15 + x0
-startwhilemark0_15:
-beq x21 x20 endwhilemark0_15 // x20 == x21 goto endwhilemark0_15
+startwhilemark0_16:
+beq x21 x20 endwhilemark0_16 // x20 == x21 goto endwhilemark0_16
 lw 1408 x20 x15 //     x15 = mem[x20 + 1408]
 bne x0 x15 endifmark0_15 //     x15 != x0 goto endifmark0_15
 addi 1 x9 x9 //         x9 = x9 + 1
@@ -1456,8 +1470,8 @@ beq x0 x0 PushHuffmanBitStack //         x0 == x0 goto PushHuffmanBitStack
 addi 0 x0 x9 //         x9 = 0 + x0
     endelse9:
 addi 1 x20 x20 //     x20 = x20 + 1
-beq x0 x0 startwhilemark0_15 // x0 == x0 goto startwhilemark0_15
-endwhilemark0_15:
+beq x0 x0 startwhilemark0_16 // x0 == x0 goto startwhilemark0_16
+endwhilemark0_16:
 // EOB
 beq x0 x9 endifmark0_16 // x9 == x0 goto endifmark0_16
 lw 0 x12 x4 //     x4 = mem[x12 + 0]
@@ -1501,8 +1515,8 @@ sw x4 x0 1207 // mem[x0 + 1207] = x4
 addi 0 x0 x1 // x1 = 0 + x0
 addi 0 x0 x2 // x2 = 0 + x0
 addi 0 x0 x3 // x3 = 0 + x0
-startwhilemark0_16:
-beq x4 x1 endwhilemark0_16 // x1 == x4 goto endwhilemark0_16
+startwhilemark0_17:
+beq x4 x1 endwhilemark0_17 // x1 == x4 goto endwhilemark0_17
 lw 2000 x1 x6 //     x6 = mem[x1 + 2000]
 addi 255 x0 x10 //     x10 = 255 + x0
 addi 8 x0 x11 //     x11 = 8 + x0
@@ -1590,20 +1604,20 @@ beq x0 x0 endelse1 //         x0 == x0 goto endelse1
 addi 1 x2 x2 //         x2 = x2 + 1
     endelse1:
 addi 1 x1 x1 //     x1 = x1 + 1
-beq x0 x0 startwhilemark0_16 // x0 == x0 goto startwhilemark0_16
-endwhilemark0_16:
+beq x0 x0 startwhilemark0_17 // x0 == x0 goto startwhilemark0_17
+endwhilemark0_17:
 // ------------------------------------------------------------------
 // RegFile Work Aera 4: Post Process
 // ------------------------------------------------------------------
 addi 0 x0 x13 // x13 = x0 + 0
 addi 1 x0 x1 // x1 = x0 + 1
-startwhilemark0_17:
-beq x0 x26 endwhilemark0_17 // x26 == x0 goto endwhilemark0_17
+startwhilemark0_18:
+beq x0 x26 endwhilemark0_18 // x26 == x0 goto endwhilemark0_18
 sll x1 x13 x13 //     x13 = x13 << x1
 addi 1 x13 x13 //     x13 = x13 + 1
 addi -1 x26 x26 //     x26 = x26 + -1
-beq x0 x0 startwhilemark0_17 // x0 == x0 goto startwhilemark0_17
-endwhilemark0_17:
+beq x0 x0 startwhilemark0_18 // x0 == x0 goto startwhilemark0_18
+endwhilemark0_18:
 lw 0 x25 x2 // x2 = mem[x25 + 0]
 add x2 x13 x13 // x13 = x13 + x2
 sw x13 x25 0 // mem[x25 + 0] = x13

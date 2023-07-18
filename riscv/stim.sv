@@ -1,7 +1,7 @@
 
 // out of date warning: never been updatad since its first stim test
 
-`define enable_monitor
+// `define enable_monitor
 
 module stim;
   logic clk;
@@ -24,9 +24,75 @@ module stim;
     );
   `endif
 
+  // program monitor
+  task moni();
+    logic [31:0] inst;
+    logic signed [31:0] imm;
+    logic [31:0] pc, newpc;
+    logic [6:0] opcode, funct7;
+    logic [2:0] funct3;
+    logic [4:0] rd, rs1, rs2;
+    inst = riscv32s.rom.rdata;
+    opcode = riscv32s.riscvcore.operation;
+    funct7 = riscv32s.riscvcore.function7;
+    funct3 = riscv32s.riscvcore.function3;
+    pc = riscv32s.riscvcore.programaddress;
+    newpc = riscv32s.riscvcore.newpc;
+    rd  = riscv32s.riscvcore.rd;
+    rs1 = riscv32s.riscvcore.rs1;
+    rs2 = riscv32s.riscvcore.rs2;
+    imm = riscv32s.riscvcore.immextend.imm;
+    if (opcode == 7'b0110011)
+      case (funct7)
+        7'b0000000:
+          case (funct3)
+            3'b000: $display(" [Core] r%d + r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b111: $display(" [Core] r%d & r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b110: $display(" [Core] r%d | r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b001: $display(" [Core] r%d << r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b101: $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+          endcase
+        7'b0100000: 
+          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+        7'b0000001: 
+          if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+        default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+      endcase
+    else if (opcode == 7'b0010011)
+      if (funct3 == 3'b000) 
+        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else if (funct3 == 3'b000) 
+        $display(" [Core] mem[ r%d ^ %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b0000011)
+      if (funct3 == 3'b010) 
+        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b0100011)
+      if (funct3 == 3'b010) 
+        $display(" [Core] r%d -> mem[ r%d + %d ]. pc=%d", rs2, rs1, imm, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b1100011)
+      case (funct3)
+        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+      endcase
+    else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+  endtask
+
   initial begin
     nrst<=1; clk<=0;
     #1 nrst<=0; #1 nrst<=1;
+    forever @(posedge clk) moni();
   end
 
   initial begin

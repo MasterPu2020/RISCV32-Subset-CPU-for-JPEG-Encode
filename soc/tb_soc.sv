@@ -140,9 +140,75 @@ module tb_soc;
     $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
     for (int w = 0; w <= memlen; w ++)
       $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
+    $fdisplay(fd, "[buttom] : %d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
       $display(" [System]: Write log finished, file closed.");
+  endtask
+
+  // program monitor
+  task moni();
+    logic [31:0] inst;
+    logic signed [31:0] imm;
+    logic [31:0] pc, newpc;
+    logic [6:0] opcode, funct7;
+    logic [2:0] funct3;
+    logic [4:0] rd, rs1, rs2;
+    inst = soc.rom.rdata;
+    opcode = soc.riscvcore.operation;
+    funct7 = soc.riscvcore.function7;
+    funct3 = soc.riscvcore.function3;
+    pc = soc.riscvcore.programaddress;
+    newpc = soc.riscvcore.newpc;
+    rd  = soc.riscvcore.rd;
+    rs1 = soc.riscvcore.rs1;
+    rs2 = soc.riscvcore.rs2;
+    imm = soc.riscvcore.immextend.imm;
+    if (opcode == 7'b0110011)
+      case (funct7)
+        7'b0000000:
+          case (funct3)
+            3'b000: $display(" [Core] r%d + r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b111: $display(" [Core] r%d & r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b110: $display(" [Core] r%d | r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b001: $display(" [Core] r%d << r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            3'b101: $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+            default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+          endcase
+        7'b0100000: 
+          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+        7'b0000001: 
+          if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+        default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+      endcase
+    else if (opcode == 7'b0010011)
+      if (funct3 == 3'b000) 
+        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else if (funct3 == 3'b000) 
+        $display(" [Core] mem[ r%d ^ %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b0000011)
+      if (funct3 == 3'b010) 
+        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b0100011)
+      if (funct3 == 3'b010) 
+        $display(" [Core] r%d -> mem[ r%d + %d ]. pc=%d", rs2, rs1, imm, pc>>4);
+      else
+        $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+    else if (opcode == 7'b1100011)
+      case (funct3)
+        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
+      endcase
+    else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
   endtask
 
   //----------------------------------------------------------------
@@ -156,12 +222,24 @@ module tb_soc;
     #1 nrst=0; #1 nrst=1;
   end
 
+  string 
+    logdir = "D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/soc/mem.log",
+    imgdir = "D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/algorithm/test.row";
+
   // test start
   initial begin
-    #BPS_PERIOD;
+    
+    repeat(100) begin
+      @(posedge soc.clkcore) moni();
+    end
+    $stop(1);
+
+    // program reset data memory file
+    #(0.68s);
+    memlog(logdir, 1);
     // image row uart send
-    PC.sendfile("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/algorithm/test.row", 1);
-    memlog("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/soc/mem.log", 1);
+    PC.sendfile(imgdir, 1);
+    memlog(logdir, 1);
     $display("\n [Test Process]: Ready for image process.\n");
     $stop(1);
     // wait for soc finish init
@@ -170,7 +248,20 @@ module tb_soc;
     fork PC.receive(datai); join_none
     // press key to execute encoding
     key = 0; #(0.3s) key = 1;
+    $display("\n [Test Process]: Buttom key press.\n");
+    // check the program is entering main function
+    #(0.1s);
+    if (soc.riscvcore.programaddress > 3280)
+      $display("\n [Core]: In main function.\n");
+    else begin
+      $display("\n [Core]: Warning: NOT in main function.\n");
+      memlog(logdir, 1);
+      $stop(1);
+    end
     // wait for image encode
+    @(negedge datao)
+    $display("\n [Test Process]: Image data sending to PC.\n");
+    $stop(1);
 
   end
 

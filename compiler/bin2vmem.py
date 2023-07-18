@@ -1,6 +1,6 @@
 
-file = './soc/system.bin'
-fileout = './soc/system.hex'
+file = './riscv/test.bin'
+fileout = './riscv/test.hex'
 mem = True
 
 with open(file, 'r') as binfile:
