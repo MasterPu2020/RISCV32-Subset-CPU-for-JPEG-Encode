@@ -124,9 +124,8 @@ module tb_soc;
 
   // write mem.log
   task memlog(input string fdir, bit showinfor);
-    integer fd, error, memlen;
+    integer fd, error;
     string errinfor;
-    memlen = soc.RAMDEPTH; // from hierachy get data
     fd = $fopen(fdir, "w+");
     error = $ferror(fd, errinfor);
     assert (error == 0) else begin
@@ -136,10 +135,12 @@ module tb_soc;
       $stop(1);
     end
     if (showinfor)
-      $display(" [System]: Write log start, file opened. %d words", memlen);
+      $display(" [System]: Write log start, file opened.");
     $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
-    for (int w = 0; w <= memlen; w ++)
+    for (int w = 0; w < 206800; w ++)
       $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
+    for (int w = 206800; w < 411700; w ++)
+      $fdisplay(fd, "[%d] : %d", w, $signed(soc.dualram.memory[w]));
     $fdisplay(fd, "[buttom] : %d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
