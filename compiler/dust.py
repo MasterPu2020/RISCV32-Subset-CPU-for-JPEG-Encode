@@ -500,6 +500,33 @@ def allocate(file:str, pc:int):
         if pcindex == pc:
             return assemindex
 
+# binary file to verilog memory code
+def bin2mem(filedir):
+    file = filedir + '.bin'
+    fileout = filedir + '.hex'
+    mem = True
+
+    with open(file, 'r') as binfile:
+        binfile = binfile.readlines()
+    lineindex = 0
+    maxlineindex = len(binfile)
+    addresswidth = len(str(maxlineindex))
+    newfiletext = ''
+    for line in binfile:
+        line = hex(int(line, 2))[2:]
+        line = '0'*(8-len(line)) + line
+        if mem:
+            line = 'assign memory[' + ' ' * (addresswidth - len(str(lineindex))) + str(lineindex) + "] = 32'h" + line.upper() + ';'
+        else:
+            line = hex(lineindex << 2)[2:] + ' : ' + line
+        newfiletext += line + '\n'
+        lineindex += 1
+        
+    print('\nMaximum address:', maxlineindex-1, '\n')
+
+    with open(fileout, 'w') as hexfile:
+        hexfile.write(newfiletext)
+
 # Main:
 if __name__ == '__main__':
 
@@ -570,9 +597,10 @@ if __name__ == '__main__':
             thisnewfile.write(thisfile)
         if debug:
             debugfilepath = filepath.split('.s')[0] + '_assembly.s'
+            bin2mem(filepath.split('.s')[0])
             with open(debugfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
-
+        
         print('\r                                               ', end='')
         compile.compile(newfilepath, newfilepath, debug)
         

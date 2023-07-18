@@ -26,4 +26,9 @@ line4:
 x5 = x0 + 100    // x5 = 100
 mem[x0 + 0] = x5 // mem[0] = 100
 x4 = mem[x0 + 0] // x4 = 100
+x10 = 9999
+while x10 != x0,
+    mem[x10 + 0] = x10
+    x10 = x10 + -1
+endwhile
 x0 == x0 goto start

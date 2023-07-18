@@ -24,6 +24,29 @@ module stim;
     );
   `endif
 
+  // write mem.log
+  task memlog(input string fdir, bit showinfor);
+    integer fd, error, memlen;
+    string errinfor;
+    memlen = riscv32s.RAMDEPTH; // from hierachy get data
+    fd = $fopen(fdir, "w+");
+    error = $ferror(fd, errinfor);
+    assert (error == 0) else begin
+      $display(" [System]: Error: File descriptor: %h.", fd );
+      $display(" [System]: Error number:    %d.", error );
+      $display(" [System]: Error info:      %s.", errinfor );
+      $stop(1);
+    end
+    if (showinfor)
+      $display(" [System]: Write log start, file opened. %d words", memlen);
+    $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
+    for (int w = 0; w <= memlen; w ++)
+      $fdisplay(fd, "[%d] : %d", w, $signed(riscv32s.ram.memory[w]));
+    $fclose(fd);
+    if (showinfor)
+      $display(" [System]: Write log finished, file closed.");
+  endtask
+
   // program monitor
   task moni();
     logic [31:0] inst;
@@ -50,27 +73,27 @@ module stim;
             3'b111: $display(" [Core] r%d & r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             3'b110: $display(" [Core] r%d | r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             3'b001: $display(" [Core] r%d << r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
-            3'b101: $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
           endcase
         7'b0100000: 
-          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          if (funct3 == 3'b101) $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
           else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
         7'b0000001: 
-          if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
           else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
         default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
       endcase
     else if (opcode == 7'b0010011)
       if (funct3 == 3'b000) 
-        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
-      else if (funct3 == 3'b000) 
-        $display(" [Core] mem[ r%d ^ %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+        $display(" [Core] r%d + %d-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else if (funct3 == 3'b110) 
+        $display(" [Core] r%d ^ %d-> r%d. pc=%d", rs1, imm, rd, pc>>4);
       else
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b0000011)
       if (funct3 == 3'b010) 
-        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+        $display(" [Core] mem[ r%d + %d ] -> r%d. pc=%d", rs1, imm, rd, pc>>4);
       else
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b0100011)
@@ -80,10 +103,10 @@ module stim;
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b1100011)
       case (funct3)
-        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
         default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
       endcase
     else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
@@ -104,9 +127,11 @@ module stim;
     assert ($signed(riscv32s.riscvcore.regfile.x[4]) == 100) else error ++;
     assert ($signed(riscv32s.riscvcore.regfile.x[5]) == 100) else error ++;
     if (error == 0)
-      $display("\n [Simulation passed]\n");
+      $display("\n [Simple Simulation passed]\n");
     else
-      $display("\n [Simulation failed]: error(s) = %d", error, "\n");
+      $display("\n [Simple Simulation failed]: error(s) = %d", error, "\n");
+    #(CLK_PERIOD * 30000);
+    memlog("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/riscv/mem.log", 1);
     $finish(2);
   end
 

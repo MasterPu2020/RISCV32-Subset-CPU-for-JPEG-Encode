@@ -12,7 +12,7 @@ module riscv32s (
   localparam 
     WIDTH = 32,
     ROMDEPTH = 2048,
-    RAMDEPTH = 2048;
+    RAMDEPTH = 9999;
 
   wire [31:0] programdata;
   wire [WIDTH-1:0] readramdata;
@@ -24,6 +24,6 @@ module riscv32s (
   core #(WIDTH) riscvcore(.clock, .nreset, 
     .programdata, .readramdata, .writeram, .programaddress, .ramaddress, .writeramdata);
   rom #(WIDTH, ROMDEPTH) rom(.address(programaddress), .rdata(programdata));
-  ram #(WIDTH, RAMDEPTH) ram(.address(ramaddress), .wdata(writeramdata), .enw(writeram), .rdata(readramdata));
+  ram #(WIDTH, RAMDEPTH) ram(.clk(clock), .address(ramaddress), .wdata(writeramdata), .enw(writeram), .rdata(readramdata));
 
 endmodule

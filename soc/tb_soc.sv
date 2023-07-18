@@ -172,27 +172,27 @@ module tb_soc;
             3'b111: $display(" [Core] r%d & r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             3'b110: $display(" [Core] r%d | r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             3'b001: $display(" [Core] r%d << r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
-            3'b101: $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
             default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
           endcase
         7'b0100000: 
-          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          if (funct3 == 3'b101) $display(" [Core] r%d >> r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
           else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
         7'b0000001: 
-          if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          if (funct3 == 3'b000) $display(" [Core] r%d *l r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
+          else if (funct3 == 3'b001) $display(" [Core] r%d *h r%d -> r%d. pc=%d", rs1, rs2, rd, pc>>4);
           else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
         default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
       endcase
     else if (opcode == 7'b0010011)
       if (funct3 == 3'b000) 
-        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
-      else if (funct3 == 3'b000) 
-        $display(" [Core] mem[ r%d ^ %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+        $display(" [Core] r%d + %d-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+      else if (funct3 == 3'b110) 
+        $display(" [Core] r%d ^ %d-> r%d. pc=%d", rs1, imm, rd, pc>>4);
       else
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b0000011)
       if (funct3 == 3'b010) 
-        $display(" [Core] mem[ r%d + %d ]-> r%d. pc=%d", rs1, imm, rd, pc>>4);
+        $display(" [Core] mem[ r%d + %d ] -> r%d. pc=%d", rs1, imm, rd, pc>>4);
       else
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b0100011)
@@ -202,10 +202,10 @@ module tb_soc;
         $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
     else if (opcode == 7'b1100011)
       case (funct3)
-        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
-        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm, newpc>>4, pc>>4);
+        3'b000: $display(" [Core] r%d == r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b001: $display(" [Core] r%d != r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b100: $display(" [Core] r%d <  r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+        3'b101: $display(" [Core] r%d >= r%d ? pc(%d) + %d = %d. pc=%d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
         default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
       endcase
     else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%d", opcode, funct7, funct3, pc>>4);
