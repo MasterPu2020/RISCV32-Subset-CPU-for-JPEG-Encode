@@ -22,11 +22,11 @@ module bus(
     slaveaddr0 = masteraddr;
     slaveaddr1 = masteraddr;
     if (masteraddr < 411700) // ram: 0 ~ 411699
-      masterrdata = slavewdata0;
+      masterrdata = slaverdata0;
       if (masterwrite)
         slavewdata0 = masterwdata;
     else if (masteraddr < 411701) // buttom interface: 411700
-      masterrdata = slavewdata1;
+      masterrdata = slaverdata1;
       if (masterwrite)
         slavewdata1 = masterwdata;
   end

@@ -1,6 +1,6 @@
 `define enable_monitor
 
-module testbench;
+module stim;
   logic clk;
   logic nrst;
   `timescale 1ns/10ps

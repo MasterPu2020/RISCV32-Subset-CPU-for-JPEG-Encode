@@ -1,4 +1,4 @@
-module tb_uart;
+module stim_uart;
 
   `timescale 1ns/10ps
 
@@ -11,7 +11,7 @@ module tb_uart;
     .datao, .wram,
     .ramaddress, .wramdata
   );
-  ram #(32, 32'h00070002) ram(.address1, .address2(ramaddress), 
+  ram #(32, 32'h00070000) ram(.address1, .address2(ramaddress), 
     .wdata1, .wdata2(wramdata),
     .enw1, .enw2(wram),
     .rdata1, .rdata2(rramdata)

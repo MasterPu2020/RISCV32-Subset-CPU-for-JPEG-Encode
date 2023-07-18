@@ -7,7 +7,7 @@
 
 module soc (
   input wire clk, nrst, key, datai,
-  output wire data0
+  output wire datao
 );
 
   localparam 

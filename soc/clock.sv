@@ -5,13 +5,13 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module clock #(parameter CLKRATE = 50_000_000, BAUDRATE = 9600, CORERATE = 25_000_000) (
+module clock #(parameter CLKRATE = 50_000_000, BAUDRATE = 9600, CORERATE = 12_500_000) (
   input wire clk, nrst,
   output logic clkcore, clkbps
 );
 
   localparam 
-    COREMAX = (CLKRATE/CORERATE - 1),
+    COREMAX = (CLKRATE/CORERATE/2 - 1),
     BPSMAX = (CLKRATE/BAUDRATE/2 - 1);
   reg [$clog2(COREMAX):0] corecnt;
   reg [$clog2(BPSMAX):0] bpscnt;
