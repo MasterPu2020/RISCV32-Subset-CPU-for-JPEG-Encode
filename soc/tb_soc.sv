@@ -1,5 +1,6 @@
 //----------------------------------------------------------------
 // JPEG encoding system on chip top module testbench
+// Verification Methodolog: Universal Verification Methodolog (UVM)
 // Last Modified Date: 2023/7/18
 // Version: 1.0
 // Author: Clark Pu
@@ -13,7 +14,7 @@ class simPC;
     BPS_PERIOD = bps_period;
   endfunction
   // uart send data
-  task automatic send(input bit[31:0] word, input bit showinfor);
+  task automatic send(input bit[31:0] word, bit showinfor);
     byte databuffer;
     if (showinfor)
       $write(" [PC]: UART send: %h", word);
@@ -36,6 +37,7 @@ class simPC;
     bit[31:0] word;
     int counter = 0;
     forever begin
+      #BPS_PERIOD;
       if (datai == 0) begin
         #BPS_PERIOD;
         repeat(8) begin
@@ -61,7 +63,7 @@ class simPC;
     end
   endtask
   // uart send whole file
-  task automatic sendfile(string fdir, bit showinfor);
+  task automatic sendfile(input string fdir, bit showinfor);
     integer fd, error, flen;
     real usetime;
     bit [31:0] word;
@@ -120,6 +122,33 @@ module tb_soc;
   // SoC
   soc soc(.clk, .nrst, .key, .datai, .datao);
 
+  // write mem.log
+  task memlog(input string fdir, bit showinfor);
+    integer fd, error, memlen;
+    string errinfor;
+    memlen = soc.RAMDEPTH; // from hierachy get data
+    fd = $fopen(fdir, "w+");
+    error = $ferror(fd, errinfor);
+    assert (error == 0) else begin
+      $display(" [System]: Error: File descriptor: %h.", fd );
+      $display(" [System]: Error number:    %d.", error );
+      $display(" [System]: Error info:      %s.", errinfor );
+      $stop(1);
+    end
+    if (showinfor)
+      $display(" [System]: Write log start, file opened. %d words", memlen);
+    $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
+    for (int w = 0; w <= memlen; w ++)
+      $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
+    $fclose(fd);
+    if (showinfor)
+      $display(" [System]: Write log finished, file closed.");
+  endtask
+
+  //----------------------------------------------------------------
+  // test process
+  //----------------------------------------------------------------
+
   // system test init
   always #(CLK_PERIOD/2) clk=~clk;
   initial begin
@@ -132,6 +161,9 @@ module tb_soc;
     #BPS_PERIOD;
     // image row uart send
     PC.sendfile("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/algorithm/test.row", 1);
+    memlog("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/soc/mem.log", 1);
+    $display("\n [Test Process]: Ready for image process.\n");
+    $stop(1);
     // wait for soc finish init
     #(1s);
     // start receive data

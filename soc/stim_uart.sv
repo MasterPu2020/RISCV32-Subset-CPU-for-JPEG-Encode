@@ -1,3 +1,6 @@
+
+// out of date warning: never been updatad since its first stim test
+
 module stim_uart;
 
   `timescale 1ns/10ps

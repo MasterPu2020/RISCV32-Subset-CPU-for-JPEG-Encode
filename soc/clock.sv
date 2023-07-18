@@ -18,6 +18,8 @@ module clock #(parameter CLKRATE = 50_000_000, BAUDRATE = 9600, CORERATE = 12_50
 
   always_ff @(posedge clk, negedge nrst)
     if (~nrst) begin
+      clkcore <= 0;
+      clkbps <= 0;
       bpscnt <= 0;
       corecnt <= 0;
     end

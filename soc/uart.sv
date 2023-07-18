@@ -40,10 +40,11 @@ module uart (
     wram = 0;
     datao = 1;
     case (state)
-      POSTRECEIVE: 
-      if (bytecnt == 0) begin
+      RECEIVE: ramaddress = wramaddr;
+      POSTRECEIVE: begin
         ramaddress = wramaddr;
-        wram = 1;
+        if (bytecnt == 0)
+          wram = 1;
       end
       SEND: begin
         ramaddress = rramaddr;
@@ -67,7 +68,7 @@ module uart (
       bitcnt <= 0;
       bytecnt <= 0;
       wramdata <= 0;
-      wramaddr <= 0;
+      wramaddr <= 206800;
       rramaddr <= 0;
       bytedata <= 0;
     end
@@ -77,7 +78,7 @@ module uart (
           if (rramdata == 1) begin // program write
             state <= POSTSEND;
             wramdata <= 0; // clear data in &411699
-            rramaddr <= 0; // send restart
+            rramaddr <= 206800; // send restart at image row start address
           end
           else if (datai == 0)
             state <= RECEIVE;
@@ -129,7 +130,7 @@ module uart (
           bitcnt <= 0;
           if (rramdata == 0 || rramdata == 'x) begin // next state, 'x not synthesisable
             state <= IDLE;
-            wramaddr <= 0; // receive restart
+            wramaddr <= 206800; // receive restart
           end
           else begin
             state <= SEND;
@@ -152,7 +153,7 @@ module uart (
           bitcnt <= 0;
           bytecnt <= 0;
           wramdata <= 1; // write exception error code
-          wramaddr <= 0;
+          wramaddr <= 206800;
           rramaddr <= 0;
           bytedata <= 0;
         end

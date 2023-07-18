@@ -8,8 +8,8 @@
 
 module bus(
   // either read nor write
-  input  logic [31:0] masteraddr,
-  output logic [31:0] masterrdata, masterwdata,
+  input  logic [31:0] masteraddr, masterwdata,
+  output logic [31:0] masterrdata,
   input  logic masterwrite,
   output logic writeslave0, writeslave1,
   output logic [31:0] slaveaddr0, slaveaddr1,
@@ -19,16 +19,20 @@ module bus(
 
   always_comb begin
     masterrdata = 0;
+    writeslave0 = 0;
+    writeslave1 = 0;
+    slavewdata0 = masterwdata;
+    slavewdata1 = masterwdata;
     slaveaddr0 = masteraddr;
     slaveaddr1 = masteraddr;
     if (masteraddr < 411700) // ram: 0 ~ 411699
       masterrdata = slaverdata0;
       if (masterwrite)
-        slavewdata0 = masterwdata;
+        writeslave0 = 1;
     else if (masteraddr < 411701) // buttom interface: 411700
       masterrdata = slaverdata1;
       if (masterwrite)
-        slavewdata1 = masterwdata;
+        writeslave1 = 1;
   end
 
 endmodule

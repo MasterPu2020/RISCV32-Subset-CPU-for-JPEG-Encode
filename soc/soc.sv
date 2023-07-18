@@ -29,7 +29,7 @@ module soc (
 
   wire [31:0] slaveaddr0, slaverdata0, slavewdata0, slaveaddr1, slaverdata1, slavewdata1;
   wire writeslave0, writeslave1;
-  bus databus(.masteraddr(ramaddress), .masterrdata(readramdata), .masterwdata(writeramdata), 
+  bus databus(.masteraddr(ramaddress), .masterwdata(writeramdata), .masterrdata(readramdata),
     .masterwrite(writeram), 
     .writeslave0, .writeslave1,
     .slaveaddr0,  .slaveaddr1,
