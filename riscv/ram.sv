@@ -18,6 +18,6 @@ module ram #(parameter WIDTH = 32, DEPTH = 2048) (
   assign rdata = memory[address[$clog2(DEPTH)-1:0]];
   always_ff @(posedge clk)
     if (enw)
-        memory[address[$clog2(DEPTH)-1:0]] <= wdata;
+      memory[address[$clog2(DEPTH)-1:0]] <= wdata;
 
 endmodule

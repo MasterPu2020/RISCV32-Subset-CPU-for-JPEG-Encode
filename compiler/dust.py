@@ -522,7 +522,7 @@ def bin2mem(filedir):
         newfiletext += line + '\n'
         lineindex += 1
         
-    print('\nMaximum address:', maxlineindex-1, '\n')
+    print('Verilog Code Maximum Address:', maxlineindex-1, '\n')
 
     with open(fileout, 'w') as hexfile:
         hexfile.write(newfiletext)
@@ -597,12 +597,12 @@ if __name__ == '__main__':
             thisnewfile.write(thisfile)
         if debug:
             debugfilepath = filepath.split('.s')[0] + '_assembly.s'
-            bin2mem(filepath.split('.s')[0])
             with open(debugfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
         
         print('\r                                               ', end='')
         compile.compile(newfilepath, newfilepath, debug)
+        bin2mem(filepath.split('.s')[0])
         
     else:
         print('\n Giving up...\n')

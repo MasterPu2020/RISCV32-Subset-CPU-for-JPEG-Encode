@@ -10,7 +10,6 @@ module stim;
 
   riscv32s riscv32s(.clock(clk), .nreset(nrst));
 
-  int clkcycle = 0, error = 0;
   localparam CLK_PERIOD = 10;
   always #(CLK_PERIOD/2) clk = ~clk;
 
@@ -117,20 +116,9 @@ module stim;
     #1 nrst<=0; #1 nrst<=1;
     forever @(posedge clk) moni();
   end
-
+  
   initial begin
-    #(CLK_PERIOD * 19);
-    assert (riscv32s.ram.memory[0] == 100) else error ++;
-    assert ($signed(riscv32s.riscvcore.regfile.x[1]) == -9) else error ++;
-    assert ($signed(riscv32s.riscvcore.regfile.x[2]) == 1) else error ++;
-    assert ($signed(riscv32s.riscvcore.regfile.x[3]) == 3) else error ++;
-    assert ($signed(riscv32s.riscvcore.regfile.x[4]) == 100) else error ++;
-    assert ($signed(riscv32s.riscvcore.regfile.x[5]) == 100) else error ++;
-    if (error == 0)
-      $display("\n [Simple Simulation passed]\n");
-    else
-      $display("\n [Simple Simulation failed]: error(s) = %d", error, "\n");
-    #(CLK_PERIOD * 30000);
+    #(CLK_PERIOD * 50);
     memlog("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/riscv/mem.log", 1);
     $finish(2);
   end

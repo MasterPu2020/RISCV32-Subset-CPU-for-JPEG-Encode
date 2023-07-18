@@ -124,6 +124,7 @@ def execute(inst, pc):
             branch = True
     else:
         exit('\n Error: Opcode not find: opcode is ' + inst_opbin)
+    x[0] = 0
     return inst_op, rd, rs1, rs2, immi, imms, immb, pc, branch
 
 # display reg file and mem file

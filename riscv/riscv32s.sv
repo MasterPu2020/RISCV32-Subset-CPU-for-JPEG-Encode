@@ -12,7 +12,7 @@ module riscv32s (
   localparam 
     WIDTH = 32,
     ROMDEPTH = 2048,
-    RAMDEPTH = 9999;
+    RAMDEPTH = 31;
 
   wire [31:0] programdata;
   wire [WIDTH-1:0] readramdata;
