@@ -519,7 +519,6 @@ endefine
 // SoC sub-units management
 // ------------------------------------------------------------------
 
-x1 = mem[x1 + 2] // clear button request
 systemwait:
 x1 = 411698
 x2 = mem[x1 + 0]
@@ -985,7 +984,6 @@ GetDataAndSize:
 x19 = 1 + x0
 x24 == x0 goto GetDataAndSizeReturnGate0
 x24 == x19 goto GetDataAndSizeReturnGate1
-x0 == x0 goto Main // debug
 EndGetDataAndSize:
 
 // SubFunction: Push Huffman bit stack
@@ -1035,7 +1033,6 @@ x23 == x0 goto PushHuffmanBitStackReturnGate0
 x23 == x19 goto PushHuffmanBitStackReturnGate1
 x23 == x18 goto PushHuffmanBitStackReturnGate2
 x23 == x5 goto PushHuffmanBitStackReturnGate3
-x0 == x0 goto Main // debug
 EndPushHuffmanBitStack:
 
 // DC
@@ -1104,10 +1101,6 @@ if x9 != x0,
     x0 == x0 goto PushHuffmanBitStack
     PushHuffmanBitStackReturnGate3:
 endif
-
-// debug
-x2 = 411600
-mem[x2 + 0] = x26
 
 // ------------------------------------
 // Function Return Gate

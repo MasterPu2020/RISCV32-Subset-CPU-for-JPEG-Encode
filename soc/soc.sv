@@ -1,7 +1,7 @@
 //----------------------------------------------------------------
 // JPEG encoding system on chip top module behavioural
 // Last Modified Date: 2023/7/17
-// Version: 1.0
+// Version: 1.1
 // Author: Clark Pu
 //----------------------------------------------------------------
 

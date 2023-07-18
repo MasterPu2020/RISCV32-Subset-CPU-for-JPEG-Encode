@@ -7,7 +7,6 @@
 //----------------------------------------------------------------
 
 module bus(
-  // either read nor write
   input  logic [31:0] masteraddr, masterwdata,
   output logic [31:0] masterrdata,
   input  logic masterwrite,
@@ -17,26 +16,39 @@ module bus(
   output logic [31:0] slavewdata0, slavewdata1, slavewdata2 
 );
 
+  // either read nor write
   always_comb begin
     masterrdata = 0;
     writeslave0 = 0;
     writeslave1 = 0;
-    slavewdata0 = masterwdata;
-    slavewdata1 = masterwdata;
-    slaveaddr0 = masteraddr;
-    slaveaddr1 = masteraddr;
-    if (masteraddr < 206800) // ram: 0 ~ 206799
+    writeslave2 = 0;
+    slavewdata0 = 0;
+    slavewdata1 = 0;
+    slavewdata2 = 0;
+    slaveaddr0  = 0;
+    slaveaddr1  = 0;
+    slaveaddr2  = 0;
+    if (masteraddr < 206800) begin // ram: 0 ~ 206799
       masterrdata = slaverdata0;
+      slaveaddr0 = masteraddr;
+      slavewdata0 = masterwdata;
       if (masterwrite)
         writeslave0 = 1;
-    else if (masteraddr < 411700) // dual-ram: 206800 ~ 411699
+    end
+    else if (masteraddr < 411700) begin // dual-ram: 206800 ~ 411699
       masterrdata = slaverdata1;
+      slaveaddr1 = masteraddr;
+      slavewdata1 = masterwdata;
       if (masterwrite)
         writeslave1 = 1;
-    else if (masteraddr < 411701) // buttom interface: 411700
+    end
+    else if (masteraddr < 411701) begin // buttom interface: 411700
       masterrdata = slaverdata2;
+      slaveaddr2 = masteraddr;
+      slavewdata2 = masterwdata;
       if (masterwrite)
         writeslave2 = 1;
+    end
   end
 
 endmodule
