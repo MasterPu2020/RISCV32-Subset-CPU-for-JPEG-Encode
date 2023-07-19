@@ -150,7 +150,7 @@ module tb_soc;
     for (int w = 0; w < 206800; w ++)
       $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
     for (int w = 0; w < 204900; w ++)
-      $fdisplay(fd, "[%d] : %h", w+206800, soc.dualram.memory[w]);
+      $fdisplay(fd, "[%d] : %d", w+206800, soc.dualram.memory[w]);
     $fdisplay(fd, "[buttom] : %d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
@@ -266,6 +266,8 @@ module tb_soc;
           $display(" [Uart] EXCEPTION: Unexpected data package, time: %t", $time);
           $stop(1);
         end
+      // sim time
+      forever #1s $display(" [System] Time: %t", $time);
     join
   end
   
@@ -297,7 +299,7 @@ module tb_soc;
     // CPU image process
     fork 
       // start listening to the data
-      PC.receive(datai); 
+      PC.receive(datao);
       // press key to execute encoding
       $display("\n [Test Process]: Buttom key press.\n");
       key = 0; 
@@ -319,6 +321,9 @@ module tb_soc;
     $stop(2);
 
     // End of the simulation
+    @(soc.dualram.memory[204899]) // uart write sending data finished
+    $display("\n [Test Process]: Simulation Finished.\n");
+    $finish(2);
 
   end
 

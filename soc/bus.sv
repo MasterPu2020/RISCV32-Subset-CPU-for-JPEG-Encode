@@ -26,7 +26,7 @@ module bus(
     slavewdata1 = 0;
     slavewdata2 = 0;
     slaveaddr0  = 0;
-    slaveaddr1  = 0;
+    slaveaddr1  = 206800;
     slaveaddr2  = 0;
     if (masteraddr < 206800) begin // ram: 0 ~ 206799
       masterrdata = slaverdata0;
