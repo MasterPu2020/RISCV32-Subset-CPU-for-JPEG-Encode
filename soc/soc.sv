@@ -10,6 +10,9 @@ module soc (
   output wire datao
 );
 
+  // input synchronization registers
+  reg key1, key2, datai1, datai2;
+
   localparam 
     WIDTH = 32,
     ROMDEPTH = 2048; // ram: 0 ~ 411700
@@ -37,11 +40,11 @@ module soc (
     .slaverdata0, .slaverdata1, .slaverdata2,
     .slavewdata0, .slavewdata1, .slavewdata2);
 
-  buttom buttom(.clk(clkcore), .nrst, .key, .busaddr(slaveaddr2), .busdata(slaverdata2));
+  buttom buttom(.clk(clkcore), .nrst, .key(key2), .busaddr(slaveaddr2), .busdata(slaverdata2));
 
   wire [31:0] ramaddress2, wramdata2, rramdata2;
   wire wram2;
-  uart uart(.clk(clkbps), .nrst, .datai, .rramdata(rramdata2), .datao, 
+  uart uart(.clk(clkbps), .nrst, .datai(datai2), .rramdata(rramdata2), .datao, 
     .wram(wram2), .ramaddress(ramaddress2), .wramdata(wramdata2));
 
   ram ram(.clk(clkcore), .address(slaveaddr0), .wdata(slavewdata0), .enw(writeslave0), .rdata(slaverdata0));
@@ -54,5 +57,29 @@ module soc (
     .rdata1(slaverdata1),  .rdata2(rramdata2));
 
   rom #(WIDTH, ROMDEPTH) rom(.address(programaddress), .rdata(programdata));
+
+  // input synchronization: keyi
+  always_ff @(posedge clkcore, negedge nrst) begin
+    if (~nrst) begin
+      key1 <= 1;
+      key2 <= 1;
+    end
+    else begin
+      key1 <= key;
+      key2 <= key1;
+    end
+  end
+
+  // input synchronization: dataii
+  always_ff @(posedge clkbps, negedge nrst) begin
+    if (~nrst) begin
+      datai1 <= 1;
+      datai2 <= 1;
+    end
+    else begin
+      datai1 <= datai;
+      datai2 <= datai1;
+    end
+  end
 
 endmodule

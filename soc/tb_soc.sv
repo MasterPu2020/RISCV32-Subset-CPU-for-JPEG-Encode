@@ -9,14 +9,14 @@
 // Use program monitor, this will reduce the simulation speed
 // `define ProgramMonitor
 // Use UART input monitor
-`define UARTinputMonitor
+// `define UARTinputMonitor
 // Use program counter monitor
 `define PCMonitor
 
 class simPC;
   static bit datao; // uart data output
-  static int BPS_PERIOD = 1000;
-  function new(int bps_period);
+  static real BPS_PERIOD = 1000;
+  function new(real bps_period);
     datao = 1;
     BPS_PERIOD = bps_period;
   endfunction
@@ -102,6 +102,10 @@ class simPC;
         word[7:0] = $fgetc(fd);
       end
       send(word, showinfor);
+      if (w % 100 == 0 && w != 0) begin
+        $display("\n [PC]: UART Sending File Stop Gap, %d words. %t\n", w, $time);
+        #(BPS_PERIOD*100); // seperate by 100 words, to avoid clock mismatch
+      end
     end
     $fclose(fd);
     usetime = $time - usetime;
@@ -119,7 +123,7 @@ module tb_soc;
 
   // wiring and param
   logic clk, nrst, key, datai, datao;
-  localparam CLK_PERIOD = 20, BPS_PERIOD = 1041665; // Baud rate: 9600bps
+  localparam CLK_PERIOD = 20, BPS_PERIOD = 104160; // Baud rate: 9600bps -> 104160
 
   // simulated PC
   simPC PC = new(BPS_PERIOD);
@@ -290,7 +294,6 @@ module tb_soc;
     for (int i = 0; i < 1026; i++) begin
       $display(" [Dual-RAM] Address[%d] : Data[%h]", i, soc.dualram.memory[i]);
     end
-    $stop(1);
     // CPU image process
     fork 
       // start listening to the data
@@ -301,7 +304,7 @@ module tb_soc;
       #(0.3s) key = 1;
     join_none
     // check the program is entering main function
-    #(0.16s); // buttom press vaild
+    #(0.4s); // buttom press vaild
     if ((soc.programaddress >> 2) > 829)
       $display("\n [Core]: In main function.\n");
     else begin
@@ -311,8 +314,11 @@ module tb_soc;
     end
     // wait for image encode
     @(negedge datao)
+    memlog(logdir, 1);
     $display("\n [Test Process]: Image data sending to PC.\n");
-    $stop(1);
+    $stop(2);
+
+    // End of the simulation
 
   end
 
