@@ -226,8 +226,12 @@ module tb_soc;
   //----------------------------------------------------------------
 
   // pc monitor
-  initial $monitor(" [Core] PC: %d, time: %t", program_line, $time);
-
+  initial begin
+    @(program_line) 
+    if (program_line > 9)
+      $display(" [Core] PC: %d, time: %t", program_line, $time);
+  end
+  
   // system test init
   always #(CLK_PERIOD/2) clk=~clk;
   initial begin
