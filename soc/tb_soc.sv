@@ -143,7 +143,7 @@ module tb_soc;
     for (int w = 0; w < 206800; w ++)
       $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
     for (int w = 0; w < 204900; w ++)
-      $fdisplay(fd, "[%d] : %d", w+204900, $signed(soc.dualram.memory[w]));
+      $fdisplay(fd, "[%d] : %d", w+206800, $signed(soc.dualram.memory[w]));
     $fdisplay(fd, "[buttom] : %d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
@@ -217,9 +217,16 @@ module tb_soc;
     endtask
   `endif
 
+  // Prgram counter wave
+  logic [31:0] program_line;
+  assign program_line = soc.programaddress >> 2;
+
   //----------------------------------------------------------------
   // test process
   //----------------------------------------------------------------
+
+  // pc monitor
+  initial $monitor(" [Core] PC: %d, time: %t", program_line, $time);
 
   // system test init
   always #(CLK_PERIOD/2) clk=~clk;

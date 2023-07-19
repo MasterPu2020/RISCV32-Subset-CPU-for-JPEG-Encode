@@ -95,10 +95,10 @@ module uart (
             else
               bytecnt <= bytecnt + 1;
             case (bytecnt)
-              0: wramdata[31:24] <= bytedata[8:1];
-              1: wramdata[23:16] <= bytedata[8:1];
-              2: wramdata[15: 8] <= bytedata[8:1];
-              3: wramdata[ 7: 0] <= bytedata[8:1];
+              0: wramdata[31:24] <= bytedata[7:0];
+              1: wramdata[23:16] <= bytedata[7:0];
+              2: wramdata[15: 8] <= bytedata[7:0];
+              3: wramdata[ 7: 0] <= bytedata[7:0];
             endcase
           end
           else begin
