@@ -240,8 +240,8 @@ module tb_soc;
   end
 
   string 
-    logdir = "D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/soc/mem.log",
-    imgdir = "D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/algorithm/test.row";
+    logdir = "./mem.log",
+    imgdir = "./algorithm/test.row";
 
   // test start
   initial begin
