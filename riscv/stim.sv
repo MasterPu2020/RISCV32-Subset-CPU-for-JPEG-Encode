@@ -119,7 +119,7 @@ module stim;
   
   initial begin
     #(CLK_PERIOD * 50);
-    memlog("D:/iCloud/iCloudDrive/Southampton/Research Project/Code/riscv/riscv/mem.log", 1);
+    memlog("../riscv/mem.log", 1);
     $finish(2);
   end
 

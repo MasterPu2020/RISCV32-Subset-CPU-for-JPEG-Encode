@@ -1,16 +1,14 @@
 # --------------------------------------------------------------------------
 # Using UTF-8
 # Title: RISCV32 Subset Instrcutions Simulate Script
-# Last Modified Date: 2023/7/7
-# Version: 1.0
+# Last Modified Date: 2023/7/19
+# Warning: Heavily modefied for debug, need to be upgraded
+# Version: 1.1
 # Author: Clark Pu
 # --------------------------------------------------------------------------
 
 
 import sys
-import time
-import os
-
 
 # parameters:
 opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
@@ -210,15 +208,13 @@ def loadimg():
 if __name__ == '__main__':
     
     # python .\simulator\riscv32s.py .\compiler\code.bin +start=0 +pause
-    assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +start= +pause +time= +dontclear +savelog'
+    assert len(sys.argv) > 2, '\n[Usage]: Python ./riscv32s ./file \n[Options]: +savelog +start= +dontclear '
     file = sys.argv[1]
     goto_runtime = 0
     goto_realtime = 0 # 1765697
     dontclear = False
     branchcount = 0
     branchture = 0
-    pause = False
-    wait = 0
     savelog = False
     hide = False
     maxcal = 16
@@ -227,10 +223,6 @@ if __name__ == '__main__':
 
     finalsave = False
     for option in sys.argv[1:]:
-        if option == '+pause':
-            pause = True
-        if option[:6] == '+time=':
-            wait = float(option[6:])
         if option[:7] == '+start=':
             goto_runtime = float(option[7:])
         if option == '+dontclear':
@@ -278,7 +270,6 @@ if __name__ == '__main__':
             # Display CPU state
             if not dontclear:
                 print('\033c',end='') # clear screen
-                os.system('clear') # clear screen
             show(savelog, memstart, maxcal, maxrow)
             showhuffmanmem() # special debug
             print('\n [CPU Instruction Information]')
@@ -327,32 +318,29 @@ if __name__ == '__main__':
                 runlog.write('\nDebug Last Cr DC value: '+ str(lastdccr))
             
         if runtime >= goto_runtime and realtime >= goto_realtime:
-            if pause:
-                hide = False
-                key = input('\nPress Enter to continue or debug...\n')
-                goto_runtime = runtime
-                if key.lower() == 'q' or key.lower() == 'quit' or key.lower() == 'exit':
-                    break
-                if key.lower()[:1] == '+':
-                    goto_runtime = runtime + int(key[1:].split()[0])
-                    if 'hide' in key.lower():
-                        hide = True
-                if key.lower() == 'savelog':
-                    savelog = True
-                else:
-                    savelog = False
-                if 'memcal' in key.lower():
-                    maxcal = int(key.lower().strip('memcal'))
-                if 'memrow' in key.lower():
-                    maxrow = int(key.lower().strip('memrow'))
-                if 'mem:' in key.lower():
-                    memstart = int(key.lower().strip('mem:'))
-                if 'realtime:' in key.lower():
-                    goto_realtime = round(float(key.lower().strip('realtime:')), 4)
+            hide = False
+            key = input('\nPress Enter to continue or debug...\n')
+            goto_runtime = runtime
+            if key.lower() == 'q' or key.lower() == 'quit' or key.lower() == 'exit':
+                break
+            if key.lower()[:1] == '+':
+                goto_runtime = runtime + int(key[1:].split()[0])
+                if 'hide' in key.lower():
                     hide = True
-            elif wait > 0:
-                time.sleep(wait)
-        
+            if key.lower() == 'savelog':
+                savelog = True
+            else:
+                savelog = False
+            if 'memcal' in key.lower():
+                maxcal = int(key.lower().strip('memcal'))
+            if 'memrow' in key.lower():
+                maxrow = int(key.lower().strip('memrow'))
+            if 'mem:' in key.lower():
+                memstart = int(key.lower().strip('mem:'))
+            if 'realtime:' in key.lower():
+                goto_realtime = round(float(key.lower().strip('realtime:')), 4)
+                hide = True
+
         if not branch:
             pc += 1
 

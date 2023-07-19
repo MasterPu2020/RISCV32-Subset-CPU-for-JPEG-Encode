@@ -567,21 +567,18 @@ if __name__ == '__main__':
         thisfile = genmem2macro(thisfile, comment)
 
         if debug:
-            print(thisfile + '\n\n')
             with open(newfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
         print('\r converting long int to macro ...', end='')
         thisfile = long2macro(thisfile)
 
         if debug:
-            print(thisfile + '\n\n')
             with open(newfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
         print('\r converting if statement to macro ...', end='')
         thisfile = if2macro(thisfile)
 
         if debug:
-            print(thisfile + '\n\n')
             with open(newfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
         print('\r converting while statement to macro ...', end='')
@@ -590,7 +587,7 @@ if __name__ == '__main__':
         if debug:
             with open(newfilepath, 'w') as thisnewfile:
                 thisnewfile.write(thisfile)
-            input('\r Pause Enter to Continue               ')
+            input('\r [Pause] Enter to Continue               \n')
         print('\r converting macro into assembly code ...  ', end='')
         thisfile = demacro(thisfile, comment)
         with open(newfilepath, 'w') as thisnewfile:

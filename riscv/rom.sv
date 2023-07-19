@@ -14,6 +14,6 @@ module rom #(parameter WIDTH = 32, DEPTH = 2048) (
   wire [WIDTH-1:0] memory [DEPTH-1:0];
   assign rdata = memory[address[WIDTH-1:2]];
 
-  `include "test.hex"
+  `include "../riscv/test.hex"
 
 endmodule
