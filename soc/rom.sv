@@ -15,6 +15,6 @@ module rom #(parameter WIDTH = 32, DEPTH = 2048) (
   assign rdata = memory[address[WIDTH-1:2]];
 
   // JPEG encode program
-  `include "system.hex"
+  `include "../soc/system.hex"
 
 endmodule

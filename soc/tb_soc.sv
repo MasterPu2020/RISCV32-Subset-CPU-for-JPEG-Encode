@@ -7,7 +7,11 @@
 //----------------------------------------------------------------
 
 // Use program monitor, this will reduce the simulation speed
-// `define Monitor
+// `define ProgramMonitor
+// Use UART input monitor
+`define UARTinputMonitor
+// Use program counter monitor
+`define PCMonitor
 
 class simPC;
   static bit datao; // uart data output
@@ -20,9 +24,10 @@ class simPC;
   task automatic send(input bit[31:0] word, bit showinfor);
     byte databuffer;
     if (showinfor)
-      $write(" [PC]: UART send: %h", word);
+      $display(" [PC]: UART send: %h. %t", word, $time);
     repeat(4) begin
       databuffer = word[31:24];
+      // $display(" Byte: %h", databuffer);
       word = word << 8;
       #BPS_PERIOD datao = 0;
       repeat(8) begin
@@ -31,8 +36,6 @@ class simPC;
       end
       #BPS_PERIOD datao = 1;
     end
-    if (showinfor)
-      $display("  [Finished] %t", $time);
   endtask
   // recieve uart, always on
   task automatic receive(input bit datai);
@@ -116,7 +119,7 @@ module tb_soc;
 
   // wiring and param
   logic clk, nrst, key, datai, datao;
-  localparam CLK_PERIOD = 20, BPS_PERIOD = 104166; // Baud rate: 9600bps
+  localparam CLK_PERIOD = 20, BPS_PERIOD = 1041665; // Baud rate: 9600bps
 
   // simulated PC
   simPC PC = new(BPS_PERIOD);
@@ -143,14 +146,14 @@ module tb_soc;
     for (int w = 0; w < 206800; w ++)
       $fdisplay(fd, "[%d] : %d", w, $signed(soc.ram.memory[w]));
     for (int w = 0; w < 204900; w ++)
-      $fdisplay(fd, "[%d] : %d", w+206800, $signed(soc.dualram.memory[w]));
+      $fdisplay(fd, "[%d] : %h", w+206800, soc.dualram.memory[w]);
     $fdisplay(fd, "[buttom] : %d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
       $display(" [System]: Write log finished, file closed.");
   endtask
 
-  `ifdef Monitor
+  `ifdef ProgramMonitor
     // program monitor
     task moni;
       logic [31:0] inst;
@@ -217,19 +220,49 @@ module tb_soc;
     endtask
   `endif
 
-  // Prgram counter wave
-  logic [31:0] program_line;
-  assign program_line = soc.programaddress >> 2;
+  `ifdef PCMonitor
+    // Prgram counter wave
+    logic [31:0] program_line;
+    assign program_line = soc.programaddress >> 2;
+  `endif
 
   //----------------------------------------------------------------
   // test process
   //----------------------------------------------------------------
 
-  // pc monitor
+  // Monitors
   initial begin
-    @(program_line) 
-    if (program_line > 9)
-      $display(" [Core] PC: %d, time: %t", program_line, $time);
+    fork
+      // Program monitor
+      `ifdef ProgramMonitor
+        forever @(posedge soc.clkcore) moni;
+      `endif
+      // pc monitor
+      `ifdef PCMonitor
+        forever begin
+          @(program_line)
+          if (!(program_line <= 9) && !(809 <= program_line && program_line <= 829))
+            $display(" [Core] PC: %d, time: %t", program_line, $time);
+        end
+      `endif
+      // uart data monitor
+      `ifdef UARTinputMonitor
+        forever
+          @(posedge soc.uart.wram) 
+          $display(" [Uart] Write RAM[%d] = %h, time: %t", soc.uart.wramaddr, soc.uart.wramdata, $time);
+        forever begin
+          @(posedge soc.uart.wram) @(posedge soc.clkbps)
+          $display(" [Dual-RAM] mem[%d] = %h, time: %t", (soc.uart.wramaddr-206800-1), soc.dualram.memory[soc.uart.wramaddr-206800-1], $time);
+        end
+      `endif
+      // uart exception monitor
+      forever
+        @(soc.uart.state)
+        if (soc.uart.ramaddress == 411698) begin
+          $display(" [Uart] EXCEPTION: Unexpected data package, time: %t", $time);
+          $stop(1);
+        end
+    join
   end
   
   // system test init
@@ -241,30 +274,35 @@ module tb_soc;
 
   string 
     logdir = "./mem.log",
-    imgdir = "./algorithm/test.row";
+    imgdir = "../algorithm/test.row";
 
   // test start
   initial begin
-    `ifdef Monitor
-      fork forever @(posedge soc.clkcore) moni; join_none
-    `endif
+
     // program reset data memory file and soc init
     $display("\n [Test Process]: Program reset data memory file and soc init.\n");
-    #(0.68s);
+    #(0.2s);
     memlog(logdir, 1);
     // image row uart send
     PC.sendfile(imgdir, 1);
     memlog(logdir, 1);
     $display("\n [Test Process]: Ready for image process.\n");
+    for (int i = 0; i < 1026; i++) begin
+      $display(" [Dual-RAM] Address[%d] : Data[%h]", i, soc.dualram.memory[i]);
+    end
     $stop(1);
-    // start receive data
-    fork PC.receive(datai); join_none
-    // press key to execute encoding
-    key = 0; #(0.3s) key = 1;
-    $display("\n [Test Process]: Buttom key press.\n");
+    // CPU image process
+    fork 
+      // start listening to the data
+      PC.receive(datai); 
+      // press key to execute encoding
+      $display("\n [Test Process]: Buttom key press.\n");
+      key = 0; 
+      #(0.3s) key = 1;
+    join_none
     // check the program is entering main function
-    #(0.1s);
-    if (soc.riscvcore.programaddress > 3280)
+    #(0.16s); // buttom press vaild
+    if ((soc.programaddress >> 2) > 829)
       $display("\n [Core]: In main function.\n");
     else begin
       $display("\n [Core]: Warning: NOT in main function.\n");

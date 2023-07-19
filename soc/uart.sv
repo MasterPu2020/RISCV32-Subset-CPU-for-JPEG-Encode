@@ -2,6 +2,7 @@
 // SoC UART interface behavioural
 // Support: Single way data interchange.
 // Infor: Data must be the times of 32-bit.Yet no parity check
+// Allow separate file data pacakges
 // Last Modified Date: 2023/7/17
 // Version: 1.0
 // Author: Clark Pu
@@ -16,7 +17,7 @@ module uart (
 );
 
   // customized state machine
-  enum logic [5:0] {IDLE, RECEIVE, POSTRECEIVE, SEND, POSTSEND, EXCEPTION} state;
+  enum logic [5:0] {IDLE, RECEIVE, POSTRECEIVE, SEND, POSTSEND, CLEAR, EXCEPTION} state;
   // bit counter
   reg [7:0] bitcnt;
   // byte counter
@@ -40,7 +41,7 @@ module uart (
     wram = 0;
     datao = 1;
     case (state)
-      RECEIVE: ramaddress = wramaddr;
+      RECEIVE: ramaddress = wramaddr; // power saving
       POSTRECEIVE: begin
         ramaddress = wramaddr;
         if (bytecnt == 0)
@@ -50,10 +51,10 @@ module uart (
         ramaddress = rramaddr;
         datao = bytedata[0];
       end
-      POSTSEND: begin
-        ramaddress = rramaddr; // power saving
-        if (rramdata == 0 || rramdata == 'x)
-          wram = 1;
+      POSTSEND: ramaddress = rramaddr; // power saving
+      CLEAR: begin 
+        ramaddress = 411699; // clear progeam send reuqest
+        wram = 1;
       end
       EXCEPTION: begin 
         ramaddress = 411698; // write interruption code
@@ -72,7 +73,7 @@ module uart (
       rramaddr <= 0;
       bytedata <= 0;
     end
-    else 
+    else
       case (state)
         IDLE: begin
           if (rramdata == 1) begin // program write
@@ -129,7 +130,7 @@ module uart (
         POSTSEND: begin
           bitcnt <= 0;
           if (rramdata == 0 || rramdata == 'x) begin // next state, 'x not synthesisable
-            state <= IDLE;
+            state <= CLEAR;
             wramaddr <= 206800; // receive restart
           end
           else begin
@@ -148,8 +149,9 @@ module uart (
           else
             bytecnt <= bytecnt + 1;
         end
+        CLEAR: state <= IDLE;
         EXCEPTION: begin
-          state <= IDLE;
+          state <= CLEAR;
           bitcnt <= 0;
           bytecnt <= 0;
           wramdata <= 1; // write exception error code
