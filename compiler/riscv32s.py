@@ -10,11 +10,12 @@
 
 import sys
 
+
 # parameters:
-opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
-opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
-funct7 = ['0000000', '0000000', '0000000', '0000000', '0100000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '',        '']
-funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     '001',     '000',     '110',     '010',     '010',     '000',     '001',     '100',     '101']
+from compile import opcode
+from compile import opbin
+from compile import funct7
+from compile import funct3
 
 x = [0] * 32 # registers
 pc = 0
@@ -22,16 +23,7 @@ mem = [0] * 411710 # RAM
 freq = 50e6
 
 # Verilog style trancation
-def tranc(string:str, top:int, buttom:int=-1): 
-    assert len(string.replace('1','').replace('0','')) == 0, 'Simulator error: tranc string is not binary.'
-    assert top < len(string), 'Simulator error: top bit large than string size.'
-    assert buttom < top and buttom >= -1, 'Simulator error: top bit less than buttom bit.'
-    if buttom == -1:
-        return string[-top-1]
-    elif buttom != 0:
-        return string[-top-1:-buttom]
-    else:
-        return string[-top-1:]
+from compile import tranc
 
 # signed 32bit operation
 def op32(value:int):

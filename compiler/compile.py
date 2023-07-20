@@ -78,9 +78,9 @@ def is_int(string:str):
 
 # Verilog style trancation
 def tranc(string:str, top:int, buttom:int=-1): 
-    assert len(string.replace('1','').replace('0','')) == 0, 'Compiler error: tranc string is not binary.'
-    assert top < len(string), 'Compiler error: top bit large than string size.'
-    assert buttom < top and buttom >= -1, 'Compiler error: top bit less than buttom bit.'
+    assert len(string.replace('1','').replace('0','')) == 0, 'Trancation error: tranc string is not binary.'
+    assert top < len(string), 'Trancation error: top bit large than string size.'
+    assert buttom < top and buttom >= -1, 'Trancation error: top bit less than buttom bit.'
     if buttom == -1:
         return string[-top-1]
     elif buttom != 0:
