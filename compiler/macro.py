@@ -1,229 +1,15 @@
 # --------------------------------------------------------------------------
 # Using UTF-8
-# Title: RISCV32 Instrcutions Compile Script
-# Last Modified Date: 2023/7/6
+# Title: Assembly code generator
+# Last Modified Date: 2023/7/8
 # Version: 1.0
 # Author: Clark Pu
 # --------------------------------------------------------------------------
 
-#                                   RISC-V 32 Subset
-# +---------------------------------------------------------------------------------+
-# |31           25|24     20|19     15|14     12|11           7|6       0|   code   |
-# +---------------------------------------------------------------------------------+
-# |    0000000    |   rs2   |   rs1   |   000   |      rd      | 0110011 | [R] add  |
-# |    0000000    |   rs2   |   rs1   |   111   |      rd      | 0110011 | [R] and  |
-# |    0000000    |   rs2   |   rs1   |   110   |      rd      | 0110011 | [R] or   |
-# |    0000000    |   rs2   |   rs1   |   001   |      rd      | 0110011 | [R] sll  |
-# |    0100000    |   rs2   |   rs1   |   101   |      rd      | 0110011 | [R] sra  |
-# |    0000001    |   rs2   |   rs1   |   000   |      rd      | 0110011 | [R] mul  |
-# |    0000001    |   rs2   |   rs1   |   001   |      rd      | 0110011 | [R] mulh |
-# +---------------------------------------------------------------------------------+
-# |        imm[11:0]        |   rs1   |   000   |      rd      | 0010011 | [I] addi |
-# |        imm[11:0]        |   rs1   |   110   |      rd      | 0010011 | [I] xori |
-# |        imm[11:0]        |   rs1   |   010   |      rd      | 0000011 | [I] lw   |
-# +---------------------------------------------------------------------------------+
-# |    imm[11:5]  |   rs2   |   rs1   |   010   |   imm[4:0]   | 0100011 | [S] sw   |
-# +---------------------------------------------------------------------------------+
-# |  imm[12|10:5] |   rs2   |   rs1   |   000   |  imm[4:1|11] | 1100011 | [B] beq  |
-# |  imm[12|10:5] |   rs2   |   rs1   |   001   |  imm[4:1|11] | 1100011 | [B] bne  |
-# |  imm[12|10:5] |   rs2   |   rs1   |   100   |  imm[4:1|11] | 1100011 | [B] blt  |
-# |  imm[12|10:5] |   rs2   |   rs1   |   101   |  imm[4:1|11] | 1100011 | [B] bge  |
-# +---------------------------------------------------------------------------------+
-
-#   R  rs2 rs1 rd     
-#   I  imm rs1 rd     
-#   S  rs2 rs1 imm
-#   B  rs2 rs1 pc_imm 
-
-
+import compile
+import sys
+import os
 from collections import Counter
-
-# parameters:
-rtype = range(0,7)
-itype = range(7,10)
-stype = range(10,11)
-btype = range(11,15)
-opcode = [    'add',     'and',      'or',     'sll',     'sra',     'mul',    'mulh',    'addi',    'xori',      'lw',      'sw',     'beq',     'bne',     'blt',     'bge']
-opbin  = ['0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0110011', '0010011', '0010011', '0000011', '0100011', '1100011', '1100011', '1100011', '1100011']
-funct7 = ['0000000', '0000000', '0000000', '0000000', '0100000', '0000001', '0000001',        '',        '',        '',        '',        '',        '',        '',        '']
-funct3 = [    '000',     '111',     '110',     '001',     '101',     '000',     '001',     '000',     '110',     '010',     '010',     '000',     '001',     '100',     '101']
-
-# get integer's binary string
-def getbin(value, line, size:int=12):
-    value = int(value)
-    sizelow = -(2 ** int(size))
-    sizehigh = 2 ** (int(size)-1)
-    assert value in range(sizelow, sizehigh), 'At line '+str(line)+' : Imm Value Overflow: Value not match given size.'
-    if value < 0:
-        value_bin = bin(value+1)[3:].replace('0','x').replace('1','0').replace('x','1')
-        value_bin = '1'*(size-len(value_bin)) + value_bin
-    else:
-        value_bin = bin(value)[2:]
-        value_bin = '0'*(size-len(value_bin)) + value_bin
-    return value_bin
-
-# if it is a integer
-def is_int(string:str):
-    try:
-        int(string)
-        return True
-    except ValueError:
-        pass
-    return False
-
-# if it is a 12-bit signed integer
-def is_int12(string:str):
-    if is_int(string):
-        assert int(string) in range(-2**12, 2**12), 'ImmRangeError: '+string
-        return True
-    else:
-        return False
-
-# Verilog style trancation
-def tranc(string:str, top:int, buttom:int=-1): 
-    assert len(string.replace('1','').replace('0','')) == 0, 'Trancation error: tranc string is not binary.'
-    assert top < len(string), 'Trancation error: top bit large than string size.'
-    assert buttom < top and buttom >= -1, 'Trancation error: top bit less than buttom bit.'
-    if buttom == -1:
-        return string[-top-1]
-    elif buttom != 0:
-        return string[-top-1:-buttom]
-    else:
-        return string[-top-1:]
-
-# address type
-class address():
-    bin_file_line = 0
-    assem_file_line = 0
-    def __init__(self,size:int) -> None:
-        self.name_list = []
-        self.value_list = []
-        self.sizelow = -(2 ** int(size))
-        self.sizehigh = 2 ** (int(size)-1)
-        self.size = int(size)
-    def new(self, name:str, value:int):
-        if name[0] == 'x':
-            if is_int(name[1:]):
-                assert not (int(name[1:]) in range(0,31)), 'At line '+str(self.assem_file_line)+' : Variable name illegal.'
-        self.name_list.append(name)
-        self.value_list.append(int(value))
-    def bin(self, value:int):
-        return getbin(value, self.assem_file_line, self.size)
-    def search(self, name:str):
-        assert name in self.name_list, 'At line '+str(self.assem_file_line)+' : Variable name not defined.'
-        return self.value_list[self.name_list.index(name)]
-    def get(self, name:str, debug=False): # get imm for address offset for branch less than
-        addr = self.search(name)
-        value = (addr - self.bin_file_line) << 1
-        if debug:
-            print('offset:', value, 'name:', name, 'address:', addr, 'this line:', self.bin_file_line) # Debug
-        return self.bin(value)
-
-# compile the assembly code
-def compile(file:str, debug=False):
-
-    # from string get imm value
-    def get_imm(string:str):
-        if is_int(string):
-            return getbin(string, assem_file_line)
-        elif string[:2] == '0b':
-            immstring = string[:2]
-            return '0' * (12 - len(immstring)) + immstring
-        elif string[:2] == '0x':
-            immstring = bin(int(string[2:], 16))[2:]
-            return '0' * (12 - len(immstring)) + immstring
-        
-    def reg(string):
-        assert string[0] == 'x', 'At line '+str(assem_file_line)+' : Register name illegal.'
-        id = int(string[1:])
-        assert id in range(0,32), 'At line '+str(assem_file_line)+' : Register ID out of range.'
-        return '0'*(5-len(bin(id)[2:])) + bin(id)[2:]
-
-    addr12 = address(12)
-    machine_code = ''
-    assem_file_line = 0
-    bin_file_line = 0
-
-    assembly_code = file.split('\n')
-    # explain address macros
-    for lines in assembly_code:
-        if lines == '':
-            assem_file_line += 1
-            continue
-        line = lines.split()
-        assem_file_line += 1
-        addr12.assem_file_line = assem_file_line
-        if len(line) != 0:
-            if line[0] in opcode:
-                assert len(line) > 3, 'At line '+str(assem_file_line)+' : Expect 4 statement.'
-                bin_file_line += 1
-                addr12.bin_file_line = bin_file_line
-            # is 'goto' address macro
-            elif line[0][-1] == ':':
-                assert line[0][:-1] != '', 'At line '+str(assem_file_line)+' : address name empty.'
-                addr12.new(line[0][:-1],(bin_file_line))
-    
-    # compile file
-    assem_file_line = 0
-    bin_file_line = 0
-    for lines in assembly_code:
-        line = lines.split()
-        assem_file_line += 1
-        if len(line) != 0:
-            # is opcode
-            if line[0] in opcode:
-                # r type
-                if line[0] in opcode[0:7]:
-                    if debug:
-                        print('\n--------------------------------------')
-                    op_id = opcode.index(line[0])
-                    line_bin = funct7[op_id] + reg(line[1]) + reg(line[2]) + funct3[op_id] + reg(line[3]) + opbin[op_id]
-                    machine_code += line_bin + '\n'
-                    if debug:
-                        print(line, '\nCode:', line_bin) # Debug
-                # i type
-                elif line[0] in opcode[7:10]:
-                    if debug:
-                        print('\n--------------------------------------')
-                    op_id = opcode.index(line[0])
-                    imm = get_imm(line[1])
-                    line_bin = imm + reg(line[2]) + funct3[op_id] + reg(line[3]) + opbin[op_id]
-                    machine_code += line_bin + '\n'
-                    if debug:
-                        print(line, '\nimm:', imm, '\nCode:', line_bin) # Debug
-                # s type
-                elif line[0] == opcode[10]:
-                    if debug:
-                        print('\n--------------------------------------')
-                    op_id = opcode.index(line[0])
-                    imm = get_imm(line[3])
-                    line_bin = tranc(imm,11,5) + reg(line[1]) + reg(line[2]) + funct3[op_id] + tranc(imm,4,0) + opbin[op_id]
-                    machine_code += line_bin + '\n'
-                    if debug:
-                        print(line, '\nimm:', imm, '\nIMM:', tranc(imm,11,5), tranc(imm,4,0), '\nCode:', line_bin) # Debug
-                # b type
-                elif line[0] in opcode[11:]:
-                    if debug:
-                        print('\n--------------------------------------')
-                    op_id = opcode.index(line[0])
-                    if is_int(line[3]):
-                        imm = getbin(line[3]) + '0'
-                    else:
-                        imm = addr12.get(line[3], debug) + '0'
-                    line_bin = tranc(imm,12) + tranc(imm,10,5) + reg(line[1]) + reg(line[2]) + funct3[op_id] + tranc(imm,4,1) + tranc(imm,11) + opbin[op_id]
-                    machine_code += line_bin + '\n'
-                    if debug:
-                        print(line, '\nimm:', imm, '\nIMM:', tranc(imm,12), tranc(imm,10,5), tranc(imm,4,1), tranc(imm,11), '\nCode:', line_bin) # Debug
-
-                bin_file_line += 1
-                addr12.bin_file_line = bin_file_line
-                addr12.assem_file_line = assem_file_line
-
-    if debug:
-        print('\n--------------------------------------')
-        print('\nDefined Addr12:\n', addr12.name_list, '\n', addr12.value_list)
-    
-    return machine_code
 
 # register file
 class regfile():
@@ -326,6 +112,14 @@ class core():
         
 # Simulated riscv core for code optimization
 riscv = core(32, 50e6)
+
+# if it is a 12-bit signed integer
+def is_int12(string:str):
+    if compile.is_int(string):
+        assert int(string) in range(-2**12, 2**12), 'ImmRangeError: '+string
+        return True
+    else:
+        return False
 
 # translation of simple arithmetic opertation macro:
 def macro2assem(line:str):
@@ -450,7 +244,7 @@ def if2macro(text:str):
             elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
-                raise [AssertionError ['if statement error: line ' + str(line_id)]]
+                raise 'if statement error: line ' + str(line_id)
             line = line.replace(',', ' goto ' + ifmark[if_id], 1)
             assert 'goto' in line, 'if statement error: line ' + str(line_id) + '. need ,'
             if_id += 1
@@ -509,7 +303,7 @@ def while2macro(text:str):
             elif '!=' in line:
                 line = line.replace('!=','==', 1)
             else:
-                raise [AssertionError ['while statement error: line ' + str(line_id)]]
+                raise 'while statement error: line ' + str(line_id)
             line = line.replace(',', ' goto end' + headmark[head_id], 1)
             line = 'start' + headmark[head_id] + ':\n' + line
             assert 'goto' in line, 'while statement error: line ' + str(line_id) + '. need ,'
@@ -550,7 +344,7 @@ def int2macro(line:str, dontremove=False):
     # macro input style: x1 = 9999
     statement = line.split('//')[0].split()
     if len(statement) == 3:
-        if statement[0][0] == 'x' and statement[1] == '=' and is_int(statement[2]):
+        if statement[0][0] == 'x' and statement[1] == '=' and compile.is_int(statement[2]):
             sregd = statement[0]
             imm = int(statement[2])
             assert imm in range(-2**31, 2**31), 'Error: signed value given over than 32 bit.'
@@ -687,23 +481,125 @@ def long2macro(file:str):
         text += int2macro(line + '\n', True)
     return text
 
+# beta function: allocation of pc in assembly code file
+def allocate(file:str, pc:int):
+    file = genmem2macro(file)
+    file = long2macro(file)
+    file = if2macro(file)
+    file = while2macro(file)
+    file = demacro(file)
+    assemindex = 0
+    pcindex = -1
+    file = file.split('\n')
+    for line in file:
+        if line.split()[0] != '//' and line.split()[0][-1] != ':':
+            pcindex += 1
+        assemindex += 1
+        if pcindex == pc:
+            return assemindex
+
 # binary file to verilog memory code
-def bin2mem(binfile:str, mem=True):
-    binfile = binfile.split('\n')
+def bin2mem(filedir):
+    file = filedir + '.bin'
+    fileout = filedir + '.hex'
+    mem = True
+
+    with open(file, 'r') as binfile:
+        binfile = binfile.readlines()
     lineindex = 0
     maxlineindex = len(binfile)
     addresswidth = len(str(maxlineindex))
     newfiletext = ''
     for line in binfile:
-        if line == '':
-            continue
         line = hex(int(line, 2))[2:]
         line = '0'*(8-len(line)) + line
         if mem:
             line = 'assign memory[' + ' ' * (addresswidth - len(str(lineindex))) + str(lineindex) + "] = 32'h" + line.upper() + ';'
         else:
-            line = ' ' * (4-len(hex(lineindex << 2)[2:])) + hex(lineindex << 2)[2:].upper() + ' : ' + line.upper()
+            line = hex(lineindex << 2)[2:] + ' : ' + line
         newfiletext += line + '\n'
         lineindex += 1
         
-    return newfiletext
+    print('Verilog Code Maximum Address:', maxlineindex-1, '\n')
+
+    with open(fileout, 'w') as hexfile:
+        hexfile.write(newfiletext)
+
+
+# Main:
+if __name__ == '__main__':
+
+    confirm = 'y'
+    if len(sys.argv) <= 1: 
+        print('\n [Usage]: python  dust.py  filepath  (newfilepath)  +debug  +comment')
+        confirm = 'n'
+    else:
+        filepath = sys.argv[1]
+        if not os.path.exists(filepath):
+            print('\n Input file not exists. \n')
+            confirm = 'n'
+
+        newfilepath = None
+        try:
+            newfilepath = sys.argv[2]
+        except:
+            ValueError
+            pass
+        if newfilepath == None or newfilepath[0] == '+':
+            newfilepath = filepath.split('.s')[0] + '.bin'
+        if os.path.exists(newfilepath) and confirm == 'y':
+            confirm = input('\n Output file already exists. Overwirte? [y/n]:\n Enter: ')
+
+    debug = False
+    comment = False
+    for option in sys.argv:
+        if option == '+debug':
+            debug = True
+        if option == '+comment':
+            comment = True
+
+    # start here
+    if confirm == 'y':
+        with open(filepath, 'r') as thisfile:
+            thisfile = thisfile.read()
+        print('\n converting denfine to macro ...', end='')
+        thisfile = genmem2macro(thisfile, comment)
+
+        if debug:
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+        print('\r converting long int to macro ...', end='')
+        thisfile = long2macro(thisfile)
+
+        if debug:
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+        print('\r converting if statement to macro ...', end='')
+        thisfile = if2macro(thisfile)
+
+        if debug:
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+        print('\r converting while statement to macro ...', end='')
+        thisfile = while2macro(thisfile)
+
+        if debug:
+            with open(newfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+            input('\r [Pause] Enter to Continue               \n')
+        print('\r converting macro into assembly code ...  ', end='')
+        thisfile = demacro(thisfile, comment)
+        with open(newfilepath, 'w') as thisnewfile:
+            thisnewfile.write(thisfile)
+        if debug:
+            debugfilepath = filepath.split('.s')[0] + '_assembly.s'
+            with open(debugfilepath, 'w') as thisnewfile:
+                thisnewfile.write(thisfile)
+        
+        print('\r                                               ', end='')
+        compile.compile(newfilepath, newfilepath, debug)
+        bin2mem(filepath.split('.s')[0])
+        
+    else:
+        print('\n Giving up...\n')
+

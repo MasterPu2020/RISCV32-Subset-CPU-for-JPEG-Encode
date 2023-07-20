@@ -9,9 +9,14 @@
 
 
 import sys
+import interface as ui
 
 
 # parameters:
+from compile import rtype
+from compile import itype
+from compile import stype
+from compile import btype
 from compile import opcode
 from compile import opbin
 from compile import funct7
@@ -27,7 +32,7 @@ from compile import tranc
 
 # signed 32bit operation
 def op32(value:int):
-    value = int(value) & (2**32-1)
+    value = value & (2**32-1)
     value_bin = '0' * (32 - len(bin(value)[2:])) + bin(value)[2:]
     if value_bin[0] == '1':
         value = int(value_bin.replace('0','x').replace('1','0').replace('x','1'), 2) + 1

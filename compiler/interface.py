@@ -132,8 +132,9 @@ class boxs():
         boxwidth += self.indexspace * self.width
         for i in range(0, self.width):
             boxwidth += self.auto_dataspace(block, i)
-        top_bottom_line = self.leftcorner + self.topbuttom * (boxwidth - len(self.rightcorner) * 2) + self.rightcorner
-        lines.append(top_bottom_line)
+        if (self.topbuttom != ''):
+            top_bottom_line = self.leftcorner + self.topbuttom * (boxwidth - len(self.rightcorner) * 2) + self.rightcorner
+            lines.append(top_bottom_line)
         for y in range(0, self.height):
             line = self.left
             for x in range(0, self.width):
@@ -156,7 +157,8 @@ class boxs():
                     line += self.item2item
             line += self.right
             lines.append(line)
-        lines.append(top_bottom_line)
+        if (self.topbuttom != ''):
+            lines.append(top_bottom_line)
         insertwidth = boxwidth - len(self.rightcorner) * 2
         if len(self.insertline) != 0:
             i = 0
