@@ -287,7 +287,7 @@ class screens():
                     newtext += texts[i] + '\n'
         return newtext
   
-    def display(self):
+    def display(self, skip_input=False):
         self.clear()
         width = os.get_terminal_size().columns
         text = ''
@@ -314,8 +314,9 @@ class screens():
         # display
         print(text)
         self.infor = []
-        command = input(self.inputinfor)
-        return command
+        if not skip_input:
+            command = input(self.inputinfor)
+            return command
 
     # put text into infor
     def put(self, string:str='', appending:bool=False, append_offset:str='-1'):
