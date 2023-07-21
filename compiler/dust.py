@@ -10,6 +10,7 @@ import interface as ui
 import json
 import compile
 import os
+import time
 
 # parameters:
 from compile import rtype
@@ -264,6 +265,35 @@ class core():
         self.time += 1
         return 0
 
+    def runtime(self):
+        return round(self.time * self.period, 4)
+
+    def status(self):
+        text  = '[Core status]:\n'
+        text += '[Execution counter]:\n'
+        text += '  Add: ' + str(self.add_ ) + '\n'
+        text += '  And: ' + str(self.and_ ) + '\n'
+        text += '  Or : ' + str(self.or_ ) + '\n'
+        text += '  Sll: ' + str(self.sll_ ) + '\n'
+        text += '  Sra: ' + str(self.sra_ ) + '\n'
+        text += '  Mul: ' + str(self.mul_ ) + '\n'
+        text += ' Mulh: ' + str(self.mulh_) + '\n'
+        text += ' AddI: ' + str(self.addi_) + '\n'
+        text += ' XorI: ' + str(self.xori_) + '\n'
+        text += '   Lw: ' + str(self.lw_ ) + '\n'
+        text += '   Sw: ' + str(self.sw_ ) + '\n'
+        text += ' Beq True:  ' + str(self.beq_ture ) + '\n'
+        text += '     False: ' + str(self.beq_false) + '\n'
+        text += ' Bne True:  ' + str(self.bne_ture ) + '\n'
+        text += '     False: ' + str(self.bne_false) + '\n'
+        text += ' Blt True:  ' + str(self.blt_ture ) + '\n'
+        text += '     False: ' + str(self.blt_false) + '\n'
+        text += ' Bge True:  ' + str(self.bge_ture ) + '\n'
+        text += '     False: ' + str(self.bge_false) + '\n'
+        text += '[Total times]: ' + str(self.time) + '\n'
+        text += '[Sim time]:    ' + str(self.runtime()) + '\n'
+        return text
+
 # compile assembly code
 def compile2(f:str, type='b'):
     try:
@@ -473,6 +503,8 @@ if __name__ == '__main__':
     screen.put()
     # read code file
     file = ''
+    instructions = []
+    instlen = 0
     filetype = '-'
     filepath = ''
     savefile = False
@@ -486,293 +518,390 @@ if __name__ == '__main__':
     riscv = core(32,2048,25e6)
     # system status
     simulating = 'stopped'
+    systime = 0
+    goto_excutime = 0
+    excucounter = 0
+    show_core_status = False
     # program start
     key = dustkey()
     while True:
 
-        key.scan = screen.display()
-        # -------------------------------------
-        key.analysis()
-        # -------------------------------------
-        if key.result == 'quit':
-            screen.clear()
-            if savelog:
-                code, arg = savemem(wlogpath, riscv.mem)
-                if code == 0:
-                    print('[ memory log saved ]')
-                else:
-                    print('[ memory log saving failed: ]',arg)
-            if savefile:
-                code, arg = savecode(filepath, file, filetype)
-                if code == 0:
-                    print('[ file saved ]')
-                else:
-                    print('[ file saving failed: ]',arg)
-            exit('\n [ Process Finished ] \n')
-        elif key.result == 'help':
-            if key.len == 1:
-                screen.note('use help + system, memory, log, simulate, compile, file, to see in detail.')
-            elif key.words[1] in key.syskeywords:
-                screen.note(key.systemhelp)
-            elif key.words[1] in key.sysmem:
-                screen.note(key.memoryhelp)
-            elif key.words[1] in key.syslog:
-                screen.note(key.loghelp)
-            elif key.words[1] in key.sysfile:
-                screen.note(key.filehelp)
-            elif key.words[1] in key.syscompile:
-                screen.note(key.compilehelp)
-            elif key.words[1] in key.sysim:
-                screen.note(key.simulatehelp)
-            else:
-                screen.note('Unknown help command: use help + system, memory, log, simulate, compile, file')
-        elif key.result == 'log':
-            if key.len == 2 or key.len == 3:
-                if key.words[1] == 'filepath' or key.words[1] == 'fp':
-                    if key.len != 3:
-                        screen.note("use log filepath '/filepath/' : load the file path to save the log.")
-                    else:
-                        wlogpath = key.words[2]
-                elif key.words[1] == 'save':
-                    code, arg = savemem(wlogpath, riscv.mem)
-                    screen.note(arg)
-                elif key.words[1] == 'saveq':
-                    savelog = True
-                    screen.note("Log file will be saved after simulation or program quit.")
-            else:
-                screen.note('Log command unknown')
-                screen.note(key.loghelp, False)
-        elif key.result == 'mem':
-            if compile.is_int(key.words[0][3:]):
-                memindex = int(key.words[0][3:])
-                if memindex > 4:
-                    screen.note('Memory window cannot open more than 4. use mem(1~4)')
-            else:
-                memindex = 0
-            if key.len == 3 and compile.is_int(key.words[2]) and memindex != 0:
-                if key.words[1] == 'height':
-                    if memindex == 1:
-                        membox1.height = int(key.words[2])
-                    elif memindex == 2:
-                        membox2.height = int(key.words[2])
-                    elif memindex == 3:
-                        membox2.height = int(key.words[2])
-                    elif memindex == 4:
-                        membox4.height = int(key.words[2])
-                    screen.note('Memory window '+str(memindex)+' height adjust to ' + key.words[2])
-                elif key.words[1] == 'width':
-                    if memindex == 1:
-                        membox1.width = int(key.words[2])
-                    elif memindex == 2:
-                        membox2.width = int(key.words[2])
-                    elif memindex == 3:
-                        membox2.width = int(key.words[2])
-                    elif memindex == 4:
-                        membox4.width = int(key.words[2])
-                    screen.note('Memory window '+str(memindex)+' width adjust to ' + key.words[2])
-                elif key.words[1] == 'offset':
-                    if memindex == 1:
-                        membox1.indexoffset = int(key.words[2])
-                    elif memindex == 2:
-                        membox2.indexoffset = int(key.words[2])
-                    elif memindex == 3:
-                        membox2.indexoffset = int(key.words[2])
-                    elif memindex == 4:
-                        membox4.indexoffset = int(key.words[2])
-                    screen.note('Memory window '+str(memindex)+' offset adjust to ' + key.words[2])
-                elif key.words[1] == 'radix':
-                    if memindex == 1:
-                        membox1.indexformat = int(key.words[2])
-                    elif memindex == 2:
-                        membox2.indexformat = int(key.words[2])
-                    elif memindex == 3:
-                        membox2.indexformat = int(key.words[2])
-                    elif memindex == 4:
-                        membox4.indexformat = int(key.words[2])
-                    screen.note('Memory window '+str(memindex)+' address radix adjust to ' + key.words[2])
-                else:
-                    screen.note(key.memoryhelp)
-            elif key.len == 2:
-                if key.words[1] == 'add':
-                    if  key.memshow < 4:
-                        key.memshow += 1
-                        screen.note('Memory window add to '+str(key.memshow)+'.')
-                    else:
-                        screen.note('Memory window cannot open more than 4.')
-                elif key.words[1] == 'close':
-                    if  key.memshow != 0:
-                        key.memshow -= 1
-                        screen.note('Memory window closed to '+str(key.memshow)+'.')
-                    else:
-                        screen.note('All the memory window aleady been closed.')
-                elif key.words[1] == 'hide' and memindex != 0:
-                    if memindex == 1:
-                        membox1.hideindex = True
-                    elif memindex == 2:
-                        membox2.hideindex = True
-                    elif memindex == 3:
-                        membox2.hideindex = True
-                    elif memindex == 4:
-                        membox4.hideindex = True
-                    screen.note('Memory window '+str(memindex)+' address hidden.')
-                elif key.words[1] == 'show' and memindex != 0:
-                    if memindex == 1:
-                        membox1.hideindex = False
-                    elif memindex == 2:
-                        membox2.hideindex = False
-                    elif memindex == 3:
-                        membox2.hideindex = False
-                    elif memindex == 4:
-                        membox4.hideindex = False
-                    screen.note('Memory window '+str(memindex)+' address show.')
-                else:
-                    screen.note(key.memoryhelp)
-            else:
-                screen.note(key.memoryhelp)
-        elif key.result == 'clear':
-            screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
-        elif key.result == 'file':
-            if key.len == 2 or key.len == 3:
-                if key.words[1] == 'filepath' or key.words[1] == 'fp':
-                    if key.len != 3:
-                        screen.note("use file filepath '/filepath/' : load the file path to open the code file.")
-                    else:
-                        if os.path.isfile(key.words[2]) and '/' in key.words[2]:
-                            filepath = key.words[2]
-                            filetype = 'n'
-                            screen.note('File path added')
-                            if wlogpath == '':
-                                lps = key.words[2].split('/')
-                                lname = lps[-1].split('.')[0]
-                                for i in range(0,len(lps)-1):
-                                    wlogpath += lps[i] + '/'
-                                wlogpath += lname + '.log'
-                                screen.note('Log path auto-updated: ' + wlogpath, False)
-                        else:
-                            screen.note('File path not exist. (try add ./ )')
-                elif key.words[1] == 'type':
-                    if filetype == 'n':
-                        screen.note('New file, analysis required.')
-                    elif filetype == 'a':
-                        screen.note('Assembly code.')
-                    elif filetype == 'b':
-                        screen.note('Binary machine code.')
-                    elif filetype == 'h':
-                        screen.note('Hexdecimal machine code with address.')
-                    elif filetype == 'v':
-                        screen.note('Verilog memory code.')
-                    elif filetype == 'd':
-                        screen.note('Macro level assembly code.')
-                    else:
-                        screen.note('No file added. Please read a file first')
-                elif key.words[1] == 'save':
-                    code, arg = savecode(filepath, file, filetype)
-                    screen.note(arg)
-                elif key.words[1] == 'saveq':
-                    savefile = True
-                    screen.note("Code file will be saved after program quit.")
-                elif key.words[1] == 'read':
-                    if os.path.isfile(filepath):
-                        with open(filepath, 'r') as fcode:
-                            file = fcode.read()
-                        screen.put('\n [ R e a d   f i l e ] \n\n')
-                        screen.put(file)
-                        screen.note('File read.')
-                    else:
-                        screen.note('File path not exist. Try adding a new file path.')
-            else:
-                screen.note('File command unknown', False)
-                screen.note(key.filehelp, False)
-        elif key.result == 'compile':
-            if key.len == 2: 
-                if key.words[1] in ['d','a','b','h','v']:
-                    if file != '':
-                        code, arg = compile2(file, key.words[1])
-                        if code != 0:
-                            screen.put(file)
-                            screen.note('Compilation Failed: \n')
-                            screen.note('Compile File type: '+filetype+' to '+key.words[1]+'\n', False)
-                            screen.note(arg, False)
-                        else:
-                            screen.put('\n[ C O M P I L E   F I N I S H E D ]\n')
-                            screen.put(file)
-                            screen.put(arg, True)
-                            file = arg
-                            filetype = key.words[1]
-                            screen.note('Compilation finished.\n')
-                            screen.note('File type now is: '+filetype+'\n', False)
-                    else:
-                        screen.note('Compilation Exit: \n File should not be empty')
-                else:
-                    screen.note('Compilation Exit: \n Unknow Compilation type\n'+key.compilehelp)
-            else:
-                screen.note(key.compilehelp)
-        else:
-            screen.note('command unknown, try use help', False)
-        # -------------------------------------
-        # command execute
-        # -------------------------------------
-        screen.put()
+        #-------------------------------------
+        # Running simulation
+        #-------------------------------------
         if simulating == 'running':
-            screen.put(regbox.show(riscv.x))
-            screen.put()
+            if riscv.time >= goto_excutime:
+                simulating == 'pause'
+                excucounter = 0
+            else:
+                if riscv.pc < instlen:
+                    try:
+                        riscv.execute(instructions[riscv.pc])
+                    except BaseException as Argument:
+                        screen.note('\n[ Warning ]: Simulation Error\n' + Argument, False)
+                        simulating == 'pause'
+                        excucounter = 0
+                    if excucounter > 10000:
+                        excucounter = 0
+                    else:
+                        excucounter += 1
+                else:
+                    simulating == 'stopped'
+                    excucounter = 0
+        else:
+            key.scan = screen.display()
+            # -------------------------------------
+            key.analysis()
+            # -------------------------------------
+            if key.result == 'quit':
+                screen.clear()
+                if savelog:
+                    code, arg = savemem(wlogpath, riscv.mem)
+                    if code == 0:
+                        print('[ memory log saved ]')
+                    else:
+                        print('[ memory log saving failed: ]',arg)
+                if savefile:
+                    code, arg = savecode(filepath, file, filetype)
+                    if code == 0:
+                        print('[ file saved ]')
+                    else:
+                        print('[ file saving failed: ]',arg)
+                exit('\n [ Process Finished ] \n')
+            elif key.result == 'help':
+                if key.len == 1:
+                    screen.note('use help + system, memory, log, simulate, compile, file, to see in detail.')
+                elif key.words[1] in key.syskeywords:
+                    screen.note(key.systemhelp)
+                elif key.words[1] in key.sysmem:
+                    screen.note(key.memoryhelp)
+                elif key.words[1] in key.syslog:
+                    screen.note(key.loghelp)
+                elif key.words[1] in key.sysfile:
+                    screen.note(key.filehelp)
+                elif key.words[1] in key.syscompile:
+                    screen.note(key.compilehelp)
+                elif key.words[1] in key.sysim:
+                    screen.note(key.simulatehelp)
+                else:
+                    screen.note('Unknown help command: use help + system, memory, log, simulate, compile, file')
+            elif key.result == 'log':
+                if key.len == 2 or key.len == 3:
+                    if key.words[1] == 'filepath' or key.words[1] == 'fp':
+                        if key.len != 3:
+                            screen.note("use log filepath '/filepath/' : load the file path to save the log.")
+                        else:
+                            wlogpath = key.words[2]
+                    elif key.words[1] == 'save':
+                        code, arg = savemem(wlogpath, riscv.mem)
+                        screen.note(arg)
+                    elif key.words[1] == 'saveq':
+                        savelog = True
+                        screen.note("Log file will be saved after simulation or program quit.")
+                else:
+                    screen.note('Log command unknown')
+                    screen.note(key.loghelp, False)
+            elif key.result == 'mem':
+                if compile.is_int(key.words[0][3:]):
+                    memindex = int(key.words[0][3:])
+                    if memindex > 4:
+                        screen.note('Memory window cannot open more than 4. use mem(1~4)')
+                else:
+                    memindex = 0
+                if key.len == 3 and compile.is_int(key.words[2]) and memindex != 0:
+                    if key.words[1] == 'height':
+                        if memindex == 1:
+                            membox1.height = int(key.words[2])
+                        elif memindex == 2:
+                            membox2.height = int(key.words[2])
+                        elif memindex == 3:
+                            membox2.height = int(key.words[2])
+                        elif memindex == 4:
+                            membox4.height = int(key.words[2])
+                        screen.note('Memory window '+str(memindex)+' height adjust to ' + key.words[2])
+                    elif key.words[1] == 'width':
+                        if memindex == 1:
+                            membox1.width = int(key.words[2])
+                        elif memindex == 2:
+                            membox2.width = int(key.words[2])
+                        elif memindex == 3:
+                            membox2.width = int(key.words[2])
+                        elif memindex == 4:
+                            membox4.width = int(key.words[2])
+                        screen.note('Memory window '+str(memindex)+' width adjust to ' + key.words[2])
+                    elif key.words[1] == 'offset':
+                        if memindex == 1:
+                            membox1.indexoffset = int(key.words[2])
+                        elif memindex == 2:
+                            membox2.indexoffset = int(key.words[2])
+                        elif memindex == 3:
+                            membox2.indexoffset = int(key.words[2])
+                        elif memindex == 4:
+                            membox4.indexoffset = int(key.words[2])
+                        screen.note('Memory window '+str(memindex)+' offset adjust to ' + key.words[2])
+                    elif key.words[1] == 'radix':
+                        if memindex == 1:
+                            membox1.indexformat = int(key.words[2])
+                        elif memindex == 2:
+                            membox2.indexformat = int(key.words[2])
+                        elif memindex == 3:
+                            membox2.indexformat = int(key.words[2])
+                        elif memindex == 4:
+                            membox4.indexformat = int(key.words[2])
+                        screen.note('Memory window '+str(memindex)+' address radix adjust to ' + key.words[2])
+                    else:
+                        screen.note(key.memoryhelp)
+                elif key.len == 2:
+                    if key.words[1] == 'add':
+                        if  key.memshow < 4:
+                            key.memshow += 1
+                            screen.note('Memory window add to '+str(key.memshow)+'.')
+                        else:
+                            screen.note('Memory window cannot open more than 4.')
+                    elif key.words[1] == 'close':
+                        if  key.memshow != 0:
+                            key.memshow -= 1
+                            screen.note('Memory window closed to '+str(key.memshow)+'.')
+                        else:
+                            screen.note('All the memory window aleady been closed.')
+                    elif key.words[1] == 'hide' and memindex != 0:
+                        if memindex == 1:
+                            membox1.hideindex = True
+                        elif memindex == 2:
+                            membox2.hideindex = True
+                        elif memindex == 3:
+                            membox2.hideindex = True
+                        elif memindex == 4:
+                            membox4.hideindex = True
+                        screen.note('Memory window '+str(memindex)+' address hidden.')
+                    elif key.words[1] == 'show' and memindex != 0:
+                        if memindex == 1:
+                            membox1.hideindex = False
+                        elif memindex == 2:
+                            membox2.hideindex = False
+                        elif memindex == 3:
+                            membox2.hideindex = False
+                        elif memindex == 4:
+                            membox4.hideindex = False
+                        screen.note('Memory window '+str(memindex)+' address show.')
+                    else:
+                        screen.note(key.memoryhelp)
+                else:
+                    screen.note(key.memoryhelp)
+            elif key.result == 'clear':
+                screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
+            elif key.result == 'file':
+                if key.len == 2 or key.len == 3:
+                    if key.words[1] == 'filepath' or key.words[1] == 'fp':
+                        if key.len != 3:
+                            screen.note("use file filepath '/filepath/' : load the file path to open the code file.")
+                        else:
+                            if os.path.isfile(key.words[2]) and '/' in key.words[2]:
+                                filepath = key.words[2]
+                                screen.note('File path added')
+                                if wlogpath == '':
+                                    lps = key.words[2].split('/')
+                                    lname = lps[-1].split('.')[0]
+                                    for i in range(0,len(lps)-1):
+                                        wlogpath += lps[i] + '/'
+                                    wlogpath += lname + '.log'
+                                    screen.note('Log path auto-updated: ' + wlogpath, False)
+                                with open(filepath, 'r') as fcode:
+                                    file = fcode.read()
+                                screen.put('\n [ R e a d   f i l e ] \n\n')
+                                screen.put(file)
+                                screen.note('File read.', False)
+                                mark = filepath.split('.')[-1]
+                                if mark == 'bin':
+                                    filetype = 'b'
+                                elif mark == 'v' or mark == 'sv':
+                                    filetype = 'v'
+                                elif mark == 'hex':
+                                    filetype = 'h'
+                                else:
+                                    filetype = 'n'
+                                screen.note('File type: '+filetype, False)
+                            else:
+                                screen.note('File path not exist. (try add ./ )')
+                    elif key.words[1] == 'type':
+                        if filetype == 'n':
+                            screen.note('New file, analysis required.')
+                        elif filetype == 'a':
+                            screen.note('Assembly code.')
+                        elif filetype == 'b':
+                            screen.note('Binary machine code.')
+                        elif filetype == 'h':
+                            screen.note('Hexdecimal machine code with address.')
+                        elif filetype == 'v':
+                            screen.note('Verilog memory code.')
+                        elif filetype == 'd':
+                            screen.note('Macro level assembly code.')
+                        else:
+                            screen.note('No file added. Please read a file first')
+                    elif key.words[1] == 'save':
+                        code, arg = savecode(filepath, file, filetype)
+                        screen.note(arg)
+                    elif key.words[1] == 'saveq':
+                        savefile = True
+                        screen.note("Code file will be saved after program quit.")
+                    elif key.words[1] == 'read' or key.words[1] == 'r':
+                        if os.path.isfile(filepath):
+                            with open(filepath, 'r') as fcode:
+                                file = fcode.read()
+                            screen.put('\n [ R e a d   f i l e ] \n\n')
+                            screen.put(file)
+                            screen.note('File read.')
+                            mark = filepath.split('.')[-1]
+                            if mark == 'bin':
+                                filetype = 'b'
+                            elif mark == 'v' or mark == 'sv':
+                                filetype = 'v'
+                            elif mark == 'hex':
+                                filetype = 'h'
+                            else:
+                                filetype = 'n'
+                            screen.note('File type: '+filetype, False)
+                        else:
+                            screen.note('File path not exist. Try adding a new file path.')
+                else:
+                    screen.note('File command unknown', False)
+                    screen.note(key.filehelp, False)
+            elif key.result == 'compile':
+                if key.len == 2: 
+                    if key.words[1] in ['d','a','b','h','v']:
+                        if file != '':
+                            code, arg = compile2(file, key.words[1])
+                            if code != 0:
+                                screen.put(file)
+                                screen.note('Compilation Failed: \n')
+                                screen.note('Compile File type: '+filetype+' to '+key.words[1]+'\n', False)
+                                screen.note(arg, False)
+                            else:
+                                screen.put('\n[ C O M P I L E   F I N I S H E D ]\n')
+                                screen.put(file)
+                                screen.put(arg, True)
+                                file = arg
+                                filetype = key.words[1]
+                                screen.note('Compilation finished.\n')
+                                screen.note('File type now is: '+filetype+'\n', False)
+                        else:
+                            screen.note('Compilation Exit: \n File should not be empty')
+                    else:
+                        screen.note('Compilation Exit: \n Unknow Compilation type\n'+key.compilehelp)
+                else:
+                    screen.note(key.compilehelp)
+            elif key.result == 'sim':
+                if filetype == 'b':
+                    simulating = 'start'
+                    instructions = file.split()
+                    systime = time.mktime(time.localtime())
+                else:
+                    screen.note('Code file should be binary type, compile it first.')
+            elif simulating == 'start' or simulating == 'pause':
+                if key.words[0] == 'status':
+                    show_core_status = True
+                elif key.words[0] == 'simtime':
+                    try:
+                        goto_excutime = riscv.time + float(key.words[1]) * riscv.freq
+                    except BaseException as Argument:
+                        screen.note('Simtime usage error')
+                elif key.words[0] == 'run':
+                    try:
+                        goto_excutime = riscv.time + int(key.words[1])
+                    except BaseException as Argument:
+                        screen.note('Runtime usage error')
+                elif key.words[0] == 'None':
+                    goto_excutime = riscv.time + 1
+                    screen.note('Execute one instruction')
+                else:
+                    screen.note(key.simulatehelp)
+            else:
+                screen.note('command unknown, try use help', False)
 
-        if key.memshow == 1:
-            if simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
-            else:
-                screen.put(membox1.show(riscv.mem))
-        elif key.memshow == 2:
-            if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]))
-            elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(riscv.mem))
-            else:
-                screen.put(membox1.show(riscv.mem))
-                screen.put(membox2.show(riscv.mem))
-        elif key.memshow == 3:
-            if simulating == 'stopped' and len(logmem) >= 3:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
-            if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(riscv.mem))
-            elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
-            else:
-                screen.put(membox1.show(riscv.mem))
-                screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
-        elif key.memshow == 4:
-            if simulating == 'stopped' and len(logmem) >= 4:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
-                screen.put(membox4.show(logmem[3]), True)
-            if simulating == 'stopped' and len(logmem) >= 3:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
-                screen.put(membox4.show(riscv.mem), True)
-            if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(riscv.mem))
-                screen.put(membox4.show(riscv.mem), True)
-            elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
-                screen.put(membox4.show(riscv.mem), True)
-            else:
-                screen.put(membox1.show(riscv.mem))
-                screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
-                screen.put(membox4.show(riscv.mem), True)
-        screen.put()
+        # -------------------------------------
+        # screen information display
+        # -------------------------------------
+        
+        if excucounter == 0:
+            screen.put()
+            if simulating == 'running':
+                screen.put('[ S I M U L A T I O N   R U N N I N G ]')
+                screen.put(regbox.show(riscv.x))
+                screen.note('Core Infor: '+riscv.infor, False)
+                screen.put()
+            elif simulating == 'start':
+                screen.put('[ S I M U L A T I O N   S T A R T ]')
+                screen.put(riscv.status())
+                screen.put('Core Infor: '+riscv.infor)
+            elif simulating == 'pause':
+                screen.put('[ S I M U L A T I O N   P A U S E ]')
+                screen.put(regbox.show(riscv.x))
+                screen.note('Core Infor: '+riscv.infor, False)
+                screen.put()
+                if show_core_status:
+                    screen.put(riscv.status())
+                    show_core_status = False
+            
+            # keep running
+            if riscv.time < goto_excutime and simulating != 'stopped':
+                simulating == 'running'
+
+            if key.memshow == 1:
+                if simulating == 'stopped' and len(logmem) >= 1:
+                    screen.put(membox1.show(logmem[0]))
+                else:
+                    screen.put(membox1.show(riscv.mem))
+            elif key.memshow == 2:
+                if simulating == 'stopped' and len(logmem) >= 2:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]))
+                elif simulating == 'stopped' and len(logmem) >= 1:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(riscv.mem))
+                else:
+                    screen.put(membox1.show(riscv.mem))
+                    screen.put(membox2.show(riscv.mem))
+            elif key.memshow == 3:
+                if simulating == 'stopped' and len(logmem) >= 3:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]), True)
+                    screen.put(membox3.show(logmem[2]))
+                if simulating == 'stopped' and len(logmem) >= 2:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]), True)
+                    screen.put(membox3.show(riscv.mem))
+                elif simulating == 'stopped' and len(logmem) >= 1:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(riscv.mem), True)
+                    screen.put(membox3.show(riscv.mem))
+                else:
+                    screen.put(membox1.show(riscv.mem))
+                    screen.put(membox2.show(riscv.mem), True)
+                    screen.put(membox3.show(riscv.mem))
+            elif key.memshow == 4:
+                if simulating == 'stopped' and len(logmem) >= 4:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]), True)
+                    screen.put(membox3.show(logmem[2]))
+                    screen.put(membox4.show(logmem[3]), True)
+                if simulating == 'stopped' and len(logmem) >= 3:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]), True)
+                    screen.put(membox3.show(logmem[2]))
+                    screen.put(membox4.show(riscv.mem), True)
+                if simulating == 'stopped' and len(logmem) >= 2:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(logmem[1]), True)
+                    screen.put(membox3.show(riscv.mem))
+                    screen.put(membox4.show(riscv.mem), True)
+                elif simulating == 'stopped' and len(logmem) >= 1:
+                    screen.put(membox1.show(logmem[0]))
+                    screen.put(membox2.show(riscv.mem), True)
+                    screen.put(membox3.show(riscv.mem))
+                    screen.put(membox4.show(riscv.mem), True)
+                else:
+                    screen.put(membox1.show(riscv.mem))
+                    screen.put(membox2.show(riscv.mem), True)
+                    screen.put(membox3.show(riscv.mem))
+                    screen.put(membox4.show(riscv.mem), True)
+            screen.put()
