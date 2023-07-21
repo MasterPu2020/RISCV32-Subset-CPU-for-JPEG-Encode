@@ -318,9 +318,9 @@ def compile2(f:str, type='b'):
             return 0, v
         return 1, 'Type Error: no such file type, try: d, a, b, h, v.'
     except AssertionError as Argument:
-        return 1, Argument
+        return 1, str(Argument)
     except BaseException as Argument:
-        return 2, Argument
+        return 2, str(Argument)
 
 # Dust UI keywords
 class dustkey():
@@ -408,15 +408,67 @@ class dustkey():
 
 # user setting
 class setting():
+
     def __init__(self):
+        self.configp = './config.json'
         self.core = 'riscv32s'
         self.size = 32
         self.memsize = 2048 # RAM
         self.freq = 25e6
         self.memwidth = [8, 8, 8, 8]
-        self.memhight = [8, 8, 8, 8]
+        self.memheight = [8, 8, 8, 8]
         self.memoffset = [0, 0, 0, 0]
         self.memhideaddr = [False, False, False, False]
+        self.filepath = ''
+        self.wlogpath = ''
+        self.rlogpath = ['']
+
+    def preset(self):
+        if os.path.isfile(self.configp):
+            try:
+                with open(self.configp, 'r') as configf:
+                    c = json.load(configf)
+                self.core = c.get('core')
+                self.size = c.get('size')
+                self.memsize = c.get('memsize') # RAM
+                self.freq = c.get('freq')
+                self.memwidth = c.get('memwidth')
+                self.memheight = c.get('memheight')
+                self.memoffset = c.get('memoffset')
+                self.memhideaddr =  c.get('memhideaddr')
+                self.filepath = c.get('filepath')
+                self.wlogpath = c.get('wlogpath')
+                self.rlogpath = c.get('rlogpath')
+                for i in self.__dict__:
+                    assert i != None, 'Load setting failed: configuration items lackage.'
+                return "Load last configuration finished. \nIf you don't like it, just delete the config.json file\n"
+            except BaseException as Argument:
+                self.reset()
+                self.save()
+                return '\nLoad setting failed: ' + str(Argument)
+        else :
+            self.reset()
+            self.save()
+            return '\nLoad setting failed: config.json not exist'
+
+    def reset(self):
+        self.core = 'riscv32s'
+        self.size = 32
+        self.memsize = 2048 # RAM
+        self.freq = 25e6
+        self.memwidth = [8, 8, 8, 8]
+        self.memheight = [8, 8, 8, 8]
+        self.memoffset = [0, 0, 0, 0]
+        self.memhideaddr = [False, False, False, False]
+        self.filepath = ''
+        self.wlogpath = ''
+        self.rlogpath = ['']
+
+    def save(self):
+        newconfig = self.__dict__
+        with open(self.configp, 'w') as configf:
+            json.dump(newconfig, configf)
+        return
 
 # save mem as log
 def savemem(fp:str, mem:list):
@@ -435,9 +487,9 @@ def savemem(fp:str, mem:list):
             with open(fp, 'r+') as logp:
                 logp.write(text)
         except AssertionError as Argument:
-            return 1, Argument
+            return 1, str(Argument)
         except BaseException as Argument:
-            return 2, Argument
+            return 2, str(Argument)
         else:
             return 0, 'Log file saved at ' + fp
     return 0, 'Log file saving give up.'
@@ -485,76 +537,88 @@ if __name__ == '__main__':
     # ui setting
     config = setting()
     screen = ui.screens()
+    arg = config.preset()
+    screen.put('\n\nDust initiation infor:\n')
+    screen.put(arg)
     screen.topline = ' D U S T   C O M P I L E R   A N D   S I M U L A T O R '
     screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
     screen.bottomline = '[Input Command]:'
     regbox = ui.boxs(8,4,style='block')
     regbox.insert('[ Register File 32x32-bit ]', 0)
-    membox1 = ui.boxs(config.memwidth[0], config.memhight[0],config.memoffset[0], config.memhideaddr[0], style='outline')
+    membox1 = ui.boxs(config.memwidth[0], config.memheight[0],config.memoffset[0], config.memhideaddr[0], style='outline')
     membox1.insert('[ Memory File Block 1 ]', 0)
-    membox2 = ui.boxs(config.memwidth[1], config.memhight[1],config.memoffset[1], config.memhideaddr[1], style='outline')
+    membox2 = ui.boxs(config.memwidth[1], config.memheight[1],config.memoffset[1], config.memhideaddr[1], style='outline')
     membox2.insert('[ Memory File Block 2 ]', 0)
-    membox3 = ui.boxs(config.memwidth[2], config.memhight[2],config.memoffset[2], config.memhideaddr[2], style='outline')
+    membox3 = ui.boxs(config.memwidth[2], config.memheight[2],config.memoffset[2], config.memhideaddr[2], style='outline')
     membox3.insert('[ Memory File Block 3 ]', 0)
-    membox4 = ui.boxs(config.memwidth[3], config.memhight[3],config.memoffset[3], config.memhideaddr[3], style='outline')
+    membox4 = ui.boxs(config.memwidth[3], config.memheight[3],config.memoffset[3], config.memhideaddr[3], style='outline')
     membox4.insert('[ Memory File Block 4 ]', 0)
-    screen.put()
-    screen.put('Information area: use help to see command usage')
-    screen.put()
+    screen.put('\nInformation area: use help to see command usage')
+    screen.infor_edge = '+2'
     # read code file
     file = ''
     instructions = []
     instlen = 0
     filetype = '-'
-    filepath = ''
+    filepath = config.filepath
     savefile = False
     wlog = ''
-    wlogpath = ''
+    wlogpath = config.wlogpath
     rlog = ['']
-    rlogpath = ['']
+    rlogpath = config.rlogpath
     logmem = []
     savelog = False
     # simulation riscv core
-    riscv = core(32,2048,25e6)
+    riscv = core(config.size,config.memsize,config.freq)
     # system status
     simulating = 'stopped'
     systime = 0
     goto_excutime = 0
     excucounter = 0
     show_core_status = False
-    # program start
     key = dustkey()
+
+    #-------------------------------------
+    # program start
+    #-------------------------------------
+
     while True:
 
         #-------------------------------------
         # Running simulation
         #-------------------------------------
+
         if simulating == 'running':
             if riscv.time >= goto_excutime:
-                simulating == 'pause'
+                simulating = 'pause'
                 excucounter = 0
             else:
                 if riscv.pc < instlen:
                     try:
-                        riscv.execute(instructions[riscv.pc])
+                        code = riscv.execute(instructions[riscv.pc])
+                        assert code == 0, 'Execution failed.'
                     except BaseException as Argument:
                         screen.note('\n[ Warning ]: Simulation Error\n' + Argument, False)
                         simulating == 'pause'
                         excucounter = 0
-                    if excucounter > 10000:
+                    if excucounter > 100:
                         excucounter = 0
                     else:
                         excucounter += 1
                 else:
-                    simulating == 'stopped'
+                    simulating = 'stopped'
                     excucounter = 0
-        else:
+
+        # -------------------------------------
+        # Pause and input
+        # -------------------------------------
+
+        if simulating != 'running':
             key.scan = screen.display()
-            # -------------------------------------
             key.analysis()
-            # -------------------------------------
             if key.result == 'quit':
                 screen.clear()
+                print()
                 if savelog:
                     code, arg = savemem(wlogpath, riscv.mem)
                     if code == 0:
@@ -567,7 +631,16 @@ if __name__ == '__main__':
                         print('[ file saved ]')
                     else:
                         print('[ file saving failed: ]',arg)
-                exit('\n [ Process Finished ] \n')
+                config.memwidth = [membox1.width,membox2.width,membox3.width,membox4.width]
+                config.memheight = [membox1.height,membox2.height,membox3.height,membox4.height]
+                config.memoffset = [membox1.indexoffset,membox2.indexoffset,membox3.indexoffset,membox4.indexoffset]
+                config.memhideaddr = [membox1.hideindex,membox2.hideindex,membox3.hideindex,membox4.hideindex]
+                config.filepath = filepath
+                config.wlogpath = wlogpath
+                config.rlogpath = rlogpath
+                config.save()
+                print('[ Configuration saved ]')
+                exit('[ Process Finished ] \n')
             elif key.result == 'help':
                 if key.len == 1:
                     screen.note('use help + system, memory, log, simulate, compile, file, to see in detail.')
@@ -790,10 +863,11 @@ if __name__ == '__main__':
                         screen.note('Compilation Exit: \n Unknow Compilation type\n'+key.compilehelp)
                 else:
                     screen.note(key.compilehelp)
-            elif key.result == 'sim':
+            elif key.result == 'sim' and simulating == 'stopped':
                 if filetype == 'b':
                     simulating = 'start'
                     instructions = file.split()
+                    instlen = len(instructions)
                     systime = time.mktime(time.localtime())
                 else:
                     screen.note('Code file should be binary type, compile it first.')
@@ -823,29 +897,38 @@ if __name__ == '__main__':
         # -------------------------------------
         
         if excucounter == 0:
-            screen.put()
+
+            # display sim information
             if simulating == 'running':
-                screen.put('[ S I M U L A T I O N   R U N N I N G ]')
+                screen.put('\n[ S I M U L A T I O N   R U N N I N G ]\n\n')
                 screen.put(regbox.show(riscv.x))
-                screen.note('Core Infor: '+riscv.infor, False)
-                screen.put()
+                screen.note('Core Infor: '+riscv.infor)
+                text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
+                screen.put('Simulation time since start: '+text)
+                text = str(riscv.runtime()) + 's'
+                screen.put('Core simulation run time used: '+text)
+                text = str(round(riscv.period * goto_excutime,4)) + 's'
+                screen.put('Going to pause at:             '+text)
+                screen.display()
             elif simulating == 'start':
-                screen.put('[ S I M U L A T I O N   S T A R T ]')
+                screen.put('\n[ S I M U L A T I O N   S T A R T ]\n\n')
                 screen.put(riscv.status())
                 screen.put('Core Infor: '+riscv.infor)
+                screen.note('[ * * *  S I M U L A T I O N   S T A R T  * * * ]')
+                simulating = 'pause'
             elif simulating == 'pause':
-                screen.put('[ S I M U L A T I O N   P A U S E ]')
+                screen.put('\n[ S I M U L A T I O N   P A U S E ]\n\n')
                 screen.put(regbox.show(riscv.x))
                 screen.note('Core Infor: '+riscv.infor, False)
-                screen.put()
+                text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
+                screen.put('Simulation time since start: '+text)
+                text = str(riscv.runtime()) + 's'
+                screen.put('Core simulation run time used: '+text)
                 if show_core_status:
                     screen.put(riscv.status())
                     show_core_status = False
             
-            # keep running
-            if riscv.time < goto_excutime and simulating != 'stopped':
-                simulating == 'running'
-
+            # display membox
             if key.memshow == 1:
                 if simulating == 'stopped' and len(logmem) >= 1:
                     screen.put(membox1.show(logmem[0]))
@@ -904,4 +987,7 @@ if __name__ == '__main__':
                     screen.put(membox2.show(riscv.mem), True)
                     screen.put(membox3.show(riscv.mem))
                     screen.put(membox4.show(riscv.mem), True)
-            screen.put()
+            
+            # keep running
+            if riscv.time < goto_excutime and simulating != 'stopped':
+                simulating = 'running'

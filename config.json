@@ -1,0 +1,1 @@
+{"configp": "./config.json", "core": "riscv32s", "size": 32, "memsize": 2048, "freq": 25000000.0, "memwidth": [8, 8, 8, 8], "memheight": [8, 8, 8, 8], "memoffset": [0, 0, 0, 0], "memhideaddr": [false, false, false, false], "filepath": "./riscv/test.s", "wlogpath": "./riscv/test.log", "rlogpath": [""]}
