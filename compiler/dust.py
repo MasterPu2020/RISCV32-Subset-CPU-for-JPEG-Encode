@@ -265,11 +265,9 @@ class core():
         return 0
 
 # compile assembly code
-def compile2(fp:str, type='b'):
+def compile2(f:str, type='b'):
     try:
-        assert os.path.exists(fp), 'File not exsist.'
-        with open(fp, 'r') as f:
-            f = f.read()
+        assert f != '', 'Empty file.'
         f = compile.genmem2macro(f)
         f = compile.long2macro(f)
         f = compile.while2macro(f)
@@ -305,7 +303,7 @@ class dustkey():
         # keywords
         self.syslog = ['log', 'l', '-l', '+l', '-log', '+log']
         self.sysfile = ['file', 'f', '-f', '+f', '-file', '+file']
-        self.syscompile = ['compile', '-compile', '+compile', 'com', '-com', '+com']
+        self.syscompile = ['compile', '-compile', '+compile', 'com', '-com', '+com', 'c']
         self.sysim = ['simulate', '-simulate', '+simulate', 'sim', '-sim', '+sim']
         self.sysclear = ['clear', 'clean', 'empty']
         self.sysmem = ['mem1', 'mem2', 'mem3', 'mem4', 'mem', 'memory']
@@ -369,6 +367,12 @@ class dustkey():
                 self.result = 'log'
             elif self.words[0] in self.sysmem:
                 self.result = 'mem'
+            elif self.words[0] in self.sysfile:
+                self.result = 'file'
+            elif self.words[0] in self.syscompile:
+                self.result = 'compile'
+            elif self.words[0] in self.sysim:
+                self.result = 'sim'
             else:
                 self.result = 'unknow'
 
@@ -493,7 +497,7 @@ if __name__ == '__main__':
         if key.result == 'quit':
             screen.clear()
             if savelog:
-                code, arg = savemem(riscv.mem)
+                code, arg = savemem(wlogpath, riscv.mem)
                 if code == 0:
                     print('[ memory log saved ]')
                 else:
@@ -523,21 +527,21 @@ if __name__ == '__main__':
             else:
                 screen.note('Unknown help command: use help + system, memory, log, simulate, compile, file')
         elif key.result == 'log':
-            if key.len != 2 or key.len != 3:
-                screen.note(key.loghelp)
-            elif key.words[1] == 'filepath':
-                if key.len != 3:
-                    screen.note("use log filepath '/filepath/' : load the file path to save the log.")
-                else:
-                    logpath = key.words[2]
-            elif key.words == 'save':
-                code, arg = savemem(logpath)
-                screen.note(arg)
-            elif key.words == 'saveq':
-                savelog = True
-                screen.note("Log file will be saved after simulation or program quit.")
+            if key.len == 2 or key.len == 3:
+                if key.words[1] == 'filepath' or key.words[1] == 'fp':
+                    if key.len != 3:
+                        screen.note("use log filepath '/filepath/' : load the file path to save the log.")
+                    else:
+                        wlogpath = key.words[2]
+                elif key.words[1] == 'save':
+                    code, arg = savemem(wlogpath, riscv.mem)
+                    screen.note(arg)
+                elif key.words[1] == 'saveq':
+                    savelog = True
+                    screen.note("Log file will be saved after simulation or program quit.")
             else:
-                screen.note(key.loghelp)
+                screen.note('Log command unknown')
+                screen.note(key.loghelp, False)
         elif key.result == 'mem':
             if compile.is_int(key.words[0][3:]):
                 memindex = int(key.words[0][3:])
@@ -628,49 +632,83 @@ if __name__ == '__main__':
         elif key.result == 'clear':
             screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
         elif key.result == 'file':
-            if key.len != 2 or key.len != 3:
-                screen.note(key.filehelp)
-            elif key.words[1] == 'filepath':
-                if key.len != 3:
-                    screen.note("use file filepath '/filepath/' : load the file path to open the code file.")
-                else:
-                    if os.path.exists(key.words[2]) and '/' in key.words[2]:
-                        filepath = key.words[2]
-                        filetype = 'n'
-                        screen.note('File path added')
-                        if logpath == '':
-                            lps = key.words[2].split('/')
-                            lname = lps[-1].split('.')[0]
-                            for i in range(0,len(lps)-1):
-                                logpath += lps[i] + '/'
-                            logpath += lname + '.log'
-                            screen.note('Log path auto-updated: ' + logpath, False)
+            if key.len == 2 or key.len == 3:
+                if key.words[1] == 'filepath' or key.words[1] == 'fp':
+                    if key.len != 3:
+                        screen.note("use file filepath '/filepath/' : load the file path to open the code file.")
                     else:
-                        screen.note('File path not exist, try add ./')
-            elif key.words == 'type':
-                if filetype == 'n':
-                    screen.note('New file, analysis required.')
-                elif filetype == 'a':
-                    screen.note('Assembly code.')
-                elif filetype == 'b':
-                    screen.note('Binary machine code.')
-                elif filetype == 'h':
-                    screen.note('Hexdecimal machine code with address.')
-                elif filetype == 'v':
-                    screen.note('Verilog memory code.')
-                elif filetype == 'd':
-                    screen.note('Macro level assembly code.')
-                else:
-                    screen.note('No file added. Please read a file first')
-            elif key.words == 'save':
-                code, arg = savecode(filepath, file, filetype)
-                screen.note(arg)
-            elif key.words == 'saveq':
-                savefile = True
-                screen.note("Code file will be saved after program quit.")
+                        if os.path.isfile(key.words[2]) and '/' in key.words[2]:
+                            filepath = key.words[2]
+                            filetype = 'n'
+                            screen.note('File path added')
+                            if wlogpath == '':
+                                lps = key.words[2].split('/')
+                                lname = lps[-1].split('.')[0]
+                                for i in range(0,len(lps)-1):
+                                    wlogpath += lps[i] + '/'
+                                wlogpath += lname + '.log'
+                                screen.note('Log path auto-updated: ' + wlogpath, False)
+                        else:
+                            screen.note('File path not exist. (try add ./ )')
+                elif key.words[1] == 'type':
+                    if filetype == 'n':
+                        screen.note('New file, analysis required.')
+                    elif filetype == 'a':
+                        screen.note('Assembly code.')
+                    elif filetype == 'b':
+                        screen.note('Binary machine code.')
+                    elif filetype == 'h':
+                        screen.note('Hexdecimal machine code with address.')
+                    elif filetype == 'v':
+                        screen.note('Verilog memory code.')
+                    elif filetype == 'd':
+                        screen.note('Macro level assembly code.')
+                    else:
+                        screen.note('No file added. Please read a file first')
+                elif key.words[1] == 'save':
+                    code, arg = savecode(filepath, file, filetype)
+                    screen.note(arg)
+                elif key.words[1] == 'saveq':
+                    savefile = True
+                    screen.note("Code file will be saved after program quit.")
+                elif key.words[1] == 'read':
+                    if os.path.isfile(filepath):
+                        with open(filepath, 'r') as fcode:
+                            file = fcode.read()
+                        screen.put('\n [ R e a d   f i l e ] \n\n')
+                        screen.put(file)
+                        screen.note('File read.')
+                    else:
+                        screen.note('File path not exist. Try adding a new file path.')
             else:
-                screen.note(key.filehelp)
-
+                screen.note('File command unknown', False)
+                screen.note(key.filehelp, False)
+        elif key.result == 'compile':
+            if key.len == 2: 
+                if key.words[1] in ['d','a','b','h','v']:
+                    if file != '':
+                        code, arg = compile2(file, key.words[1])
+                        if code != 0:
+                            screen.put(file)
+                            screen.note('Compilation Failed: \n')
+                            screen.note('Compile File type: '+filetype+' to '+key.words[1]+'\n', False)
+                            screen.note(arg, False)
+                        else:
+                            screen.put('\n[ C O M P I L E   F I N I S H E D ]\n')
+                            screen.put(file)
+                            screen.put(arg, True)
+                            file = arg
+                            filetype = key.words[1]
+                            screen.note('Compilation finished.\n')
+                            screen.note('File type now is: '+filetype+'\n', False)
+                    else:
+                        screen.note('Compilation Exit: \n File should not be empty')
+                else:
+                    screen.note('Compilation Exit: \n Unknow Compilation type\n'+key.compilehelp)
+            else:
+                screen.note(key.compilehelp)
+        else:
+            screen.note('command unknown, try use help', False)
         # -------------------------------------
         # command execute
         # -------------------------------------
@@ -738,4 +776,3 @@ if __name__ == '__main__':
                 screen.put(membox3.show(riscv.mem))
                 screen.put(membox4.show(riscv.mem), True)
         screen.put()
-        # if simulating == 'running':

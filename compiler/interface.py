@@ -279,6 +279,12 @@ class screens():
                 newtext += line + '\n'
             if self.y_in_screen and i >= (height - 1):
                 break
+        if vlock and len(texts) > topspace + len(strings):
+            for i in range(topspace + len(strings), len(texts)):
+                if self.y_in_screen and i >= (height - 1):
+                    break
+                if texts[i] != '':
+                    newtext += texts[i] + '\n'
         return newtext
   
     def display(self):
