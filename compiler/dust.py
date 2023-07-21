@@ -341,6 +341,7 @@ class dustkey():
         self.sysclear = ['clear', 'clean', 'empty']
         self.sysmem = ['mem1', 'mem2', 'mem3', 'mem4', 'mem', 'memory']
         self.syscore = ['core', 'riscv', 'riscv32s', 'cpu']
+        self.sysreadlog = ['read', 'r', 'rlog', 'readlog', 'rl']
         self.memhideaddr = [False, False, False, False]
         self.memshow = 0
         self.memradix = [10, 10, 10, 10]
@@ -380,9 +381,9 @@ class dustkey():
                             "   + reset: reset the core\n"
                             '   + status: show CPU status.\n')
         self.readloghelp = ('readlog: This help you load your past RAM log and look at it in memory window:\n'
-                            "   + filepath + 'filepath': file path to reading the log.\n"
-                            '   + compare + number: find the different memory data between logs. number = 0 as this riscv memory\n'
-                            '   + saveq: save the log when simulation finished.\n')
+                            "   + 'filepath' : read the logged memory.\n"
+                            "   + clear : clear all the read memory log.\n"
+                            '   + compare + number1 + number2: find the different memory data between logs. number = 0 as this riscv memory\n')
         self.simulatehelp = ('simulate: Start simulation, when simulation is going, following command will be enabled:\n'
                             "   'empty': run a single execution.\n"
                             '   status: show CPU status.\n'
@@ -416,6 +417,10 @@ class dustkey():
                 self.result = 'compile'
             elif self.words[0] in self.sysim:
                 self.result = 'sim'
+            elif self.words[0] in self.syscore:
+                self.result = 'core'
+            elif self.words[0] in self.sysreadlog:
+                self.result = 'readlog'
             else:
                 self.result = 'unknow'
 
@@ -436,7 +441,7 @@ class setting():
         self.instructions = []
         self.instlen = 0
         self.wlogpath = ''
-        self.rlogpath = ['']
+        self.logmem = []
         self.memshow = 0
 
     def preset(self):
@@ -454,7 +459,7 @@ class setting():
                 self.memhideaddr =  c.get('memhideaddr')
                 self.filepath = c.get('filepath')
                 self.wlogpath = c.get('wlogpath')
-                self.rlogpath = c.get('rlogpath')
+                self.logmem = c.get('logmem')
                 self.instructions = c.get('instructions')
                 self.instlen = c.get('instlen')
                 self.memshow = c.get('memshow')
@@ -481,7 +486,7 @@ class setting():
         self.memhideaddr = [False, False, False, False]
         self.filepath = ''
         self.wlogpath = ''
-        self.rlogpath = ['']
+        self.logmem = []
         self.instructions = []
         self.instlen = 0
         self.memshow = 0
@@ -502,11 +507,11 @@ def savemem(fp:str, mem:list):
         screen.note('Log file already exist, do you want to over write? [y]')
         keyword = screen.display()
     if keyword == 'y':
-        text = '[RAM DATA LOG]: created by Dust compiler and simulator.\n'
+        text = '[RAM DATA LOG]: Created by Dust compiler and simulator.\n'
         for i in range(0, len(mem)):
-            text += '[' + str(i) + ']' + ':' + str(mem[i]) + '\n'
+            text += '[' + str(i) + ']' + ' : ' + str(mem[i]) + '\n'
         try:
-            with open(fp, 'r+') as logp:
+            with open(fp, 'w+') as logp:
                 logp.write(text)
         except AssertionError as Argument:
             return 1, str(Argument)
@@ -553,6 +558,22 @@ def savecode(fp:str, text:str, type='n'):
     else:
         return 0, 'File saving give up.'
 
+# read the logged memory
+def readmem(fp:str):
+    if os.path.isfile(fp):
+        with open(fp, 'r+') as logp:
+            texts = logp.readlines()
+        newmem = []
+        for line in texts:
+            try:
+                data = line.split(':')[-1]
+                if compile.is_int(data):
+                    newmem.append(int(data))
+            except BaseException as Argument:
+                return 1, 'Failed: '+str(Argument)
+        return 0, newmem
+    else:
+        return 1, 'File not exist.'
 
 # user interface
 if __name__ == '__main__':
@@ -586,9 +607,7 @@ if __name__ == '__main__':
     savefile = False
     wlog = ''
     wlogpath = config.wlogpath
-    rlog = ['']
-    rlogpath = config.rlogpath
-    logmem = []
+    logmem = config.logmem
     savelog = False
     # simulation riscv core
     riscv = core(config.size,config.memsize,config.freq)
@@ -599,6 +618,7 @@ if __name__ == '__main__':
     excucounter = 0
     show_core_status = False
     key = dustkey()
+    key.memshow = config.memshow
     # display membox
     def putmem():
         if key.memshow == 1:
@@ -695,7 +715,7 @@ if __name__ == '__main__':
                 config.memshow = key.memshow
                 config.filepath = filepath
                 config.wlogpath = wlogpath
-                config.rlogpath = rlogpath
+                config.logmem = logmem
                 config.instructions = instructions
                 config.instlen = instlen
                 config.save()
@@ -703,7 +723,7 @@ if __name__ == '__main__':
                 exit('[ Process Finished ] \n')
             elif key.result == 'help':
                 if key.len == 1:
-                    screen.note('use help + system, memory, log, simulate, compile, file, to see in detail.')
+                    screen.note('use help + system, memory, log, simulate, compile, file, core, readlog, to see in detail.')
                 elif key.words[1] in key.syskeywords:
                     screen.note(key.systemhelp)
                 elif key.words[1] in key.sysmem:
@@ -716,8 +736,12 @@ if __name__ == '__main__':
                     screen.note(key.compilehelp)
                 elif key.words[1] in key.sysim:
                     screen.note(key.simulatehelp)
+                elif key.words[1] in key.syscore:
+                    screen.note(key.corehelp)
+                elif key.words[1] in key.sysreadlog:
+                    screen.note(key.readloghelp)
                 else:
-                    screen.note('Unknown help command: use help + system, memory, log, simulate, compile, file')
+                    screen.note('Unknown help command: use help + system, memory, log, simulate, compile, file, core, readlog')
             elif key.result == 'log':
                 if key.len == 2 or key.len == 3:
                     if key.words[1] == 'filepath' or key.words[1] == 'fp':
@@ -938,6 +962,60 @@ if __name__ == '__main__':
                     screen.note('\n[Simulation Restart]\n\n')
                 else:
                     screen.note('Code file should be binary type, compile it first.')
+            elif key.result == 'core':
+                if key.len == 2:
+                    if key.words[1] == 'reset':
+                        riscv.reset()
+                        screen.put(riscv.status())
+                        screen.note('Core reset')
+                    elif key.words[1] == 'status':
+                        screen.put(riscv.status())
+                        screen.note('Core status')
+                    else:
+                        screen.note(key.corehelp)
+                else:
+                    screen.note(key.corehelp)
+            elif key.result == 'readlog':
+                if key.len == 2:
+                    if key.words[1] == 'clear':
+                        logmem = []
+                    else:
+                        code, arg = readmem(key.words[1])
+                        if code != 0:
+                            screen.note('Read log failed:' + arg)
+                        else:
+                            logmem.append(arg)
+                            screen.note('Read log finished')
+                elif key.len == 4:
+                    if key.words[1] == 'compare':
+                        try:
+                            index1 = int(key.words[2])
+                            index2 = int(key.words[3])
+                            if index1 != 0:
+                                comp1 = logmem[index1-1]
+                            else:
+                                comp1 = riscv.mem
+                            if index2 != 0:
+                                comp2 = logmem[index1-1]
+                            else:
+                                comp2 = riscv.mem
+                            assert len(comp1) == len(comp2), 'Memory size not match, no need to compare.'
+                        except BaseException as arg:
+                            screen.note('Read log command error:\n  '+str(arg))
+                        else:
+                            notmatch = False
+                            for i in range(0, len(comp1)):
+                                if comp1[i] != comp2[i]:
+                                    screen.put('Not Match: Address='+str(i)+', data1='+str(comp1[i])+', data2='+str(comp2[i]))
+                                    notmatch = True
+                            if notmatch:
+                                screen.note('Log Not Match. Result showing above.')
+                            else:
+                                screen.note('Matching. Congratulations!')
+                    else:
+                        screen.note(key.readloghelp)
+                else:
+                    screen.note(key.readloghelp)
             elif simulating == 'pause':
                 if key.words[0] == 'status':
                     show_core_status = True
