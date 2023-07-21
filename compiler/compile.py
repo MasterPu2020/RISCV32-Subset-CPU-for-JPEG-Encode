@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------
 # Using UTF-8
 # Title: RISCV32 Instrcutions Compile Script
-# Last Modified Date: 2023/7/6
-# Version: 1.0
+# Last Modified Date: 2023/7/20
+# Version: 2.0
 # Author: Clark Pu
 # --------------------------------------------------------------------------
 

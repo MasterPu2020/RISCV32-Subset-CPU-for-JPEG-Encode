@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------
 # Using UTF-8
 # Title: General User Interface
-# Last Modified Date: 2023/7/19
+# Last Modified Date: 2023/7/20
 # Version: 1.0
 # Author: Clark Pu
 # --------------------------------------------------------------------------
@@ -10,35 +10,6 @@ import os
 
 # print a list in a box style
 class boxs():
-
-    # format: 0 for original string. 10 for decimal, 16 for hexdecimal
-    hideindex = False
-    indexoffset = 0
-    indexformat = 10
-    dataformat = 0
-    # box size
-    width = 8
-    height = 4
-    # list item string space
-    indexspace = 0
-    # division mark: seperate list items
-    item2item = ''
-    index2data = ':'
-    # box side mark
-    topbuttom = ''
-    right = ''
-    left = ''
-    rightcorner = ''
-    leftcorner = ''
-    # display privilege
-    privilege = 0
-    # location
-    vertical = 0 # vertical output order
-    horizontal = 0 # space to left edge, or string of location
-
-    # insert line
-    insertline = []
-    insertlineindex = []
 
     def __init__(self, width:int, height:int, offset:int=0, hideindex=False, indexformat:int=10, dataformat:int=0, style:str='clean'):
         assert indexformat != 0, 'Error: index format cannot be zero.'
@@ -50,6 +21,27 @@ class boxs():
         self.height = height
         self.indexoffset = offset
         self.hideindex = hideindex
+        # format: 0 for original string. 10 for decimal, 16 for hexdecimal
+        # list item string space
+        self.indexspace = 0
+        # division mark: seperate list items
+        self.item2item = ''
+        self.index2data = ':'
+        # box side mark
+        self.topbuttom = ''
+        self.right = ''
+        self.left = ''
+        self.rightcorner = ''
+        self.leftcorner = ''
+        # display privilege
+        self.privilege = 0
+        # location
+        self.vertical = 0 # vertical output order
+        self.horizontal = 0 # space to left edge, or string of location
+
+        # insert line
+        self.insertline = []
+        self.insertlineindex = []
         if style == 'clean':
             self.item2item = ' | '
             self.index2data = ' : '
@@ -202,30 +194,26 @@ class boxs():
 # screen ui
 class screens():
 
-    divmark = '-' # area division mark
-    topline = ''
-    topline_edge = 'middle'
-    bottomline = ''
-    bottomline_edge = '+2'
-    inputinfor = ' > ' # at input line, text before input area
-    # general information area text, refresh after display
-    infor = []
-    infor_gap = 0
-    infor_edge = 'middle'
-    # console information area text
-    console = ''
-    console_edge = '+2'
-    # screen options
-    cover = False
-    enable_clear = True
-    y_in_screen = False
-    x_in_screen = True
-
     def __init__(self, enable_clear = True, cover = False, y_in_screen = False, x_in_screen = True):
+        # screen options
         self.enable_clear = enable_clear
         self.cover = cover
         self.y_in_screen = y_in_screen
         self.x_in_screen = x_in_screen
+        # area division mark
+        self.divmark = '-' 
+        self.topline = ''
+        self.topline_edge = 'middle'
+        self.bottomline = ''
+        self.bottomline_edge = '+2'
+        self.inputinfor = ' > ' # at input line, text before input area
+        # general information area text, refresh after display
+        self.infor = []
+        self.infor_gap = 0
+        self.infor_edge = 'middle'
+        # console information area text
+        self.console = ''
+        self.console_edge = '+2'
 
     def clear(self):
         if self.enable_clear:
@@ -306,10 +294,10 @@ class screens():
         # add infors
         for i in self.infor:
             text = self.add(i, text, self.infor_gap, False, self.infor_edge)
-        # division
-        if self.divmark != '':
-            text = self.add((self.divmark)*width+'\n', text)
-        # add console
+        if self.enable_clear:
+            for i in range(0,width-5):
+                text = self.add('\n', text, self.infor_gap, False, self.infor_edge)
+        # add console, always cover infor
         text = self.add(self.console, text, -3, False, self.console_edge, True)
         # division
         if self.divmark != '':
@@ -334,8 +322,8 @@ class screens():
         else:
             self.infor.append(string)
 
-    # update text in console
-    def note(self, string:str):
+    # put text in console
+    def note(self, string:str, clear=True):
         width = os.get_terminal_size().columns
         strings = string.split('\n')
         if (strings[-1] == ''):
@@ -346,7 +334,14 @@ class screens():
                 text += line[0:width] + '\n'
                 line = line[width:]
             text += line + '\n'
-        self.console = text
+        # division
+        if clear:
+            if self.divmark != '':
+                self.console = (self.divmark)*width +'\n'
+            else:
+                self.console = ''
+        self.console += text
+
 
 # input key words handling
 class keys():
@@ -356,9 +351,6 @@ class keys():
     result = ''
 
     sysquit = ['q', 'quit', 'exit']
-    sysrun = ['run', '+']
-    sysbox = ['box', 'b']
-    syscreen = ['screen', 's', 'output']
 
     def __init__(self):
         self.scan = ''
@@ -371,12 +363,6 @@ class keys():
             self.keywords = self.scan.split()
             if self.keywords[0] in self.sysquit:
                 self.result = 'quit'
-            elif self.keywords[0] in self.sysbox:
-                self.result = 'box'
-            elif self.keywords[0] in self.syscreen:
-                self.result = 'screen'
-            elif self.keywords[0] in self.sysrun:
-                self.result = 'run'
             else:
                 self.result = 'unknow keywords'
         
@@ -390,8 +376,8 @@ class keys():
 if __name__ == '__main__':
     # UI create
     screen = screens()
-    box1 = boxs(8,8,0,style='outline')
-    box2 = boxs(8,8,64,style='star')
+    box1 = boxs(4,4,0,style='outline')
+    box2 = boxs(8,8,64,style='block')
     key = keys()
     # UI preference
     screen.topline = 'U S E R    I N T E R F A C E'
