@@ -342,9 +342,6 @@ class dustkey():
         self.sysmem = ['mem1', 'mem2', 'mem3', 'mem4', 'mem', 'memory']
         self.syscore = ['core', 'riscv', 'riscv32s', 'cpu']
         self.sysreadlog = ['read', 'r', 'rlog', 'readlog', 'rl']
-        self.memhideaddr = [False, False, False, False]
-        self.memshow = 0
-        self.memradix = [10, 10, 10, 10]
         self.sysquit = ['q', 'quit', 'exit']
         self.syshelp = ['help', 'h', '-h', '-help', 'help:']
         self.syskeywords = ['sys', 'system']
@@ -357,7 +354,7 @@ class dustkey():
                             '   + width + number:  adjust the window horizontal size\n'
                             '   + add: open a new memory window\n'
                             '   + close: close last memory window\n'
-                            '   + radix + number:: adjust the radix of address\n'
+                            '   + radix + number: adjust the radix of address\n'
                             '   + offset + number: adjust the offset of address\n'
                             '   + hide: hide the address\n'
                             '   + show: show the address\n')
@@ -382,8 +379,9 @@ class dustkey():
                             '   + status: show CPU status.\n')
         self.readloghelp = ('readlog: This help you load your past RAM log and look at it in memory window:\n'
                             "   + 'filepath' : read the logged memory.\n"
-                            "   + clear : clear all the read memory log.\n"
-                            '   + compare + number1 + number2: find the different memory data between logs. number = 0 as this riscv memory\n')
+                            '   + clear : clear all the read memory log.\n'
+                            '   + load log-index start-address end-address to start-address end-address: load the logged memory fragments into riscv memory.\n'
+                            '   + compare + log-index1 + log-index2: find the different memory data between logs. number = 0 as this riscv memory\n')
         self.simulatehelp = ('simulate: Start simulation, when simulation is going, following command will be enabled:\n'
                             "   'empty': run a single execution.\n"
                             '   status: show CPU status.\n'
@@ -391,7 +389,6 @@ class dustkey():
                             '   simtime + second: keep running until core reach the simulated time.\n'
                             '   run + number: keep running until core executed the number of the instructions.\n'
                             "[Note: you won't be able to interrupt the running, try not to set simtime too long]\n")
-
 
     def analysis(self):
         if len(self.scan.split()) == 0:
@@ -422,13 +419,13 @@ class dustkey():
             elif self.words[0] in self.sysreadlog:
                 self.result = 'readlog'
             else:
-                self.result = 'unknow'
+                self.result = 'default'
 
 # user setting
 class setting():
 
     def __init__(self):
-        self.configp = './config.json'
+        self.configpath = './config.json'
         self.core = 'riscv32s'
         self.size = 32
         self.memsize = 2048 # RAM
@@ -443,11 +440,14 @@ class setting():
         self.wlogpath = ''
         self.logmem = []
         self.memshow = 0
+        self.memhideaddr = [False, False, False, False]
+        self.memshow = 0
+        self.memradix = [10, 10, 10, 10]
 
     def preset(self):
-        if os.path.isfile(self.configp):
+        if os.path.isfile(self.configpath):
             try:
-                with open(self.configp, 'r') as configf:
+                with open(self.configpath, 'r') as configf:
                     c = json.load(configf)
                 self.core = c.get('core')
                 self.size = c.get('size')
@@ -463,17 +463,20 @@ class setting():
                 self.instructions = c.get('instructions')
                 self.instlen = c.get('instlen')
                 self.memshow = c.get('memshow')
+                self.memhideaddr = [False, False, False, False]
+                self.memshow = 0
+                self.memradix = [10, 10, 10, 10]
                 for i in self.__dict__:
                     assert c.get(i) != None, 'Load setting failed: configuration items lackage.'
-                return "\nLoad last configuration finished. \nIf you don't like it, just delete the config.json file\n"
+                return "\nLoad last configuration finished. \n(In case if you don't like it, just delete the config.json file)\n\n"
             except BaseException as Argument:
                 self.reset()
                 self.save()
-                return '\nLoad setting failed: ' + str(Argument)
+                return '\nLoad setting failed: ' + str(Argument) + '\n\n'
         else :
             self.reset()
             self.save()
-            return '\nLoad setting failed: config.json not exist'
+            return '\nLoad setting failed: config.json not exist\n\n'
 
     def reset(self):
         self.core = 'riscv32s'
@@ -490,10 +493,13 @@ class setting():
         self.instructions = []
         self.instlen = 0
         self.memshow = 0
+        self.memhideaddr = [False, False, False, False]
+        self.memshow = 0
+        self.memradix = [10, 10, 10, 10]
 
     def save(self):
         newconfig = self.__dict__
-        with open(self.configp, 'w') as configf:
+        with open(self.configpath, 'w') as configf:
             json.dump(newconfig, configf)
         return
 
@@ -583,6 +589,8 @@ if __name__ == '__main__':
     arg = config.preset()
     screen.put('\n\nDust initiation infor:\n')
     screen.put(arg)
+    for text in config.__dict__:
+        screen.put(text+' : '+str(config.__dict__.get(text)))
     screen.topline = ' D U S T   C O M P I L E R   A N D   S I M U L A T O R '
     screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
     screen.bottomline = '[Input Command]:'
@@ -596,6 +604,15 @@ if __name__ == '__main__':
     membox3.insert('[ Memory File Block 3 ]', 0)
     membox4 = ui.boxs(config.memwidth[3], config.memheight[3],config.memoffset[3], config.memhideaddr[3], style='outline')
     membox4.insert('[ Memory File Block 4 ]', 0)
+    membox1.indexformat = config.memradix[0]
+    membox1.hideindex   = config.memhideaddr[0]
+    membox2.indexformat = config.memradix[1]
+    membox2.hideindex   = config.memhideaddr[1]
+    membox3.indexformat = config.memradix[2]
+    membox3.hideindex   = config.memhideaddr[2]
+    membox4.indexformat = config.memradix[3]
+    membox4.hideindex   = config.memhideaddr[3]
+    memshow = config.memshow
     screen.put('\nInformation area: use help to see command usage')
     screen.infor_edge = '+2'
     # read code file
@@ -618,42 +635,41 @@ if __name__ == '__main__':
     excucounter = 0
     show_core_status = False
     key = dustkey()
-    key.memshow = config.memshow
     # display membox
     def putmem():
-        if key.memshow == 1:
+        if memshow == 1:
             if simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
+                screen.put(membox1.show(logmem[0]),center=True)
             else:
-                screen.put(membox1.show(riscv.mem))
-        elif key.memshow == 2:
+                screen.put(membox1.show(riscv.mem),center=True)
+        elif memshow == 2:
             if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]))
+                screen.put(membox1.show(logmem[0]),center=True)
+                screen.put(membox2.show(logmem[1]),center=True)
             elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(riscv.mem))
+                screen.put(membox1.show(logmem[0]),center=True)
+                screen.put(membox2.show(riscv.mem),center=True)
             else:
-                screen.put(membox1.show(riscv.mem))
-                screen.put(membox2.show(riscv.mem))
-        elif key.memshow == 3:
+                screen.put(membox1.show(riscv.mem),center=True)
+                screen.put(membox2.show(riscv.mem),center=True)
+        elif memshow == 3:
             if simulating == 'stopped' and len(logmem) >= 3:
                 screen.put(membox1.show(logmem[0]))
                 screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
+                screen.put(membox3.show(logmem[2]),center=True)
             if simulating == 'stopped' and len(logmem) >= 2:
                 screen.put(membox1.show(logmem[0]))
                 screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(riscv.mem))
+                screen.put(membox3.show(riscv.mem),center=True)
             elif simulating == 'stopped' and len(logmem) >= 1:
                 screen.put(membox1.show(logmem[0]))
                 screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
+                screen.put(membox3.show(riscv.mem),center=True)
             else:
                 screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem))
-        elif key.memshow == 4:
+                screen.put(membox3.show(riscv.mem),center=True)
+        elif memshow == 4:
             if simulating == 'stopped' and len(logmem) >= 4:
                 screen.put(membox1.show(logmem[0]))
                 screen.put(membox2.show(logmem[1]), True)
@@ -708,18 +724,30 @@ if __name__ == '__main__':
                         print('[ file saved ]')
                     else:
                         print('[ file saving failed: ]',arg)
-                config.memwidth = [membox1.width,membox2.width,membox3.width,membox4.width]
-                config.memheight = [membox1.height,membox2.height,membox3.height,membox4.height]
-                config.memoffset = [membox1.indexoffset,membox2.indexoffset,membox3.indexoffset,membox4.indexoffset]
-                config.memhideaddr = [membox1.hideindex,membox2.hideindex,membox3.hideindex,membox4.hideindex]
-                config.memshow = key.memshow
-                config.filepath = filepath
-                config.wlogpath = wlogpath
-                config.logmem = logmem
-                config.instructions = instructions
-                config.instlen = instlen
-                config.save()
-                print('[ Configuration saved ]')
+                try:
+                    config.memwidth = [membox1.width,membox2.width,membox3.width,membox4.width]
+                    config.memheight = [membox1.height,membox2.height,membox3.height,membox4.height]
+                    config.memoffset = [membox1.indexoffset,membox2.indexoffset,membox3.indexoffset,membox4.indexoffset]
+                    config.memhideaddr = [membox1.hideindex,membox2.hideindex,membox3.hideindex,membox4.hideindex]
+                    config.memshow = memshow
+                    config.filepath = filepath
+                    config.wlogpath = wlogpath
+                    config.logmem = logmem
+                    config.instructions = instructions
+                    config.instlen = instlen
+                    config.memradix[0] = membox1.indexformat 
+                    config.memhideaddr[0] = membox1.hideindex  
+                    config.memradix[1] = membox2.indexformat 
+                    config.memhideaddr[1] = membox2.hideindex 
+                    config.memradix[2] = membox3.indexformat 
+                    config.memhideaddr[2] = membox3.hideindex 
+                    config.memradix[3] = membox4.indexformat
+                    config.memhideaddr[3] = membox4.hideindex
+                    config.save()
+                except BaseException as arg:
+                    print('[ Configuration failed ]: '+str(arg))
+                else:
+                    print('[ Configuration saved ]')
                 exit('[ Process Finished ] \n')
             elif key.result == 'help':
                 if key.len == 1:
@@ -806,19 +834,22 @@ if __name__ == '__main__':
                         elif memindex == 4:
                             membox4.indexformat = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' address radix adjust to ' + key.words[2])
+                    elif key.words[1] == 'size' and compile.is_int(key.words[2]):
+                        config.memsize = int(key.words[2])
+                        screen.note('RAM size set to '+key.words[2]+'. Restart Dust to apply setting.')
                     else:
                         screen.note(key.memoryhelp)
                 elif key.len == 2:
                     if key.words[1] == 'add':
-                        if  key.memshow < 4:
-                            key.memshow += 1
-                            screen.note('Memory window add to '+str(key.memshow)+'.')
+                        if  memshow < 4:
+                            memshow += 1
+                            screen.note('Memory window add to '+str(memshow)+'.')
                         else:
                             screen.note('Memory window cannot open more than 4.')
                     elif key.words[1] == 'close':
-                        if  key.memshow != 0:
-                            key.memshow -= 1
-                            screen.note('Memory window closed to '+str(key.memshow)+'.')
+                        if  memshow != 0:
+                            memshow -= 1
+                            screen.note('Memory window closed to '+str(memshow)+'.')
                         else:
                             screen.note('All the memory window aleady been closed.')
                     elif key.words[1] == 'hide' and memindex != 0:
@@ -846,6 +877,7 @@ if __name__ == '__main__':
                 else:
                     screen.note(key.memoryhelp)
             elif key.result == 'clear':
+                screen.put('\nInformation area: use help to see command usage')
                 screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
             elif key.result == 'file':
                 if key.len == 2 or key.len == 3:
@@ -1014,21 +1046,51 @@ if __name__ == '__main__':
                                 screen.note('Matching. Congratulations!')
                     else:
                         screen.note(key.readloghelp)
+                elif key.len == 8:
+                    if key.words[1] == 'load' and key.words[5] == 'to':
+                        try:
+                            m21 = int(key.words[6])
+                            m22 = int(key.words[7])
+                            m11 = int(key.words[2])
+                            m12 = int(key.words[3])
+                            index1 = int(key.words[2])
+                            assert m22 > m21, 'Core mem end address should less than start address'
+                            assert m12 > m11, 'Log file end address should less than start address'
+                            riscv.mem[m21:m22] = logmem[index1][m11:m12]
+                        except BaseException as arg:
+                            screen.put('Error use of load statment: '+ str(arg))
+                        else:
+                            for i in range(0,m22-m21):
+                                text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
+                                screen.put(text)
+                            screen.note('Finished.')
                 else:
-                    screen.note(key.readloghelp)
+                    screen.note('Error use of read log statement.\n'+key.readloghelp)
             elif simulating == 'pause':
                 if key.words[0] == 'status':
                     show_core_status = True
-                elif key.words[0] == 'simtime':
+                elif key.words[0] == 'simtime' or key.words[0] == '+' or key.words[0] == 'sim':
+                    unit = 1
+                    if key.len == 3:
+                        if key.words[2] == 's':
+                            unit = 1
+                        elif key.words[2] == 'ms':
+                            unit = 1e-3
+                        elif key.words[2] == 'us':
+                            unit = 1e-6
+                        elif key.words[2] == 'ns':
+                            unit = 1e-9
+                        elif key.words[2] == 'ps':
+                            unit = 1e-12
                     try:
-                        goto_excutime = riscv.time + float(key.words[1]) * riscv.freq
+                        goto_excutime = riscv.time + float(key.words[1]) * riscv.freq * unit
                     except BaseException as Argument:
-                        screen.note('Simtime usage error')
+                        screen.note('Simtime usage error: ' + str(Argument))
                 elif key.words[0] == 'run':
                     try:
                         goto_excutime = riscv.time + int(key.words[1])
                     except BaseException as Argument:
-                        screen.note('Runtime usage error')
+                        screen.note('Runtime usage error: ' + str(Argument))
                 elif key.words[0] == 'stop':
                     if savelog:
                         code, arg = savemem(wlogpath, riscv.mem)
@@ -1044,7 +1106,11 @@ if __name__ == '__main__':
                     screen.note('Execute one instruction')
                 else:
                     screen.note(key.simulatehelp)
+            elif key.result == 'default':
+                screen.put('\nInformation area: use help to see command usage')
+                screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
             else:
+                screen.put('\nInformation area: use help to see command usage')
                 screen.note('command unknown, try use help', False)
 
         #-------------------------------------
@@ -1054,30 +1120,31 @@ if __name__ == '__main__':
         if simulating != 'stopped':
             if riscv.pc >= instlen:
                 simulating = 'stopped'
-                screen.put('\n[Simulation Finished]\n\n')
+                screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
                 screen.put(riscv.status())
                 excucounter = 0
                 if savelog:
                     code, arg = savemem(wlogpath, riscv.mem)
                     if code == 0:
                         screen.put('[ memory log saved ]')
+                        savelog = False
                     else:
                         screen.put('[ memory log saving failed: ]',arg)
             else:
                 if riscv.time < goto_excutime:
                     try:
-                        code = riscv.execute(instructions[riscv.pc])
-                        assert code == 0, 'Execution failed.'
-                    except BaseException as Argument:
-                        screen.note('\n[ Warning ]: Simulation Error\n' + Argument, False)
-                        simulating == 'pause'
-                        excucounter = 0
-                    else:
                         simulating = 'running'
                         if excucounter > 10000:
                             excucounter = 0
                         else:
                             excucounter += 1
+                        code = riscv.execute(instructions[riscv.pc])
+                        assert code == 0, 'Execution failed.'
+                    except BaseException as Argument:
+                        screen.note('\n[ Warning ]: Simulation Error\n' + str(Argument), False)
+                        simulating == 'pause'
+                        excucounter = 0
+                        goto_excutime = riscv.time
                 else:
                     simulating = 'pause'
                     excucounter = 0
@@ -1090,7 +1157,7 @@ if __name__ == '__main__':
 
             # display sim information
             if simulating == 'running':
-                screen.put('\n[ S I M U L A T I O N   R U N N I N G ]\n\n')
+                screen.put('\n[ S I M U L A T I O N   R U N N I N G ]\n\n',center=True)
                 screen.put(regbox.show(riscv.x))
                 screen.note('Core Infor: '+riscv.infor)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
@@ -1103,9 +1170,9 @@ if __name__ == '__main__':
                 putmem()
                 screen.display(True)
             elif simulating == 'pause':
-                screen.put('\n[ S I M U L A T I O N   P A U S E ]\n\n')
+                screen.put('\n[ S I M U L A T I O N   P A U S E ]\n\n',center=True)
                 screen.put(regbox.show(riscv.x))
-                screen.note('Core Infor: '+riscv.infor)
+                screen.note('\nCore Infor: '+riscv.infor, False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
                 screen.put('Simulation time since start: '+text)
                 text = str(riscv.runtime()) + 's'
@@ -1118,4 +1185,3 @@ if __name__ == '__main__':
             else:
                 screen.put()
                 putmem()
-            

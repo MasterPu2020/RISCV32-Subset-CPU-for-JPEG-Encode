@@ -119,7 +119,7 @@ class address():
             print('offset:', value, 'name:', name, 'address:', addr, 'this line:', self.bin_file_line) # Debug
         return self.bin(value)
 
-# compile the assembly code
+# Compile the assembly code. Important base function
 def compile(file:str, debug=False):
 
     # from string get imm value
@@ -134,9 +134,10 @@ def compile(file:str, debug=False):
             return '0' * (12 - len(immstring)) + immstring
         
     def reg(string):
-        assert string[0] == 'x', 'At line '+str(assem_file_line)+' : Register name illegal.'
+        assert string[0] == 'x', 'At line '+str(assem_file_line)+' : Register name illegal: ' + string
+        assert is_int(string[1:]), 'At line '+str(assem_file_line)+' : Register name illegal: ' + string
         id = int(string[1:])
-        assert id in range(0,32), 'At line '+str(assem_file_line)+' : Register ID out of range.'
+        assert id in range(0,32), 'At line '+str(assem_file_line)+' : Register ID out of range: ' + string
         return '0'*(5-len(bin(id)[2:])) + bin(id)[2:]
 
     addr12 = address(12)
@@ -167,6 +168,8 @@ def compile(file:str, debug=False):
     assem_file_line = 0
     bin_file_line = 0
     for lines in assembly_code:
+        while '//' in lines:
+            lines = lines.split('//')[0]
         line = lines.split()
         assem_file_line += 1
         if len(line) != 0:

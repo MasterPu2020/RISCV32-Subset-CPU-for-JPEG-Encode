@@ -319,7 +319,7 @@ class screens():
             return command
 
     # put text into infor
-    def put(self, string:str='', appending:bool=False, append_offset:str='-1'):
+    def put(self, string:str='', appending:bool=False, append_offset:str='-1', center=False):
         if len(string) == 0:
             string += '\n'
         elif string[-1] != '\n':
@@ -327,7 +327,10 @@ class screens():
         if appending and len(self.infor) != 0:
             self.infor[-1] = self.add(string, self.infor[-1], 0, True, append_offset, self.cover)
         else:
-            self.infor.append(string)
+            if center:
+                self.infor.append(self.add(string, ''))
+            else:
+                self.infor.append(string)
 
     # put text in console
     def note(self, string:str, clear=True):
