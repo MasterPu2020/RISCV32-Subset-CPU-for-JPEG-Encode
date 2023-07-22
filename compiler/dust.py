@@ -695,8 +695,8 @@ if __name__ == '__main__':
                 screen.put(membox1.show(riscv.mem),center=True)
                 screen.put(membox2.show(logmem[0]),center=True)
             else:
-                screen.put(membox1.show(riscv.mem))
-                screen.put(membox2.show(riscv.mem),True)
+                screen.put(membox1.show(riscv.mem),center=True)
+                screen.put(membox2.show(riscv.mem),center=True)
         elif memshow == 3:
             if simulating == 'stopped' and len(logmem) >= 3:
                 screen.put(membox1.show(logmem[2]))
@@ -1087,6 +1087,9 @@ if __name__ == '__main__':
                         screen.note(text)
                         for i in range(0,m22-m21):
                             text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
+                            if i > 25:
+                                screen.put('...')
+                                break
                             screen.put(text)
                     else:
                         code, arg = readmem(key.words[1])
@@ -1094,6 +1097,9 @@ if __name__ == '__main__':
                             screen.note('Read log failed:' + arg)
                         else:
                             for i in range(0, len(arg)):
+                                if i > 25:
+                                    screen.put('...')
+                                    break
                                 text = 'Address: ' + str(i) + ' Data: ' + str(arg[i])
                                 screen.put(text)
                             logmem.append(arg)
@@ -1160,6 +1166,9 @@ if __name__ == '__main__':
                             config.readlogload[4] = index1
                             for i in range(0,m22-m21):
                                 text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
+                                if i > 25:
+                                    screen.put('...')
+                                    break
                                 screen.put(text)
                 else:
                     screen.note('Error use of read log statement.\n'+key.readloghelp)
