@@ -1,3 +1,12 @@
+# -------------------------------------
+# Using UTF-8
+# Last Modified Date: 2023/7/22
+# Python Image JPEG mini encode manual assembly macro style code
+# Integer Operation Only Version
+# Version 7.2
+# Author: Clark Pu
+# -------------------------------------
+
 mem0_11 = [0, 2, 3, 4, 5, 6, 14, 30, 62, 126, 254, 510]
 mem12_23 = [2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9]
 mem24_274 = [
@@ -87,7 +96,7 @@ def mulh(rs1, rs2):
 def mul(rs1, rs2):
     return (rs1 * rs2)
 
-mem = [0] * 411600
+mem = [0] * 411700
 x0 = 0
 huffman_bit_stack = [0]
 
@@ -881,7 +890,11 @@ for nonezero in mem[206800:]:
     else:
         break
 print(huffman_bit_stack)
+
+# ------------------------------------------------------------------
 # String process, only for simulation usage
+# ------------------------------------------------------------------
+
 hex_huffman_string = ''
 for double_word in huffman_bit_stack:
     hex_huffman_string += '0' * (8 - len(hex(double_word)[2:])) + hex(double_word)[2:].upper()
@@ -922,3 +935,10 @@ import base64
 file_code = base64.b16decode(file_hex)
 with open('main.jpg', 'wb') as output_file:
     output_file.write(file_code)
+
+# ------------------------------------------------------------------
+# Generate Dust style memory log
+# ------------------------------------------------------------------
+
+from image2row import dustlog
+dustlog('./algorithm/main.log', mem)

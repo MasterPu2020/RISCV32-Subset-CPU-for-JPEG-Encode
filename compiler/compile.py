@@ -390,7 +390,7 @@ def macro2assem(line:str):
             rs2 = macro.split(op)[1].split('goto')[0]
             op = opcode[3][opsign[3].index(op)]
             return op + ' ' + rs2 + ' ' + rs1 + ' ' + linemark + comment + '\n'
-    return line + '\n'
+    return line.lstrip() + '\n'
 
 # translate the macros into assembly code:
 def demacro(file:str):

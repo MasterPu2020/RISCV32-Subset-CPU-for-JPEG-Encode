@@ -1,9 +1,9 @@
 
 # -------------------------------------
 # Using UTF-8
-# Last Modified Date: 2023/7/4
+# Last Modified Date: 2023/7/22
 # Python Image to ROW data
-# Version: 1.0
+# Version: 1.1
 # Author: Clark Pu
 # -------------------------------------
 
@@ -13,7 +13,6 @@
 # +---------------------------------------------------+
 # | 8-bit Zero | 8-bit Red | 8-bit Green | 8-bit Blue |
 # +---------------------------------------------------+
-
 
 from PIL import Image
 import base64
@@ -39,11 +38,22 @@ def convert(file):
 
     # base64 encode
     hexcode = ''
-    for doubleword in row_img:
-        hexcode += '0' * (8 - len(hex(doubleword)[2:])) + hex(doubleword)[2:].upper() # + '\n'
+    for word in row_img:
+        hexcode += '0' * (8 - len(hex(word)[2:])) + hex(word)[2:].upper() # + '\n'
     row_data = base64.b16decode(hexcode)
     with open(file[:-4]+'.row', 'wb') as output_img:
         output_img.write(row_data)
     print('\r [ROW file Created]                        \n')
+    return row_img
 
-convert('./algorithm/test.bmp')
+def dustlog(fp:str, mem:list):
+    text = ''
+    for i in range(0, len(mem)):
+        text += '[' + str(i) + ']' + ' : ' + str(mem[i]) + '\n'
+
+    with open(fp, 'w+') as logp:
+        logp.write(text)
+
+if __name__ == '__main__':
+    row = convert('./algorithm/test.bmp')
+    dustlog('./algorithm/test.log', row)

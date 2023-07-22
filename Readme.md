@@ -3,9 +3,8 @@
 
 ## Compiler and Simulator Usage
 
-    python .\compiler\dust.py file
-    python .\compiler\compile.py file
-    python .\simulator\riscv32s.py file +pause
+    python .\compiler\dust.py
+    mem size 411700
 
 ## RISC-V 32 Subset
 

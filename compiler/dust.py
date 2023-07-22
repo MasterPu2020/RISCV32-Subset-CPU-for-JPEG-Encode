@@ -260,7 +260,7 @@ class core():
                 self.pc += 1
                 self.bge_false += 1
         else:
-            self.infor = 'Execution Failed'
+            self.infor = 'Opcode type not find'
             return 1
         self.time += 1
         return 0
@@ -357,7 +357,8 @@ class dustkey():
                             '   + radix + number: adjust the radix of address\n'
                             '   + offset + number: adjust the offset of address\n'
                             '   + hide: hide the address\n'
-                            '   + show: show the address\n')
+                            '   + show: show the address\n'
+                            '   + size: set the core memory size\n')
         self.loghelp = ('log: This help you save the whole RAM data into a log file:\n'
                             "   + filepath + 'filepath': file path to save the log.\n"
                             '   + save: save the log file.\n'
@@ -419,7 +420,7 @@ class dustkey():
             elif self.words[0] in self.sysreadlog:
                 self.result = 'readlog'
             else:
-                self.result = 'default'
+                self.result = 'unknown'
 
 # user setting
 class setting():
@@ -441,8 +442,8 @@ class setting():
         self.logmem = []
         self.memshow = 0
         self.memhideaddr = [False, False, False, False]
-        self.memshow = 0
         self.memradix = [10, 10, 10, 10]
+        self.show_core_status = False
 
     def preset(self):
         if os.path.isfile(self.configpath):
@@ -463,16 +464,16 @@ class setting():
                 self.instructions = c.get('instructions')
                 self.instlen = c.get('instlen')
                 self.memshow = c.get('memshow')
-                self.memhideaddr = [False, False, False, False]
-                self.memshow = 0
-                self.memradix = [10, 10, 10, 10]
+                self.show_core_status = c.get('show_core_status')
+                self.memhideaddr = c.get('memhideaddr')
+                self.memradix = c.get('memradix')
                 for i in self.__dict__:
                     assert c.get(i) != None, 'Load setting failed: configuration items lackage.'
                 return "\nLoad last configuration finished. \n(In case if you don't like it, just delete the config.json file)\n\n"
             except BaseException as Argument:
                 self.reset()
                 self.save()
-                return '\nLoad setting failed: ' + str(Argument) + '\n\n'
+                return '\nLoad setting failed:\n ' + str(Argument) + '\n\n'
         else :
             self.reset()
             self.save()
@@ -494,8 +495,8 @@ class setting():
         self.instlen = 0
         self.memshow = 0
         self.memhideaddr = [False, False, False, False]
-        self.memshow = 0
         self.memradix = [10, 10, 10, 10]
+        self.show_core_status = False
 
     def save(self):
         newconfig = self.__dict__
@@ -590,7 +591,7 @@ if __name__ == '__main__':
     screen.put('\n\nDust initiation infor:\n')
     screen.put(arg)
     for text in config.__dict__:
-        screen.put(text+' : '+str(config.__dict__.get(text)))
+        screen.put(' > '+text+' : '+str(config.__dict__.get(text)))
     screen.topline = ' D U S T   C O M P I L E R   A N D   S I M U L A T O R '
     screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
     screen.bottomline = '[Input Command]:'
@@ -743,6 +744,7 @@ if __name__ == '__main__':
                     config.memhideaddr[2] = membox3.hideindex 
                     config.memradix[3] = membox4.indexformat
                     config.memhideaddr[3] = membox4.hideindex
+                    config.show_core_status = show_core_status
                     config.save()
                 except BaseException as arg:
                     print('[ Configuration failed ]: '+str(arg))
@@ -834,11 +836,11 @@ if __name__ == '__main__':
                         elif memindex == 4:
                             membox4.indexformat = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' address radix adjust to ' + key.words[2])
-                    elif key.words[1] == 'size' and compile.is_int(key.words[2]):
-                        config.memsize = int(key.words[2])
-                        screen.note('RAM size set to '+key.words[2]+'. Restart Dust to apply setting.')
                     else:
                         screen.note(key.memoryhelp)
+                elif key.len == 3 and key.words[1] == 'size' and compile.is_int(key.words[2]):
+                    config.memsize = int(key.words[2])
+                    screen.note('RAM size set to '+key.words[2]+'. Restart Dust to apply setting.')
                 elif key.len == 2:
                     if key.words[1] == 'add':
                         if  memshow < 4:
@@ -966,7 +968,7 @@ if __name__ == '__main__':
                                 screen.note('Compile File type: '+filetype+' to '+key.words[1]+'\n', False)
                                 screen.note(arg, False)
                             else:
-                                screen.put('\n[ C O M P I L E   F I N I S H E D ]\n')
+                                screen.put('\n[ C O M P I L E   F I N I S H E D ]\n\n',center=True)
                                 screen.put(file)
                                 screen.put(arg, True)
                                 file = arg
@@ -1068,7 +1070,7 @@ if __name__ == '__main__':
                     screen.note('Error use of read log statement.\n'+key.readloghelp)
             elif simulating == 'pause':
                 if key.words[0] == 'status':
-                    show_core_status = True
+                    show_core_status = not show_core_status
                 elif key.words[0] == 'simtime' or key.words[0] == '+' or key.words[0] == 'sim':
                     unit = 1
                     if key.len == 3:
@@ -1119,6 +1121,7 @@ if __name__ == '__main__':
 
         if simulating != 'stopped':
             if riscv.pc >= instlen:
+                siminfor = ' Simulation finished.'
                 simulating = 'stopped'
                 screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
                 screen.put(riscv.status())
@@ -1139,13 +1142,20 @@ if __name__ == '__main__':
                         else:
                             excucounter += 1
                         code = riscv.execute(instructions[riscv.pc])
-                        assert code == 0, 'Execution failed.'
+                        assert code == 0, 'Core report error: ' + riscv.infor
+                        siminfor = 'Simulation running'
+                    except IndexError as Argument:
+                        riscv.infor = 'Execution failed due to memory size: ' + str(Argument)
+                        simulating == 'pause'
+                        excucounter = 0
+                        goto_excutime = riscv.time
                     except BaseException as Argument:
-                        screen.note('\n[ Warning ]: Simulation Error\n' + str(Argument), False)
+                        riscv.infor = 'Execution failed due to environment: ' + str(Argument)
                         simulating == 'pause'
                         excucounter = 0
                         goto_excutime = riscv.time
                 else:
+                    siminfor = 'Simulation pause'
                     simulating = 'pause'
                     excucounter = 0
 
@@ -1158,28 +1168,37 @@ if __name__ == '__main__':
             # display sim information
             if simulating == 'running':
                 screen.put('\n[ S I M U L A T I O N   R U N N I N G ]\n\n',center=True)
-                screen.put(regbox.show(riscv.x))
-                screen.note('Core Infor: '+riscv.infor)
+                if show_core_status:
+                    text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    text = 'Total instructions: '+str(instlen) + '\n' + text
+                    screen.put(text,center=True)
+                else:
+                    screen.put(regbox.show(riscv.x),center=True)
+                screen.note(siminfor)
+                screen.note('Core Infor: '+riscv.infor, False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
-                screen.put('Simulation time since start: '+text)
+                screen.put('Simulation time since start: '+text,center=True)
                 text = str(riscv.runtime()) + 's'
-                screen.put('Core simulation run time used: '+text)
+                screen.put('Core simulation run time used: '+text,center=True)
                 text = str(round(riscv.period * goto_excutime,4)) + 's'
-                screen.put('Going to pause at:             '+text)
+                screen.put('Going to pause at:             '+text,center=True)
                 screen.put()
                 putmem()
                 screen.display(True)
             elif simulating == 'pause':
                 screen.put('\n[ S I M U L A T I O N   P A U S E ]\n\n',center=True)
-                screen.put(regbox.show(riscv.x))
+                if show_core_status:
+                    text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    text = 'Total instructions: '+str(instlen) + '\n' + text
+                    screen.put(text,center=True)
+                else:
+                    screen.put(regbox.show(riscv.x),center=True)
+                screen.note(siminfor)
                 screen.note('\nCore Infor: '+riscv.infor, False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
-                screen.put('Simulation time since start: '+text)
+                screen.put('Simulation time since start: '+text,center=True)
                 text = str(riscv.runtime()) + 's'
-                screen.put('Core simulation run time used: '+text)
-                if show_core_status:
-                    screen.put(riscv.status(), True)
-                    show_core_status = False
+                screen.put('Core simulation run time used: '+text,center=True)
                 screen.put()
                 putmem()
             else:
