@@ -1,0 +1,19 @@
+//
+// File created by:  xmverilog
+// Do not modify this file
+//
+../riscv/alu.sv
+../riscv/alucontrol.sv
+../riscv/control.sv
+../riscv/core.sv
+../riscv/immextend.sv
+../riscv/mux.sv
+../riscv/pc.sv
+../riscv/pccontrol.sv
+../riscv/ram.sv
+../riscv/regfile.sv
+../riscv/riscv32s.sv
+../riscv/rom.sv
+../riscv/stim.sv
++access+r
++xmtimescale+1ns/10ps

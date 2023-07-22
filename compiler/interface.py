@@ -222,7 +222,8 @@ class screens():
 
     def clear(self):
         if self.enable_clear:
-            print('\033c',end='') # clear screen
+            os.system('clear') # clear screen
+            # print('\033c',end='') # clear screen
     
     def add(self, string:str, text:str, vertical=0, vlock=False, location:str='middle', cover=False):
         width = os.get_terminal_size().columns
