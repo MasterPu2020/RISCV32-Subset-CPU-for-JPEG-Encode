@@ -933,7 +933,7 @@ file_hex += hex_huffman_string
 file_hex += 'FFD9' 
 import base64
 file_code = base64.b16decode(file_hex)
-with open('main.jpg', 'wb') as output_file:
+with open('./algorithm/main.jpg', 'wb') as output_file:
     output_file.write(file_code)
 
 # ------------------------------------------------------------------

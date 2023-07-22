@@ -269,32 +269,32 @@ class core():
         return round(self.time * self.period, 4)
 
     def status(self):
-        text  = '+----------------------------------\n'
-        text += '|[Core status]: ' + str(self.infor) + '\n'
-        text += '|[Program counter]: ' + str(self.pc) + '\n'
-        text += '|  Add: ' + str(self.add_ ) + '\n'
-        text += '|  And: ' + str(self.and_ ) + '\n'
-        text += '|  Or : ' + str(self.or_ ) + '\n'
-        text += '|  Sll: ' + str(self.sll_ ) + '\n'
-        text += '|  Sra: ' + str(self.sra_ ) + '\n'
-        text += '|  Mul: ' + str(self.mul_ ) + '\n'
-        text += '| Mulh: ' + str(self.mulh_) + '\n'
-        text += '| AddI: ' + str(self.addi_) + '\n'
-        text += '| XorI: ' + str(self.xori_) + '\n'
-        text += '|   Lw: ' + str(self.lw_ ) + '\n'
-        text += '|   Sw: ' + str(self.sw_ ) + '\n'
-        text += '| Beq True:  ' + str(self.beq_ture ) + '\n'
-        text += '|     False: ' + str(self.beq_false) + '\n'
-        text += '| Bne True:  ' + str(self.bne_ture ) + '\n'
-        text += '|     False: ' + str(self.bne_false) + '\n'
-        text += '| Blt True:  ' + str(self.blt_ture ) + '\n'
-        text += '|     False: ' + str(self.blt_false) + '\n'
-        text += '| Bge True:  ' + str(self.bge_ture ) + '\n'
-        text += '|     False: ' + str(self.bge_false) + '\n'
-        text += '|----------------------------------\n'
-        text += '|[Total Executions]: ' + str(self.time) + '\n'
-        text += '|[Simulation time]:  ' + str(self.runtime()) + '\n'
-        text += '+----------------------------------\n'
+        text  = ' +----------------------------------+\n'
+        text += '  [Core status]: ' + str(self.infor) + '\n'
+        text += '  [Program counter]: ' + str(self.pc) + '\n'
+        text += '    Add: ' + str(self.add_ )
+        text += '    And: ' + str(self.and_ )
+        text += '    Or : ' + str(self.or_ ) 
+        text += '    Sll: ' + str(self.sll_ ) + '\n'
+        text += '    Sra: ' + str(self.sra_ ) 
+        text += '    Mul: ' + str(self.mul_ )
+        text += '   Mulh: ' + str(self.mulh_) 
+        text += '   AddI: ' + str(self.addi_) + '\n'
+        text += '   XorI: ' + str(self.xori_)
+        text += '     Lw: ' + str(self.lw_ )
+        text += '     Sw: ' + str(self.sw_ ) + '\n'
+        text += '   Beq True:  ' + str(self.beq_ture ) + '\n'
+        text += '       False: ' + str(self.beq_false) + '\n'
+        text += '   Bne True:  ' + str(self.bne_ture ) + '\n'
+        text += '       False: ' + str(self.bne_false) + '\n'
+        text += '   Blt True:  ' + str(self.blt_ture ) + '\n'
+        text += '       False: ' + str(self.blt_false) + '\n'
+        text += '   Bge True:  ' + str(self.bge_ture ) + '\n'
+        text += '       False: ' + str(self.bge_false) + '\n'
+        text += ' +----------------------------------+\n'
+        text += '  [Total Executions]: ' + str(self.time) + '\n'
+        text += '  [Simulation time]:  ' + str(self.runtime()) + '\n'
+        text += ' +----------------------------------+\n'
         return text
 
 # compile assembly code
@@ -368,6 +368,9 @@ class dustkey():
                             '   + type: see the recorded file type.\n'
                             '   + read: read the file.\n'
                             '   + save: save the recorded file.\n'
+                            '   + locatepc: locate the PC position represented in demacro code file\n'
+                            '   + locatefile: locate the file code position represented machine code\n'
+                            '   + save: save the recorded file.\n'
                             '   + saveq: save the file when simulation finished.\n')
         self.compilehelp = ('compile: Compile the recorded file, you should load the file first:\n'
                             "   + d: to demacro file, under level can locate PC.\n"
@@ -387,6 +390,7 @@ class dustkey():
                             "   'empty': run a single execution.\n"
                             '   status: show CPU status.\n'
                             '   stop: stop CPU process and reset CPU.\n'
+                            '   set: set stop when PC reach the value.\n'
                             '   simtime + second: keep running until core reach the simulated time.\n'
                             '   run + number: keep running until core executed the number of the instructions.\n'
                             "[Note: you won't be able to interrupt the running, try not to set simtime too long]\n")
@@ -441,9 +445,11 @@ class setting():
         self.wlogpath = ''
         self.logmem = []
         self.memshow = 0
+        self.readlogload = [0,0,0,0,0]
         self.memhideaddr = [False, False, False, False]
         self.memradix = [10, 10, 10, 10]
         self.show_core_status = False
+        self.defile = ''
 
     def preset(self):
         if os.path.isfile(self.configpath):
@@ -462,11 +468,13 @@ class setting():
                 self.wlogpath = c.get('wlogpath')
                 self.logmem = c.get('logmem')
                 self.instructions = c.get('instructions')
+                self.readlogload = c.get('readlogload')
                 self.instlen = c.get('instlen')
                 self.memshow = c.get('memshow')
                 self.show_core_status = c.get('show_core_status')
                 self.memhideaddr = c.get('memhideaddr')
                 self.memradix = c.get('memradix')
+                self.defile = c.get('defile')
                 for i in self.__dict__:
                     assert c.get(i) != None, 'Load setting failed: configuration items lackage.'
                 return "\nLoad last configuration finished. \n(In case if you don't like it, just delete the config.json file)\n\n"
@@ -491,12 +499,14 @@ class setting():
         self.filepath = ''
         self.wlogpath = ''
         self.logmem = []
+        self.readlogload = [0,0,0,0,0]
         self.instructions = []
         self.instlen = 0
         self.memshow = 0
         self.memhideaddr = [False, False, False, False]
         self.memradix = [10, 10, 10, 10]
         self.show_core_status = False
+        self.defile = ''
 
     def save(self):
         newconfig = self.__dict__
@@ -585,6 +595,35 @@ def readmem(fp:str):
     else:
         return 1, 'File not exist.'
 
+# show location
+def showlocation(defile, line:int, is_pc=True):
+    if defile == '':
+        return 0, 'Error: no demacro file, try compile first.'
+    if is_pc:
+        codeline = compile.locate_file(defile, line)
+    else:
+        codeline = line
+        pc = compile.locate_pc(defile, line)
+    texts = defile.split('\n')
+    texts.pop()
+    if codeline - 10 < 0:
+        startline = 0
+    else:
+        startline = codeline - 10
+    if len(texts) < codeline + 10:
+        endline = len(texts)
+    else:
+        endline = codeline + 10
+    text = ''
+    for i in range(startline, endline):
+        if i != codeline:
+            text += str(i) + ':    ' + texts[i] + '\n'
+        else:
+            text += str(i) + ': -> ' + texts[i] + ' <-\n'
+    if not is_pc:
+        codeline = pc
+    return codeline, text
+
 # user interface
 if __name__ == '__main__':
     # ui setting
@@ -621,6 +660,7 @@ if __name__ == '__main__':
     screen.infor_edge = '+2'
     # read code file
     file = ''
+    defile = config.defile
     instructions = config.instructions
     instlen = config.instlen
     filetype = '-'
@@ -638,6 +678,7 @@ if __name__ == '__main__':
     goto_excutime = 0
     excucounter = 0
     show_core_status = False
+    setpc = None
     key = dustkey()
     # display membox
     def putmem():
@@ -748,6 +789,7 @@ if __name__ == '__main__':
                     config.memradix[3] = membox4.indexformat
                     config.memhideaddr[3] = membox4.hideindex
                     config.show_core_status = show_core_status
+                    config.defile = defile
                     config.save()
                 except BaseException as arg:
                     print('[ Configuration failed ]: '+str(arg))
@@ -799,7 +841,7 @@ if __name__ == '__main__':
                 else:
                     memindex = 0
                 if key.len == 3 and compile.is_int(key.words[2]) and memindex != 0:
-                    if key.words[1] == 'height':
+                    if key.words[1] == 'height' or key.words[1] == 'h':
                         if memindex == 1:
                             membox1.height = int(key.words[2])
                         elif memindex == 2:
@@ -809,7 +851,7 @@ if __name__ == '__main__':
                         elif memindex == 4:
                             membox4.height = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' height adjust to ' + key.words[2])
-                    elif key.words[1] == 'width':
+                    elif key.words[1] == 'width' or key.words[1] == 'w':
                         if memindex == 1:
                             membox1.width = int(key.words[2])
                         elif memindex == 2:
@@ -819,7 +861,7 @@ if __name__ == '__main__':
                         elif memindex == 4:
                             membox4.width = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' width adjust to ' + key.words[2])
-                    elif key.words[1] == 'offset':
+                    elif key.words[1] == 'offset' or key.words[1] == 'off':
                         if memindex == 1:
                             membox1.indexoffset = int(key.words[2])
                         elif memindex == 2:
@@ -957,8 +999,27 @@ if __name__ == '__main__':
                             screen.note('File type: '+filetype, False)
                         else:
                             screen.note('File path not exist. Try adding a new file path.')
+                    elif key.words[1] == 'locatepc' or key.words[1] == 'locate' or key.words[1] == 'lpc':
+                        if key.len == 3 and compile.is_int(key.words[2]):
+                            line, text = showlocation(defile, int(key.words[2]))
+                            screen.put(text)
+                            screen.note('At code line: '+str(line))
+                        else:
+                            line, text = showlocation(defile, riscv.pc)
+                            screen.put(text)
+                            screen.note('At code line: '+str(line))
+                    elif key.len == 3 and (key.words[1] == 'locatefile' or key.words[1] == 'lf' or key.words[1] == 'locatef'):
+                        if compile.is_int(key.words[2]):
+                            line, text = showlocation(defile, int(key.words[2]), False)
+                            screen.put(text)
+                            screen.note('PC is: '+str(line))
+                        else:
+                            screen.note('Locate file need an integer value.')
+                    else:
+                        screen.note('File command unknown')
+                        screen.note(key.filehelp, False)
                 else:
-                    screen.note('File command unknown', False)
+                    screen.note('File command unknown')
                     screen.note(key.filehelp, False)
             elif key.result == 'compile':
                 if key.len == 2: 
@@ -974,6 +1035,7 @@ if __name__ == '__main__':
                                 screen.put('\n[ C O M P I L E   F I N I S H E D ]\n\n',center=True)
                                 screen.put(file)
                                 screen.put(arg, True)
+                                code, defile = compile2(file, 'd')
                                 file = arg
                                 filetype = key.words[1]
                                 screen.note('Compilation finished.\n')
@@ -1014,11 +1076,26 @@ if __name__ == '__main__':
                 if key.len == 2:
                     if key.words[1] == 'clear':
                         logmem = []
+                    elif key.words[1] == 'load' and config.readlogload != [0,0,0,0,0]:
+                        m11 = config.readlogload[0]
+                        m12 = config.readlogload[1]
+                        m21 = config.readlogload[2]
+                        m22 = config.readlogload[3]
+                        index1 = config.readlogload[4]
+                        text = 'Load: core mem[' + str(m21) + ' : ' +  str(m22) + '] <- log mem[' + str(m11) + ' : ' + str(m12) + ']'
+                        riscv.mem[m21:m22] = logmem[index1][m11:m12]
+                        screen.note(text)
+                        for i in range(0,m22-m21):
+                            text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
+                            screen.put(text)
                     else:
                         code, arg = readmem(key.words[1])
                         if code != 0:
                             screen.note('Read log failed:' + arg)
                         else:
+                            for i in range(0, len(arg)):
+                                text = 'Address: ' + str(i) + ' Data: ' + str(arg[i])
+                                screen.put(text)
                             logmem.append(arg)
                             screen.note('Read log finished')
                 elif key.len == 4:
@@ -1076,6 +1153,11 @@ if __name__ == '__main__':
                         except BaseException as arg:
                             screen.note('Error use of load statment: '+ str(arg))
                         else:
+                            config.readlogload[0] = m11
+                            config.readlogload[1] = m12
+                            config.readlogload[2] = m21
+                            config.readlogload[3] = m22
+                            config.readlogload[4] = index1
                             for i in range(0,m22-m21):
                                 text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
                                 screen.put(text)
@@ -1111,6 +1193,13 @@ if __name__ == '__main__':
                     except BaseException as Argument:
                         goto_excutime = riscv.time
                         screen.note('Runtime error: ' + str(Argument))
+                elif key.words[0] == 'set':
+                    try:
+                        setpc = int(key.words[1])
+                    except BaseException as Argument:
+                        screen.note('Set PC error: ' + str(Argument))
+                    else:
+                        screen.note('Set stop when PC is ' + key.words[1])
                 elif key.words[0] == 'stop':
                     if savelog:
                         code, arg = savemem(wlogpath, riscv.mem)
@@ -1119,19 +1208,20 @@ if __name__ == '__main__':
                         else:
                             screen.put('[ memory log saving failed: ]',arg)
                     simulating = 'stopped'
-                    screen.put(riscv.status())
-                    screen.note('\n[Simulation Stopped]\n\n')
+                    screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
+                    screen.put('Total instructions: '+str(instlen),center=True)
+                    text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    screen.put(text,center=True)
+                    screen.note('\n[Simulation Stopped by User]\n\n')
                 elif key.words[0] == 'None':
                     goto_excutime = riscv.time + 1
                     screen.note('Execute one instruction')
                 else:
                     screen.note(key.simulatehelp)
             elif key.result == 'default':
-                screen.put('\nInformation area: use help to see command usage')
                 screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
             else:
-                screen.put('\nInformation area: use help to see command usage')
-                screen.note('command unknown, try use help', False)
+                screen.note('command unknown, try use help')
 
         #-------------------------------------
         # Running simulation
@@ -1154,7 +1244,12 @@ if __name__ == '__main__':
                     else:
                         screen.put('[ memory log saving failed: ]',arg)
             else:
-                if riscv.time < goto_excutime:
+                if setpc == riscv.pc:
+                    siminfor = '[Set PC pause]'
+                    simulating = 'pause'
+                    excucounter = 0
+                    goto_excutime = riscv.time
+                elif riscv.time < goto_excutime:
                     try:
                         simulating = 'running'
                         if excucounter > 100000:
@@ -1195,17 +1290,20 @@ if __name__ == '__main__':
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
                 screen.note(siminfor)
-                screen.note('[Core Infor]: \n'+riscv.infor, False)
+                screen.note('[Core Infor]: '+riscv.infor, False)
                 screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
                 screen.put('Simulation time since start: '+text,center=True)
                 text = str(riscv.runtime()) + 's'
                 screen.put('Core simulation run time used: '+text,center=True)
                 text = str(round(riscv.period * goto_excutime,4)) + 's'
+                if setpc != None:
+                    text += ' or when PC is: ' + str(setpc)
                 screen.put('Going to pause at:             '+text,center=True)
                 screen.put()
                 putmem()
                 screen.display(True)
+                screen.note('')
             elif simulating == 'pause':
                 screen.put('[ S I M U L A T I O N   P A U S E ]',center=True)
                 screen.put('Total instructions: '+str(instlen),center=True)
@@ -1215,7 +1313,7 @@ if __name__ == '__main__':
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
                 screen.note(siminfor)
-                screen.note('[Core Infor]: \n'+riscv.infor, False)
+                screen.note('[Core Infor]: '+riscv.infor, False)
                 screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
                 screen.put('Simulation time since start: '+text,center=True)

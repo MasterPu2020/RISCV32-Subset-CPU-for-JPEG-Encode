@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------
 # Using UTF-8
 # Title: RISCV32 Instrcutions Compile Script
-# Last Modified Date: 2023/7/20
+# Last Modified Date: 2023/7/22
 # Version: 2.0
 # Author: Clark Pu
 # --------------------------------------------------------------------------
@@ -710,3 +710,52 @@ def bin2mem(binfile:str, mem=True):
         lineindex += 1
         
     return newfiletext
+
+# locate the file code with pc
+def locate_file(defile:str, pc:int):
+    defile = defile.split('\n')
+    defile.pop()
+    fileline = 0
+    truecode = 0
+    for i in range(0,len(defile)):
+        if defile[i] == '':
+            fileline += 1
+            continue
+        else:
+            line = defile[i].split()
+            if '//' in line[0]:
+                fileline += 1
+                continue
+            elif line[0][-1] == ':':
+                fileline += 1
+                continue
+            else:
+                fileline += 1
+                truecode += 1
+                if truecode >= pc:
+                    if pc == 0:
+                        fileline -= 1
+                    break
+    return fileline
+
+# locate the pc with file code
+def locate_pc(defile:str, codeline:int):
+    defile = defile.split('\n')
+    defile.pop()
+    fileline = 0
+    pc = 0
+    for i in range(0,len(defile)):
+        if defile[i] == '':
+            fileline += 1
+        else:
+            line = defile[i].split()
+            if '//' in line[0]:
+                fileline += 1
+            elif line[0][-1] == ':':
+                fileline += 1
+            else:
+                fileline += 1
+                pc += 1
+        if fileline >= codeline:
+            break
+    return pc
