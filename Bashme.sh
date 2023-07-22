@@ -4,7 +4,7 @@ echo " > Select Command:"
 echo "1.Compile Software."
 echo "2.HDL Simulate SoC."
 echo "3.HDL Simulate RISCV Core."
-echo "4.Python Simulate RISCV program."
+echo "4.Python Simulate and Compile RISCV program."
 echo "------------------------------------------"
 echo " Enter Number to Run. Enter Any Key Else to Quit."
 read -p "Enter: " choice
@@ -43,7 +43,7 @@ elif [ "$choice" = "3" ]; then
     +access+r +xmtimescale+1ns/10ps
     cd ..
 elif [ "$choice" = "4" ]; then
-    echo -e "\n Use python ./compiler/riscv32s ./filename +savelog"
+    python ./compiler/dust.py
 fi
 
 if [ $stop -eq 0 ]; then
@@ -53,6 +53,3 @@ else
 	echo -e "\n Process Stopped.\n"
 	echo -e "------------------------------------------\n"
 fi
-
-
-

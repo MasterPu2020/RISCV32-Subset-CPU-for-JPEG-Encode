@@ -824,6 +824,7 @@ if __name__ == '__main__':
                             screen.note("use log filepath '/filepath/' : load the file path to save the log.")
                         else:
                             wlogpath = key.words[2]
+                            screen.note("Log filepath added.")
                     elif key.words[1] == 'save':
                         code, arg = savemem(wlogpath, riscv.mem)
                         screen.note(arg)
@@ -1076,6 +1077,7 @@ if __name__ == '__main__':
                 if key.len == 2:
                     if key.words[1] == 'clear':
                         logmem = []
+                        screen.note('All read log information cleared.')
                     elif key.words[1] == 'load' and config.readlogload != [0,0,0,0,0]:
                         m11 = config.readlogload[0]
                         m12 = config.readlogload[1]
@@ -1114,22 +1116,28 @@ if __name__ == '__main__':
                             else:
                                 comp1 = riscv.mem
                             if index2 != 0:
-                                comp2 = logmem[index1-1]
+                                comp2 = logmem[index2-1]
                             else:
                                 comp2 = riscv.mem
-                            assert len(comp1) == len(comp2), 'Memory size not match, no need to compare.'
+                            complen = len(comp1)
+                            if len(comp1) != len(comp2):
+                                screen.note('Memory size not match: '+str(len(comp1) )+' != '+ str(len(comp2)))
+                                if len(comp1) > len(comp2):
+                                    complen = len(comp2)
                         except BaseException as arg:
                             screen.note('Read log command error:\n  '+str(arg))
                         else:
                             notmatch = False
-                            for i in range(0, len(comp1)):
+                            screen.note('Memroy compare max address: '+str(complen))
+                            for i in range(0, complen):
                                 if comp1[i] != comp2[i]:
                                     screen.put('Not Match: Address='+str(i)+', data1='+str(comp1[i])+', data2='+str(comp2[i]))
                                     notmatch = True
                             if notmatch:
-                                screen.note('Log Not Match. Result showing above.')
+                                screen.note('Log Not Match. Result showing above.',False)
                             else:
-                                screen.note('Matching. Congratulations!')
+                                screen.put('\n\nR e u s l t s   M a t c h i n g !\n\nC o n g r a t u l a t i o n s !\n\n\n\n\n\n',center=True)
+                                screen.note('Matching. Congratulations!',False)
                     else:
                         screen.note(key.readloghelp)
                 elif key.len == 8:
@@ -1220,6 +1228,8 @@ if __name__ == '__main__':
                     screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
                     screen.put('Total instructions: '+str(instlen),center=True)
                     text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    code, arg = showlocation(defile, riscv.pc)
+                    text = screen.add(arg, text, 0, True, '+1')
                     screen.put(text,center=True)
                     screen.note('\n[Simulation Stopped by User]\n\n')
                 elif key.words[0] == 'None':
@@ -1243,6 +1253,8 @@ if __name__ == '__main__':
                 screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
                 screen.put('Total instructions: '+str(instlen),center=True)
                 text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                code, arg = showlocation(defile, riscv.pc)
+                text = screen.add(arg, text, 0, True, '+1')
                 screen.put(text,center=True)
                 excucounter = 0
                 if savelog:
@@ -1295,6 +1307,8 @@ if __name__ == '__main__':
                 screen.put('Total instructions: '+str(instlen),center=True)
                 if show_core_status:
                     text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    code, arg = showlocation(defile, riscv.pc)
+                    text = screen.add(arg, text, 0, True, '+1')
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
@@ -1318,6 +1332,8 @@ if __name__ == '__main__':
                 screen.put('Total instructions: '+str(instlen),center=True)
                 if show_core_status:
                     text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                    code, arg = showlocation(defile, riscv.pc)
+                    text = screen.add(arg, text, 0, True, '+1')
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
