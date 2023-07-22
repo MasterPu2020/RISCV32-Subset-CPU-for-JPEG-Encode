@@ -578,7 +578,10 @@ def readmem(fp:str):
                     newmem.append(int(data))
             except BaseException as Argument:
                 return 1, 'Failed: '+str(Argument)
-        return 0, newmem
+        if len(newmem) != 0:
+            return 0, newmem
+        else:
+            return 1, 'File does not have memory information.'
     else:
         return 1, 'File not exist.'
 
@@ -645,52 +648,52 @@ if __name__ == '__main__':
                 screen.put(membox1.show(riscv.mem),center=True)
         elif memshow == 2:
             if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]),center=True)
-                screen.put(membox2.show(logmem[1]),center=True)
+                screen.put(membox1.show(logmem[1]),center=True)
+                screen.put(membox2.show(logmem[0]),center=True)
             elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]),center=True)
-                screen.put(membox2.show(riscv.mem),center=True)
-            else:
                 screen.put(membox1.show(riscv.mem),center=True)
-                screen.put(membox2.show(riscv.mem),center=True)
+                screen.put(membox2.show(logmem[0]),center=True)
+            else:
+                screen.put(membox1.show(riscv.mem))
+                screen.put(membox2.show(riscv.mem),True)
         elif memshow == 3:
             if simulating == 'stopped' and len(logmem) >= 3:
-                screen.put(membox1.show(logmem[0]))
+                screen.put(membox1.show(logmem[2]))
                 screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]),center=True)
+                screen.put(membox3.show(logmem[0]))
             if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
+                screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(riscv.mem),center=True)
+                screen.put(membox3.show(logmem[0]))
             elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
+                screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem),center=True)
+                screen.put(membox3.show(logmem[0]))
             else:
                 screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(riscv.mem), True)
-                screen.put(membox3.show(riscv.mem),center=True)
+                screen.put(membox3.show(riscv.mem))
         elif memshow == 4:
             if simulating == 'stopped' and len(logmem) >= 4:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
-                screen.put(membox4.show(logmem[3]), True)
+                screen.put(membox1.show(logmem[3]))
+                screen.put(membox2.show(logmem[2]), True)
+                screen.put(membox3.show(logmem[1]))
+                screen.put(membox4.show(logmem[0]), True)
             if simulating == 'stopped' and len(logmem) >= 3:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(logmem[2]))
-                screen.put(membox4.show(riscv.mem), True)
+                screen.put(membox1.show(riscv.mem))
+                screen.put(membox2.show(logmem[2]), True)
+                screen.put(membox3.show(logmem[1]))
+                screen.put(membox4.show(logmem[0]), True)
             if simulating == 'stopped' and len(logmem) >= 2:
-                screen.put(membox1.show(logmem[0]))
-                screen.put(membox2.show(logmem[1]), True)
-                screen.put(membox3.show(riscv.mem))
-                screen.put(membox4.show(riscv.mem), True)
+                screen.put(membox1.show(riscv.mem))
+                screen.put(membox2.show(riscv.mem), True)
+                screen.put(membox3.show(logmem[1]))
+                screen.put(membox4.show(logmem[0]), True)
             elif simulating == 'stopped' and len(logmem) >= 1:
-                screen.put(membox1.show(logmem[0]))
+                screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(riscv.mem), True)
                 screen.put(membox3.show(riscv.mem))
-                screen.put(membox4.show(riscv.mem), True)
+                screen.put(membox4.show(logmem[0]), True)
             else:
                 screen.put(membox1.show(riscv.mem))
                 screen.put(membox2.show(riscv.mem), True)
@@ -802,7 +805,7 @@ if __name__ == '__main__':
                         elif memindex == 2:
                             membox2.height = int(key.words[2])
                         elif memindex == 3:
-                            membox2.height = int(key.words[2])
+                            membox3.height = int(key.words[2])
                         elif memindex == 4:
                             membox4.height = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' height adjust to ' + key.words[2])
@@ -812,7 +815,7 @@ if __name__ == '__main__':
                         elif memindex == 2:
                             membox2.width = int(key.words[2])
                         elif memindex == 3:
-                            membox2.width = int(key.words[2])
+                            membox3.width = int(key.words[2])
                         elif memindex == 4:
                             membox4.width = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' width adjust to ' + key.words[2])
@@ -822,7 +825,7 @@ if __name__ == '__main__':
                         elif memindex == 2:
                             membox2.indexoffset = int(key.words[2])
                         elif memindex == 3:
-                            membox2.indexoffset = int(key.words[2])
+                            membox3.indexoffset = int(key.words[2])
                         elif memindex == 4:
                             membox4.indexoffset = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' offset adjust to ' + key.words[2])
@@ -832,7 +835,7 @@ if __name__ == '__main__':
                         elif memindex == 2:
                             membox2.indexformat = int(key.words[2])
                         elif memindex == 3:
-                            membox2.indexformat = int(key.words[2])
+                            membox3.indexformat = int(key.words[2])
                         elif memindex == 4:
                             membox4.indexformat = int(key.words[2])
                         screen.note('Memory window '+str(memindex)+' address radix adjust to ' + key.words[2])
@@ -981,19 +984,17 @@ if __name__ == '__main__':
                         screen.note('Compilation Exit: \n Unknow Compilation type\n'+key.compilehelp)
                 else:
                     screen.note(key.compilehelp)
-            elif key.result == 'sim' and simulating == 'stopped':
+            elif key.result == 'sim' and simulating == 'stopped' and key.len == 1:
                 if filetype == 'b':
                     simulating = 'pause'
-                    riscv.reset()
                     instructions = file.split()
                     instlen = len(instructions)
                     systime = time.mktime(time.localtime())
-                    screen.note('\n[Simulation Start]\n\n')
+                    screen.note('[Simulation Start]')
                 elif instlen != 0:
                     simulating = 'pause'
-                    riscv.reset()
                     systime = time.mktime(time.localtime())
-                    screen.note('\n[Simulation Restart]\n\n')
+                    screen.note('[Simulation Restart]')
                 else:
                     screen.note('Code file should be binary type, compile it first.')
             elif key.result == 'core':
@@ -1001,10 +1002,10 @@ if __name__ == '__main__':
                     if key.words[1] == 'reset':
                         riscv.reset()
                         screen.put(riscv.status())
-                        screen.note('Core reset')
+                        screen.note('Core reseted.')
                     elif key.words[1] == 'status':
                         screen.put(riscv.status())
-                        screen.note('Core status')
+                        screen.note('Show core status.')
                     else:
                         screen.note(key.corehelp)
                 else:
@@ -1051,21 +1052,33 @@ if __name__ == '__main__':
                 elif key.len == 8:
                     if key.words[1] == 'load' and key.words[5] == 'to':
                         try:
+                            index1 = int(key.words[2]) - 1
+                            assert index1 + 1 <= len(logmem), 'log memory list length is '+str(len(logmem)) + ', index out of range: ' + key.words[2]
                             m21 = int(key.words[6])
-                            m22 = int(key.words[7])
-                            m11 = int(key.words[2])
-                            m12 = int(key.words[3])
-                            index1 = int(key.words[2])
-                            assert m22 > m21, 'Core mem end address should less than start address'
-                            assert m12 > m11, 'Log file end address should less than start address'
+                            if key.words[7] == 'end':
+                                m22 = len(riscv.mem)
+                            else:
+                                m22 = int(key.words[7])
+                            m11 = int(key.words[3])
+                            if key.words[4] == 'end':
+                                m12 = len(logmem[index1])
+                            else:
+                                m12 = int(key.words[4])
+                            assert m22 >= m21, 'Core mem end address should be no greater than start address: ' + str(m22) + ' < ' + str(m21)
+                            assert m12 >= m11, 'Log file end address should be no greater than start address: ' + str(m12) + ' < ' + str(m11)
+                            if m12 - m11 > m22 - m21:
+                                m12 = m11 + m22 - m21
+                            else:
+                                m22 = m21 + m12 - m11
+                            text = 'Load: core mem[' + str(m21) + ' : ' +  str(m22) + '] <- log mem[' + str(m11) + ' : ' + str(m12) + ']'
                             riscv.mem[m21:m22] = logmem[index1][m11:m12]
+                            screen.note(text)
                         except BaseException as arg:
-                            screen.put('Error use of load statment: '+ str(arg))
+                            screen.note('Error use of load statment: '+ str(arg))
                         else:
                             for i in range(0,m22-m21):
                                 text = 'core mem[' + str(m21+i) + '] = ' +str(riscv.mem[m21+i]) + ' <- log mem[' + str(m11+i) + '] = ' + str(logmem[index1][m11+i])
                                 screen.put(text)
-                            screen.note('Finished.')
                 else:
                     screen.note('Error use of read log statement.\n'+key.readloghelp)
             elif simulating == 'pause':
@@ -1085,14 +1098,19 @@ if __name__ == '__main__':
                         elif key.words[2] == 'ps':
                             unit = 1e-12
                     try:
-                        goto_excutime = riscv.time + float(key.words[1]) * riscv.freq * unit
+                        goto_excutime = riscv.time + int(float(key.words[1]) * riscv.freq * unit)
+                        assert goto_excutime != riscv.time, 'Time too short, target executions not increased.'
+                        assert goto_excutime > riscv.time, 'Target executions should not less than present executions'
                     except BaseException as Argument:
-                        screen.note('Simtime usage error: ' + str(Argument))
+                        goto_excutime = riscv.time
+                        screen.note('Simtime error: ' + str(Argument))
+                        break
                 elif key.words[0] == 'run':
                     try:
                         goto_excutime = riscv.time + int(key.words[1])
                     except BaseException as Argument:
-                        screen.note('Runtime usage error: ' + str(Argument))
+                        goto_excutime = riscv.time
+                        screen.note('Runtime error: ' + str(Argument))
                 elif key.words[0] == 'stop':
                     if savelog:
                         code, arg = savemem(wlogpath, riscv.mem)
@@ -1124,7 +1142,9 @@ if __name__ == '__main__':
                 siminfor = ' Simulation finished.'
                 simulating = 'stopped'
                 screen.put('\n[ S I M U L A T I O N   F I N I S H E D ]\n\n',center=True)
-                screen.put(riscv.status())
+                screen.put('Total instructions: '+str(instlen),center=True)
+                text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
+                screen.put(text,center=True)
                 excucounter = 0
                 if savelog:
                     code, arg = savemem(wlogpath, riscv.mem)
@@ -1137,7 +1157,7 @@ if __name__ == '__main__':
                 if riscv.time < goto_excutime:
                     try:
                         simulating = 'running'
-                        if excucounter > 10000:
+                        if excucounter > 100000:
                             excucounter = 0
                         else:
                             excucounter += 1
@@ -1167,15 +1187,16 @@ if __name__ == '__main__':
 
             # display sim information
             if simulating == 'running':
-                screen.put('\n[ S I M U L A T I O N   R U N N I N G ]\n\n',center=True)
+                screen.put('[ S I M U L A T I O N   R U N N I N G ]',center=True)
+                screen.put('Total instructions: '+str(instlen),center=True)
                 if show_core_status:
                     text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
-                    text = 'Total instructions: '+str(instlen) + '\n' + text
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
                 screen.note(siminfor)
-                screen.note('Core Infor: '+riscv.infor, False)
+                screen.note('[Core Infor]: \n'+riscv.infor, False)
+                screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
                 screen.put('Simulation time since start: '+text,center=True)
                 text = str(riscv.runtime()) + 's'
@@ -1186,15 +1207,16 @@ if __name__ == '__main__':
                 putmem()
                 screen.display(True)
             elif simulating == 'pause':
-                screen.put('\n[ S I M U L A T I O N   P A U S E ]\n\n',center=True)
+                screen.put('[ S I M U L A T I O N   P A U S E ]',center=True)
+                screen.put('Total instructions: '+str(instlen),center=True)
                 if show_core_status:
                     text = screen.add(riscv.status(), regbox.show(riscv.x), 0, True, '+1')
-                    text = 'Total instructions: '+str(instlen) + '\n' + text
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
                 screen.note(siminfor)
-                screen.note('\nCore Infor: '+riscv.infor, False)
+                screen.note('[Core Infor]: \n'+riscv.infor, False)
+                screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
                 screen.put('Simulation time since start: '+text,center=True)
                 text = str(riscv.runtime()) + 's'

@@ -138,7 +138,12 @@ class boxs():
                         strindex = str(index)
                     line += ' ' * (self.indexspace - len(strindex)) + strindex
                     line += self.index2data
-                data = block[index]
+                try:
+                    data = block[index]
+                except IndexError:
+                    data = ''
+                except BaseException as Argument:
+                    return ['Error: failed to load data from block: '+str(Argument)]
                 if self.dataformat == 16:
                     strdata = hex(data).replace('0x','')
                 else:
@@ -319,7 +324,7 @@ class screens():
             return command
 
     # put text into infor
-    def put(self, string:str='', appending:bool=False, append_offset:str='-1', center=False):
+    def put(self, string:str='', appending:bool=False, append_offset:str='+2', center=False):
         if len(string) == 0:
             string += '\n'
         elif string[-1] != '\n':
