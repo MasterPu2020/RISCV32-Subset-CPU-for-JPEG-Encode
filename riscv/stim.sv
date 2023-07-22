@@ -118,7 +118,7 @@ module stim;
   end
   
   initial begin
-    #(CLK_PERIOD * 50);
+    #(CLK_PERIOD * 504);
     memlog("../riscv/mem.log", 1);
     $finish(2);
   end

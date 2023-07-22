@@ -43,7 +43,7 @@ elif [ "$choice" = "3" ]; then
     +access+r +xmtimescale+1ns/10ps
     cd ..
 elif [ "$choice" = "4" ]; then
-    python ./compiler/dust.py
+    python3 ./compiler/dust.py
 fi
 
 if [ $stop -eq 0 ]; then
