@@ -2,6 +2,7 @@
 // File created by:  xmverilog
 // Do not modify this file
 //
+<<<<<<< HEAD
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/bus.sv
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/buttom.sv
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/clock.sv
@@ -12,3 +13,18 @@
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/soc.sv
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/tb_soc.sv
 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/uart.sv
+=======
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/alu.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/alucontrol.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/control.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/core.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/immextend.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/mux.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/pc.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/pccontrol.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/ram.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/regfile.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/riscv32s.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/rom.sv
+/home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/stim.sv
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec

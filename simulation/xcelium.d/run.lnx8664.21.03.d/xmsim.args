@@ -8,7 +8,11 @@
 +EMGRLOG
 xmverilog.log
 -XLSTIME
+<<<<<<< HEAD
 1690123615
+=======
+1690064168
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
 -XLKEEP
 -XLMODE
 ./xcelium.d/run.lnx8664.21.03.d

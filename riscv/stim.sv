@@ -137,17 +137,28 @@ module stim;
     else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>2);
   endtask
 
+<<<<<<< HEAD
   logic [31:0] pc, maxpc;
+=======
+  logic [31:0] pc;
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
   assign pc = riscv32s.riscvcore.programaddress;
 
   initial begin
     nrst<=1; clk<=0;
     #1 nrst<=0; #1 nrst<=1;
+<<<<<<< HEAD
     get_program_len("../riscv/test.v", maxpc);
     fork
       forever @(posedge clk) moni();
       forever @(posedge clk)
         if (pc>>2 >= maxpc) begin // core stopped
+=======
+    fork
+      forever @(posedge clk) moni();
+      forever @(posedge clk) 
+        if (pc>>2 == 11) begin
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
           memlog("../riscv/mem.log", 1);
           $finish(2);
         end

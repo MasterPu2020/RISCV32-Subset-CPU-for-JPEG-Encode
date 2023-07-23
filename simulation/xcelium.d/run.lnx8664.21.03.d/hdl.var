@@ -1,8 +1,16 @@
 define XMSIMRC	( /eda/cadence/xcelium/tools/xcelium/files/xmsimrc, ~/.xmsimrc )
 define AMSRC	( /eda/cadence/xcelium/tools/xcelium/files/amsrc, ~/.amsrc )
 include ./hdlrun.var
+<<<<<<< HEAD
 define SNAPSHOT worklib.tb_soc:sv
 DEFINE RUNMODEDEFAULT 1
 DEFINE LIB_MAP ( + => worklib )
 define ELAB_SNAPSHOT
 define SNAPSHOT worklib.tb_soc:sv
+=======
+define SNAPSHOT worklib.stim:sv
+DEFINE RUNMODEDEFAULT 1
+DEFINE LIB_MAP ( + => worklib )
+define ELAB_SNAPSHOT
+define SNAPSHOT worklib.stim:sv
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec

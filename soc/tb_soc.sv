@@ -146,6 +146,7 @@ module tb_soc;
     if (showinfor)
       $display(" [System]: Write log start, file opened.");
     $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
+<<<<<<< HEAD
     for (int w = 0; w < 206800; w ++) begin
       data = soc.ram.memory[w];
       $fdisplay(fd, "[%0d] : %0d", w, $signed(data));
@@ -154,6 +155,12 @@ module tb_soc;
       data = soc.dualram.memory[w];
       $fdisplay(fd, "[%0d] : %0d", w+206800, $signed(data));
     end
+=======
+    for (int w = 0; w < 206800; w ++)
+      $fdisplay(fd, "[%0d] : %0d", w, $signed(soc.ram.memory[w]));
+    for (int w = 0; w < 204900; w ++)
+      $fdisplay(fd, "[%0d] : %0d", w+206800, soc.dualram.memory[w]);
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
     $fdisplay(fd, "[buttom] : %0d", $signed(soc.buttom.data));
     $fclose(fd);
     if (showinfor)
@@ -210,6 +217,7 @@ module tb_soc;
         case (funct7)
           7'b0000000:
             case (funct3)
+<<<<<<< HEAD
               3'b000: $display(" [Core] x%0d + x%0d -> x%0d. pc=%0d", rs1, rs2, rd, pc>>2, " ----------> %0d + %0d = %0d", rs1data, rs2data, rddata);
               3'b111: $display(" [Core] x%0d & x%0d -> x%0d. pc=%0d", rs1, rs2, rd, pc>>2, " ----------> %0d & %0d = %0d", rs1data, rs2data, rddata);
               3'b110: $display(" [Core] x%0d | x%0d -> x%0d. pc=%0d", rs1, rs2, rd, pc>>2, " ----------> %0d | %0d = %0d", rs1data, rs2data, rddata);
@@ -251,6 +259,49 @@ module tb_soc;
           default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>2);
         endcase
       else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>2);
+=======
+              3'b000: $display(" [Core] r%0d + r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+              3'b111: $display(" [Core] r%0d & r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+              3'b110: $display(" [Core] r%0d | r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+              3'b001: $display(" [Core] r%0d << r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+              default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+            endcase
+          7'b0100000: 
+            if (funct3 == 3'b101) $display(" [Core] r%0d >> r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+            else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+          7'b0000001: 
+            if (funct3 == 3'b000) $display(" [Core] r%0d *l r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+            else if (funct3 == 3'b001) $display(" [Core] r%0d *h r%0d -> r%0d. pc=%0d", rs1, rs2, rd, pc>>4);
+            else $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+          default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+        endcase
+      else if (opcode == 7'b0010011)
+        if (funct3 == 3'b000) 
+          $display(" [Core] r%0d + %0d-> r%0d. pc=%0d", rs1, imm, rd, pc>>4);
+        else if (funct3 == 3'b110) 
+          $display(" [Core] r%0d ^ %0d-> r%0d. pc=%0d", rs1, imm, rd, pc>>4);
+        else
+          $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+      else if (opcode == 7'b0000011)
+        if (funct3 == 3'b010) 
+          $display(" [Core] mem[ r%0d + %0d ] -> r%0d. pc=%0d", rs1, imm, rd, pc>>4);
+        else
+          $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+      else if (opcode == 7'b0100011)
+        if (funct3 == 3'b010) 
+          $display(" [Core] r%0d -> mem[ r%0d + %0d ]. pc=%0d", rs2, rs1, imm, pc>>4);
+        else
+          $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+      else if (opcode == 7'b1100011)
+        case (funct3)
+          3'b000: $display(" [Core] r%0d == r%0d ? pc(%0d) + %0d = %0d. pc=%0d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+          3'b001: $display(" [Core] r%0d != r%0d ? pc(%0d) + %0d = %0d. pc=%0d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+          3'b100: $display(" [Core] r%0d <  r%0d ? pc(%0d) + %0d = %0d. pc=%0d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+          3'b101: $display(" [Core] r%0d >= r%0d ? pc(%0d) + %0d = %0d. pc=%0d", rs1, rs2, pc>>4, imm>>>2, newpc>>4, pc>>4);
+          default: $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+        endcase
+      else if (inst != 'x) $display(" [Core] Inst unknow: op %b funct7 %b funct3 %b. pc=%0d", opcode, funct7, funct3, pc>>4);
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
     endtask
   `endif
 
@@ -270,7 +321,11 @@ module tb_soc;
         forever begin
           @(posedge soc.clkcore)
           if (!(program_line <= 9) && !(809 <= program_line && program_line <= 829))
+<<<<<<< HEAD
             moni;
+=======
+            $display(" [Core] PC: %0d, time: %t", program_line, $time);
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
         end
       `endif
       // uart data monitor

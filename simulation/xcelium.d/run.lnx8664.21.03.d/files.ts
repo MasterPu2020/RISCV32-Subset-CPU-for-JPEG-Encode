@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 1690118081 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/alu.sv
+=======
+1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/alu.sv
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/alucontrol.sv
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/control.sv
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/core.sv
@@ -10,6 +14,7 @@
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/regfile.sv
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/riscv32s.sv
 1690058276 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/rom.sv
+<<<<<<< HEAD
 1690121218 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/stim.sv
 1690058277 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/bus.sv
 1690058277 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/buttom.sv
@@ -21,3 +26,6 @@
 1690058278 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/soc.sv
 1690123607 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/tb_soc.sv
 1690058278 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/soc/uart.sv
+=======
+1690063021 /home/jp2g22/mydocuments/design/riscv/RISCV32-Subset-CPU-for-JPEG-Encode/riscv/stim.sv
+>>>>>>> b9e8f45e3fb55d04516e8baea8737c5709f435ec
