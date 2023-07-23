@@ -583,9 +583,11 @@ def readmem(fp:str):
         newmem = []
         for line in texts:
             try:
-                data = line.split(':')[-1]
+                data = line.split(':')[-1].replace(' ', '').replace('\n', '')
                 if compile.is_int(data):
                     newmem.append(int(data))
+                elif data == 'x':
+                    newmem.append(0)
             except BaseException as Argument:
                 return 1, 'Failed: '+str(Argument)
         if len(newmem) != 0:

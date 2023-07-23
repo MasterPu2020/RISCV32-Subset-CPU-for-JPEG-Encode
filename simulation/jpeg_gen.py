@@ -4,11 +4,14 @@ with open('./simulation/mem.log', 'r') as memlog:
 huffmancode = []
 for line in memlog:
     line = line.split()
-    if len(line) == 4:
-        address = int(line[1].replace(']', ''))
-        if address >= 206800 and address < 411698:
-            if int(line[3]) != 0:
-                huffmancode.append(int(line[3]))
+    if len(line) == 3:
+        try:
+            address = int(line[0].replace(']', '').replace('[', ''))
+            if address >= 206800 and address < 411698:
+                if int(line[2]) != 0:
+                    huffmancode.append(int(line[2]))
+        except ValueError:
+            pass
 for i in huffmancode:
     print(i)
 # String process, only for simulation usage

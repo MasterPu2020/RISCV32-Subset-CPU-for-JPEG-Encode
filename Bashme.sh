@@ -12,9 +12,9 @@ read -p "Enter: " choice
 if [ "$choice" = "1" ]; then
     echo -e "\n Use python ./compiler/dust ./filename +debug +comment"
 elif [ "$choice" = "2" ]; then
-    cd ./simulate
+    cd ./simulation
     xmverilog ../soc/bus.sv \
-    ../soc/buttom.sv \
+    ../soc/button.sv \
     ../soc/clock.sv \
     ../soc/core.sv \
     ../soc/dualram.sv \
@@ -26,7 +26,7 @@ elif [ "$choice" = "2" ]; then
     +access+r +xmtimescale+1ns/10ps
     cd ..
 elif [ "$choice" = "3" ]; then
-    cd ./simulate
+    cd ./simulation
     xmverilog ../riscv/alu.sv \
     ../riscv/alucontrol.sv \
     ../riscv/control.sv \
@@ -43,7 +43,7 @@ elif [ "$choice" = "3" ]; then
     +access+r +xmtimescale+1ns/10ps
     cd ..
 elif [ "$choice" = "4" ]; then
-    python ./compiler/dust.py
+    python3 ./compiler/dust.py
 fi
 
 if [ $stop -eq 0 ]; then

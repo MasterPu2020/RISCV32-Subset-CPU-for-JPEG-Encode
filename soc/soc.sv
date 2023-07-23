@@ -40,7 +40,7 @@ module soc (
     .slaverdata0, .slaverdata1, .slaverdata2,
     .slavewdata0, .slavewdata1, .slavewdata2);
 
-  buttom buttom(.clk(clkcore), .nrst, .key(key2), .busaddr(slaveaddr2), .busdata(slaverdata2));
+  button button(.clk(clkcore), .nrst, .key(key2), .busaddr(slaveaddr2), .busdata(slaverdata2));
 
   wire [31:0] ramaddress2, wramdata2, rramdata2;
   wire wram2;
