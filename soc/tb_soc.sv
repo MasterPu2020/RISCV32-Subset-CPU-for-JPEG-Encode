@@ -6,6 +6,8 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
+`timescale 1ns/10ps
+
 // Use program monitor, this will reduce the simulation speed
 `define ProgramMonitor
 // Use UART input monitor
@@ -116,7 +118,6 @@ endclass // simulated Personal Computer uart port
 
 module tb_soc;
   
-  `timescale 1ns/10ps
   initial $timeformat(0, 4, "s", 0);
 
   // wiring and param
@@ -154,7 +155,7 @@ module tb_soc;
       data = soc.dualram.memory[w];
       $fdisplay(fd, "[%0d] : %0d", w+206800, $signed(data));
     end
-    $fdisplay(fd, "[buttom] : %0d", $signed(soc.buttom.data));
+    $fdisplay(fd, "[buttom] : %0d", $signed(soc.button.data));
     $fclose(fd);
     if (showinfor)
       $display(" [System]: Write log finished, file closed.");

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------
 // Synchronous dual port static random access memory
 // Support: 32-bit read and write, address add by 1
-// Last Modified Date: 2023/7/17
-// Version: 1.0
+// Last Modified Date: 2023/7/23
+// Version: 1.1
 // Author: Clark Pu
 //----------------------------------------------------------------
 
@@ -11,7 +11,7 @@ module dualram #(parameter WIDTH = 32, DEPTH = 1200) (
   input wire [WIDTH-1:0] address1, address2,
   input wire [WIDTH-1:0] wdata1, wdata2,
   input wire enw1, enw2,
-  output wire [WIDTH-1:0] rdata1, rdata2
+  output logic [WIDTH-1:0] rdata1, rdata2
 );
 
   localparam ADDROFFSET = 206800;
@@ -20,8 +20,21 @@ module dualram #(parameter WIDTH = 32, DEPTH = 1200) (
   logic [WIDTH-1:0] system_control[1:0];
 
   // read
-  assign rdata1 = memory[address1-ADDROFFSET];
-  assign rdata2 = memory[address2-ADDROFFSET];
+  always_comb begin
+    if (address1-ADDROFFSET < 1200)
+      rdata1 = memory[address1-ADDROFFSET];
+    else if (address1 == 411698)
+      rdata1 = system_control[0];
+    else if (address1 == 411699)
+      rdata1 = system_control[1];
+    if (address2-ADDROFFSET < 1200)
+      rdata2 = memory[address2-ADDROFFSET];
+    else if (address2 == 411698)
+      rdata2 = system_control[0];
+    else if (address2 == 411699)
+      rdata2 = system_control[1];
+  end
+
   // write1
   always_ff @(posedge clk1)
     if (enw1) begin
