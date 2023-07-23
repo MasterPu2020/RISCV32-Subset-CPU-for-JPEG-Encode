@@ -17,7 +17,7 @@ In folder [compiler](./compiler), **'dust.s'** is the main function entry of the
 
 ### RISCV32-Subset Core
 
-In folder [riscv](./riscv), **'core.sv'** is the top module of riscv core componets. **'riscv32s.sv'** is a Haverd architecture MCU which will execute the program written in **'test.s'**. **'stim.sv'** is the stimulus file for **'riscv32s.sv'** during simulation.
+In folder [riscv](./riscv), **'core.sv'** is the top module of riscv core componets. **'riscv32s.sv'** is a Harvard architecture MCU which will execute the program written in **'test.s'**. **'stim.sv'** is the stimulus file for **'riscv32s.sv'** during simulation.
 
 ### JPEG encoding SoC
 
