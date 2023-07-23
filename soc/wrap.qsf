@@ -1,0 +1,5 @@
+set_location_assignment PIN_AF14 -to clk   # 50MHz clock
+set_location_assignment PIN_Y16  -to nrst  # key[3]
+set_location_assignment PIN_AA14 -to key   # key[0]
+set_location_assignment PIN_B25  -to datai # HPS UART Receiver
+set_location_assignment PIN_C25  -to datao # HPS UART Transmitter

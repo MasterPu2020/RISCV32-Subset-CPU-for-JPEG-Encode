@@ -335,7 +335,7 @@ module tb_soc;
     if ((soc.programaddress >> 2) > 829)
       $display("\n [Core]: In main function.\n");
     else begin
-      $display("\n [Core]: Warning: NOT in main function.\n");
+      $display("\n [Core]: Warning: NOT in main function, PC: %0d\n", soc.programaddress >> 2);
       memlog(logdir, 1);
       $stop(1);
     end

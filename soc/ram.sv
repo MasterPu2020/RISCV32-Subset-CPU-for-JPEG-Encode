@@ -6,7 +6,7 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module ram #(parameter WIDTH = 32, DEPTH = 1400) (
+module ram #(parameter WIDTH = 32, DEPTH = 3400) (
   input wire clk,
   input wire [WIDTH-1:0] address,
   input wire [WIDTH-1:0] wdata,
