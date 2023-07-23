@@ -1,10 +1,52 @@
 
 # RISCV32 Subset for JPEG Encoding CPU Specification
 
-## Compiler and Simulator Usage
+## Project Files Instruction
+
+### Software Python Code
+
+In folder [algorithm](./algorithm), run **'image2row.py'** will output a ROW format image file. Run **'jpeg.py'** can encode the ROW image file into a JPEG file. And it can be opened in a regular personal computer. **'main.py'** do the same job as **'jpeg.py'**, but in the code, variables are been replaced by register names and memory locations. In this way, the **'main.py'** python code can be easily interpret to the assembly code.
+
+### Software Assembly Code
+
+In folder [assembly](./assembly), **'main.s'** is the macro style assembly code. This code can be compiled by the *[DUST Compiler](./compiler/dust.py)* into RISCV32-Subset binary machine code. Note that **'main.s'** is interpreted by hand from **'main.py'**.
+
+### DUST compiler and simulator
+
+In folder [compiler](./compiler), **'dust.s'** is the main function entry of the *DUST Compiler and Simulator*. It has a simple user interface, and can do multiple jobs during software and hardware design and verification. It can comile the macro assembly codes into system verilog memory code, binary machine code, hex machine code and basic assembly code. Meanwhile, it also can simulate the binary machine code, and generate a memory log, which can be compared with the memory log generated during hardware simulation. This is very helpful when applying UVM at simulation stage. This compiler is completely written by me, and try start it to find out how useful it is !
+
+### RISCV32-Subset Core
+
+In folder [riscv](./riscv), **'core.sv'** is the top module of riscv core componets. **'riscv32s.sv'** is a Haverd architecture MCU which will execute the program written in **'test.s'**. **'stim.sv'** is the stimulus file for **'riscv32s.sv'** during simulation.
+
+### JPEG encoding SoC
+
+In folder [soc](./soc),  **'soc.sv'** is the top level of the hierarchy. This system on chip has an UART interface which can receive the ROW file from personl computer UART port, and send the encoded huffman code back. But still need to do a post process to the received data by the python code by **['jpeg_gen.py'](./simulation/jpeg_gen.py)** to generate the '.jpg' file.
+
+At simulation stage, testbench **'tb_soc.sv'** will help to achieve the hardware simulation and able to produce a **'mem.log'** file for UVM. Note that all the different memory log can be compared by the *DUST Compiler and Simulator*.
+
+### Results
+
+The orginal image file is a Windows '.bmp' file [test.bmp](./algorithm/test.bmp).
+
+Output Image Encoded by software algorithm written in Python: [main.jpg](./algorithm/main.jpg)
+
+![Test-software](./algorithm/main.jpg) 
+
+Output Image Encoded by hardware (Post process by software) written in System Verilog: [hardware-output.jpg](./simulation/hardware-output.jpg)
+
+![Test-hardware](./simulation/hardware-output.jpg)
+
+---
+
+## Dust Compiler and Simulator Usage
 
     python .\compiler\dust.py
-    mem size 411700
+    # or python3 .\compiler\dust.py
+    # when enter the dust, try 'help' to learn how to use it.
+    # Try 'Bashme.sh' script in an Unix environment, a lot easier to start a simulation.
+
+---
 
 ## RISC-V 32 Subset
 
@@ -33,13 +75,14 @@
     +---------------------------------------------------------------------------------+
     
 ## RISCV32-Subset CPU Information
-- Pipeline stage：2
-- Data Forwarding: not yet support
-- Branch Prediction：not yet support
-- Architecture：Haverd
-- Bus：Write back
-- ROM Size Support：32x2^32bit
+- Pipeline stage: 2
+- Data Forwarding: no need to support
+- Branch Prediction: no need to support
+- Architecture: Haverd
+- Bus: Write back
+- ROM Size Support: 32x2^32bit
 - RAM Size Support: 32x2^32bit
+
 ---
 
 ## Basic while and if replacements
@@ -142,8 +185,8 @@ Replacements:
 - or     :  regular or, used for data joint
 - sll    :  logic shift left by reg
 - sra    :  arithmetic shift right by reg
-- mul    ： multiplication usage is massive, that is why there need a mul
-- mulh   ： multiplication usage is massive, that is why there need a mulh
+- mul    :  multiplication usage is massive, that is why there need a mul
+- mulh   :  multiplication usage is massive, that is why there need a mulh
 
 **[ B type ]**
 - blt    :  branch if less than
