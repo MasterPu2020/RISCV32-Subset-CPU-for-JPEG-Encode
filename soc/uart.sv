@@ -53,7 +53,7 @@ module uart (
       end
       POSTSEND: ramaddress = rramaddr; // power saving
       CLEAR: begin 
-        ramaddress = 411699; // clear progeam send reuqest
+        ramaddress = 411699; // clear program send reuqest
         wram = 1;
       end
       EXCEPTION: begin 

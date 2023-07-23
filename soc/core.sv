@@ -57,7 +57,7 @@ module core #(parameter WIDTH = 32) (
   mux #(WIDTH) immmux(.data1(imm), .data2(readdata2), .sel(aluimm), .datao(aludata2));
 
   // Arithmetic Logic Unit
-  wire [WIDTH-1:0] result;
+  wire signed [WIDTH-1:0] result;
   wire zero;
   alu #(WIDTH) alu(.aluop(aluoperation), .datain1(readdata1), .datain2(aludata2), .result, .zero);
 

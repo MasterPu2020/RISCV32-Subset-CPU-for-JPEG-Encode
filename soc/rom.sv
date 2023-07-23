@@ -6,7 +6,7 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module rom #(parameter WIDTH = 32, DEPTH = 2048) (
+module rom #(parameter WIDTH = 32, DEPTH = 1432) (
   input wire [WIDTH-1:0] address,
   output wire [WIDTH-1:0] rdata
 );
