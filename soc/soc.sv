@@ -7,6 +7,7 @@
 
 module soc (
   input wire clk, nrst, key, datai,
+  output wire [9:0] led,
   output wire datao
 );
 
@@ -18,7 +19,7 @@ module soc (
     ROMDEPTH = 2048; // ram: 0 ~ 411700
 
   wire clkcore, clkbps;
-  clock clock(.clk, .nrst, .clkcore, .clkbps);
+  clockgen clockgen(.clk, .nrst, .clkcore, .clkbps);
 
   wire [31:0] programdata;
   wire [WIDTH-1:0] readramdata;
@@ -26,6 +27,7 @@ module soc (
   wire [WIDTH-1:0] programaddress;
   wire [WIDTH-1:0] ramaddress;
   wire [WIDTH-1:0] writeramdata;
+
   core #(WIDTH) riscvcore(.clock(clkcore), .nreset(nrst), 
     .programdata, .readramdata, .writeram, .programaddress, .ramaddress, .writeramdata);
 
@@ -57,6 +59,9 @@ module soc (
     .rdata1(slaverdata1),  .rdata2(rramdata2));
 
   rom #(WIDTH, ROMDEPTH) rom(.address(programaddress), .rdata(programdata));
+  
+  // output infor
+  assign led = {datao, wram2, writeram, clkcore, clkbps, readramdata[0], writeramdata[0], ramaddress[0], programaddress[0], programdata[0]};
 
   // input synchronization: keyi
   always_ff @(posedge clkcore, negedge nrst) begin

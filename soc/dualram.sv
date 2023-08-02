@@ -6,7 +6,7 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module dualram #(parameter WIDTH = 32, DEPTH = 1200) (
+module dualram #(parameter WIDTH = 32, DEPTH = 1026) (
   input wire clk1, clk2, // clock 1 much faster than 2
   input wire [WIDTH-1:0] address1, address2,
   input wire [WIDTH-1:0] wdata1, wdata2,

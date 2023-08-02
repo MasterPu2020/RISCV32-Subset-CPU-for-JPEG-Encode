@@ -1,5 +1,20 @@
+
+create_clock -period 20 [get_ports clk]
+creat_clock -name clkcore -period 80
+creat_clock -name clkbps  -period 104160
+
 set_location_assignment PIN_AF14 -to clk   # 50MHz clock
 set_location_assignment PIN_Y16  -to nrst  # key[3]
 set_location_assignment PIN_AA14 -to key   # key[0]
-set_location_assignment PIN_B25  -to datai # HPS UART Receiver
-set_location_assignment PIN_C25  -to datao # HPS UART Transmitter
+set_location_assignment PIN_AC18 -to datai # GPIO0[0]
+set_location_assignment PIN_Y17  -to datao # GPIO0[1]
+set_location_assignment PIN_V16  -to led[0]
+set_location_assignment PIN_W16  -to led[1]
+set_location_assignment PIN_V17  -to led[2]
+set_location_assignment PIN_V18  -to led[3]
+set_location_assignment PIN_W17  -to led[4]
+set_location_assignment PIN_W19  -to led[5]
+set_location_assignment PIN_Y19  -to led[6]
+set_location_assignment PIN_W20  -to led[7]
+set_location_assignment PIN_W21  -to led[8]
+set_location_assignment PIN_Y21  -to led[9]

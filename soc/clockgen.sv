@@ -5,7 +5,7 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module clock #(parameter CLKRATE = 50_000_000, BAUDRATE = 9600, CORERATE = 12_500_000) (
+module clockgen #(parameter CLKRATE = 50_000_000, BAUDRATE = 9600, CORERATE = 12_500_000) (
   input wire clk, nrst,
   output logic clkcore, clkbps
 );
