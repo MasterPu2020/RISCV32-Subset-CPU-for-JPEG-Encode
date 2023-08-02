@@ -78,7 +78,7 @@ Output Image Encoded by hardware (Post process by software) written in System Ve
 - Pipeline stage: 2
 - Data Forwarding: no need to support
 - Branch Prediction: no need to support
-- Architecture: Haverd
+- Architecture: Harvard
 - Bus: Write back
 - ROM Size Support: 32x2^32bit
 - RAM Size Support: 32x2^32bit
