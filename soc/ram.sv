@@ -6,6 +6,8 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
+`define Simulation
+
 module ram #(parameter WIDTH = 32) (
   input wire clk,
   input wire [WIDTH-1:0] address,
@@ -18,6 +20,23 @@ module ram #(parameter WIDTH = 32) (
   reg [15:0] constant [0:1207]; //    0 - 1207
   reg [31:0] block [0:328];     // 1208 - 1536
   reg [24:0] row [0:1024];      // 2000 - 3024
+
+  // simulation only
+  `ifdef Simulation
+    wire [31:0] memory [0:206800];
+    generate
+      for (genvar i = 0; i < 206800; i++) begin
+        if (i <= 1207)
+          assign memory[i] = constant[i];
+        else if (i <= 1536)
+          assign memory[i] = block[i - 1208];
+        else if (i <= 3024)
+          assign memory[i] = row[i - 2000];
+        else 
+          assign memory[i] = 'x;
+      end
+    endgenerate
+  `endif
 
   always_comb begin
     rdata = 0;

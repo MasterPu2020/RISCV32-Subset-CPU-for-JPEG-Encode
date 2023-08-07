@@ -7,7 +7,7 @@
 
 module soc (
   input wire clk, nrst, key, datai,
-  output wire [9:0] led,
+  // output wire [9:0] led,
   output wire datao
 );
 
@@ -61,7 +61,7 @@ module soc (
   rom #(WIDTH, ROMDEPTH) rom(.address(programaddress), .rdata(programdata));
   
   // output infor
-  assign led = {datao, wram2, writeram, clkcore, clkbps, readramdata[0], writeramdata[0], ramaddress[0], programaddress[0], programdata[0]};
+  // assign led = {datao, wram2, writeram, clkcore, clkbps, readramdata[0], writeramdata[0], ramaddress[0], programaddress[0], programdata[0]};
 
   // input synchronization: keyi
   always_ff @(posedge clkcore, negedge nrst) begin

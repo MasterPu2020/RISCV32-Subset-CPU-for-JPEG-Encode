@@ -679,7 +679,7 @@ if __name__ == '__main__':
     systime = 0
     goto_excutime = 0
     excucounter = 0
-    show_core_status = False
+    show_core_status = config.show_core_status
     setpc = None
     key = dustkey()
     # display membox
@@ -756,6 +756,7 @@ if __name__ == '__main__':
         if simulating != 'running':
             key.scan = screen.display()
             key.analysis()
+            screen.note('')
             if key.result == 'quit':
                 screen.clear()
                 print()
@@ -927,8 +928,8 @@ if __name__ == '__main__':
                 else:
                     screen.note(key.memoryhelp)
             elif key.result == 'clear':
-                screen.put('\nInformation area: use help to see command usage')
-                screen.note('Welcome using the Dust compiler and simulator. This software is writen by Clark alone!')
+                screen.put('')
+                screen.note('clear screen')
             elif key.result == 'file':
                 if key.len == 2 or key.len == 3:
                     if key.words[1] == 'filepath' or key.words[1] == 'fp':
@@ -1183,6 +1184,7 @@ if __name__ == '__main__':
                 else:
                     screen.note('Error use of read log statement.\n'+key.readloghelp)
             elif simulating == 'pause':
+                cmdinfor = ''
                 if key.words[0] == 'status':
                     show_core_status = not show_core_status
                 elif key.words[0] == 'simtime' or key.words[0] == '+' or key.words[0] == 'sim':
@@ -1202,19 +1204,24 @@ if __name__ == '__main__':
                         goto_excutime = riscv.time + int(float(key.words[1]) * riscv.freq * unit)
                         assert goto_excutime != riscv.time, 'Time too short, target executions not increased.'
                         assert goto_excutime > riscv.time, 'Target executions should not less than present executions'
+                    except IndexError:
+                        screen.note(key.simulatehelp)
                     except BaseException as Argument:
                         goto_excutime = riscv.time
                         screen.note('Simtime error: ' + str(Argument))
-                        break
                 elif key.words[0] == 'run':
                     try:
                         goto_excutime = riscv.time + int(key.words[1])
+                    except IndexError:
+                        screen.note(key.simulatehelp)
                     except BaseException as Argument:
                         goto_excutime = riscv.time
                         screen.note('Runtime error: ' + str(Argument))
                 elif key.words[0] == 'set':
                     try:
                         setpc = int(key.words[1])
+                    except IndexError:
+                        screen.note(key.simulatehelp)
                     except BaseException as Argument:
                         screen.note('Set PC error: ' + str(Argument))
                     else:
@@ -1272,6 +1279,7 @@ if __name__ == '__main__':
                     simulating = 'pause'
                     excucounter = 0
                     goto_excutime = riscv.time
+                    setpc = None
                 elif riscv.time < goto_excutime:
                     try:
                         simulating = 'running'
@@ -1314,7 +1322,7 @@ if __name__ == '__main__':
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
-                screen.note(siminfor)
+                screen.note(siminfor, False)
                 screen.note('[Core Infor]: '+riscv.infor, False)
                 screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'
@@ -1339,7 +1347,7 @@ if __name__ == '__main__':
                     screen.put(text,center=True)
                 else:
                     screen.put(regbox.show(riscv.x),center=True)
-                screen.note(siminfor)
+                screen.note(siminfor, False)
                 screen.note('[Core Infor]: '+riscv.infor, False)
                 screen.note('[PC]: '+str(riscv.pc), False)
                 text = str(round(time.mktime(time.localtime()) - systime,4)) + 's'

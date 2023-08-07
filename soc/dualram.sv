@@ -6,13 +6,21 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
-module dualram #(parameter WIDTH = 32, DEPTH = 1026) (
+`define Simulation
+
+module dualram #(parameter WIDTH = 32) (
   input wire clk1, clk2, // clock 1 much faster than 2
   input wire [WIDTH-1:0] address1, address2,
   input wire [WIDTH-1:0] wdata1, wdata2,
   input wire enw1, enw2,
   output logic [WIDTH-1:0] rdata1, rdata2
 );
+
+  `ifdef Simulation
+    localparam DEPTH = 204900;
+  `else
+    localparam DEPTH = 1026;
+  `endif
 
   localparam ADDROFFSET = 206800;
 

@@ -313,10 +313,10 @@ module tb_soc;
     // program reset data memory file and soc init
     $display("\n [Test Process]: Program reset data memory file and soc init.\n");
     #(0.2s);
-    memlog(logdir, 1);
+    // memlog(logdir, 1);
     // image row uart send
     PC.sendfile(imgdir, 1);
-    memlog(logdir, 1);
+    // memlog(logdir, 1);
     $display("\n [Test Process]: Ready for image process.\n");
     for (int i = 0; i < 1026; i++) begin
       $display(" [Dual-RAM] Address[%0d] : Data[%h]", i, soc.dualram.memory[i]);
@@ -336,18 +336,19 @@ module tb_soc;
       $display("\n [Core]: In main function.\n");
     else begin
       $display("\n [Core]: Warning: NOT in main function, PC: %0d\n", soc.programaddress >> 2);
-      memlog(logdir, 1);
+      // memlog(logdir, 1);
       $stop(1);
     end
     // wait for image encode
     @(negedge datao)
-    memlog(logdir, 1);
+    // memlog(logdir, 1);
     $display("\n [Test Process]: Image data sending to PC.\n");
     $stop(2);
 
     // End of the simulation
     @(soc.dualram.memory[204899]) // uart write sending data finished
     $display("\n [Test Process]: Simulation Finished.\n");
+    memlog(logdir, 1);
     $stop(2);
 
   end
