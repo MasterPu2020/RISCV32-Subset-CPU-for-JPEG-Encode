@@ -56,4 +56,4 @@ def dustlog(fp:str, mem:list):
 
 if __name__ == '__main__':
     row = convert('./algorithm/test.bmp')
-    dustlog('./algorithm/test.log', row)
+    # dustlog('./algorithm/test.log', row) # debug

@@ -13,7 +13,7 @@ if [ "$choice" = "1" ]; then
     cd ./simulation
     xmverilog ../soc/bus.sv \
     ../soc/button.sv \
-    ../soc/clock.sv \
+    ../soc/clockgen.sv \
     ../soc/core.sv \
     ../soc/dualram.sv \
     ../soc/ram.sv \
@@ -27,7 +27,7 @@ elif [ "$choice" = "2" ]; then
     cd ./simulation
     xmverilog ../soc/bus.sv \
     ../soc/button.sv \
-    ../soc/clock.sv \
+    ../soc/clockgen.sv \
     ../soc/core.sv \
     ../soc/dualram.sv \
     ../soc/ram.sv \
