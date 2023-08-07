@@ -12,6 +12,7 @@ read -p "Enter: " choice
 if [ "$choice" = "1" ]; then
     cd ./simulation
     xmverilog ../fpga/stim.sv \
+    ../fpga/riscv32s.sv \
     ../fpga/core.sv \
     ../fpga/ram.sv \
     ../fpga/rom.sv \

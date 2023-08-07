@@ -33,10 +33,11 @@ module stim;
       $display(" [System]: Write log finished, file closed.");
   endtask
 
-  function get_program_len(input string fdir, output integer flen);
+  function [31:0] get_program_len;
+    input string fdir;
     integer fd, error, memlen;
     string errinfor, c;
-    flen = 0;
+    get_program_len = 0;
     fd = $fopen(fdir, "r");
     error = $ferror(fd, errinfor);
     assert (error == 0) else begin
@@ -48,11 +49,11 @@ module stim;
     while(!$feof(fd)) begin
       c = $fgetc(fd);
       if ( c == ";")
-        flen ++;
+        get_program_len ++;
       $write(c); // debug
     end
     $fclose(fd);
-    $display(" [System]: Program length: %0d lines.", flen);
+    $display(" [System]: Program length: %0d lines.", get_program_len);
   endfunction
 
   // program monitor
@@ -130,12 +131,14 @@ module stim;
   initial begin
     nrst<=1; clk<=0;
     #1 nrst<=0; #1 nrst<=1;
-    get_program_len("./test.v", maxpc);
+    maxpc = get_program_len("../fpga/test.v");
     fork
       forever @(posedge clk) moni();
       forever @(posedge clk)
         if (pc>>2 >= maxpc) begin // core stopped
-          memlog("./mem.log", 1);
+          memlog("../fpga/mem.log", 1);
+          for (int i = 0; i < 32; i ++)
+            $display("x%0d = %0d", i, riscv32s.core.regfile.x[i]);
           $finish(2);
         end
     join

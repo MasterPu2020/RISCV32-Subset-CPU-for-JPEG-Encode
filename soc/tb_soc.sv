@@ -162,10 +162,11 @@ module tb_soc;
   endtask
 
   // from ROM program file get program length 
-  function get_program_len(input string fdir, input bit showinfor, output integer flen);
+  function [31:0] get_program_len;
+    input string fdir;
     integer fd, error, memlen;
     string errinfor, c;
-    flen = 0;
+    get_program_len = 0;
     fd = $fopen(fdir, "r");
     error = $ferror(fd, errinfor);
     assert (error == 0) else begin
@@ -177,12 +178,11 @@ module tb_soc;
     while(!$feof(fd)) begin
       c = $fgetc(fd);
       if ( c == ";")
-        flen ++;
-      if (showinfor)
-        $write(c);
+        get_program_len ++;
+      $write(c); // debug
     end
     $fclose(fd);
-    $display(" [System]: Program length: %0d lines.", flen);
+    $display(" [System]: Program length: %0d lines.", get_program_len);
   endfunction
 
   `ifdef ProgramMonitor
