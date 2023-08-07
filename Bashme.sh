@@ -2,14 +2,24 @@ stop=0
 echo "------------------------------------------"
 echo " > Select Command:"
 echo "1.HDL Simulate FPGA"
-echo "2.HDL Simulate SoC."
-echo "3.HDL Simulate RISCV Core."
-echo "4.Python Simulate and Compile RISCV program."
+echo "2.HDL Simulate FPGA test"
+echo "3.HDL Simulate SoC."
+echo "4.HDL Simulate RISCV Core."
+echo "5.Python Simulate and Compile RISCV program."
 echo "------------------------------------------"
 echo " Enter Number to Run. Enter Any Key Else to Quit."
 read -p "Enter: " choice
 
 if [ "$choice" = "1" ]; then
+    cd ./simulation
+    xmverilog ../fpga/tb_soc.sv \
+    ../fpga/soc.sv \
+    ../fpga/core.sv \
+    ../fpga/ram.sv \
+    ../fpga/rom.sv \
+    +access+r +xmtimescale+1ns/10ps
+    cd ..
+elif [ "$choice" = "2" ]; then
     cd ./simulation
     xmverilog ../fpga/stim.sv \
     ../fpga/riscv32s.sv \
@@ -18,7 +28,7 @@ if [ "$choice" = "1" ]; then
     ../fpga/rom.sv \
     +access+r +xmtimescale+1ns/10ps
     cd ..
-elif [ "$choice" = "2" ]; then
+elif [ "$choice" = "3" ]; then
     cd ./simulation
     xmverilog ../soc/bus.sv \
     ../soc/button.sv \
@@ -32,7 +42,7 @@ elif [ "$choice" = "2" ]; then
     ../soc/uart.sv \
     +access+r +xmtimescale+1ns/10ps
     cd ..
-elif [ "$choice" = "3" ]; then
+elif [ "$choice" = "4" ]; then
     cd ./simulation
     xmverilog ../riscv/alu.sv \
     ../riscv/alucontrol.sv \
@@ -49,7 +59,7 @@ elif [ "$choice" = "3" ]; then
     ../riscv/stim.sv \
     +access+r +xmtimescale+1ns/10ps
     cd ..
-elif [ "$choice" = "4" ]; then
+elif [ "$choice" = "5" ]; then
     python3 ./compiler/dust.py
 fi
 

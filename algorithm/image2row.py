@@ -36,6 +36,15 @@ def convert(file):
         row_img.append(pixel_data)
         index += 1
 
+    # output define bit map
+    text = ''
+    for i in range(0, len(row_img)):
+        addr = str(i+5000)
+        maxaddr = str(len(row_img) + 5000)
+        text += '    ' + addr + ' ' * (len(maxaddr)-len(addr)) + ' <- ' + str(row_img[i]) + '\n'
+    with open(file[:-4]+'.bitmap', 'w') as output_bit_map:
+        output_bit_map.write(text)
+
     # base64 encode
     hexcode = ''
     for word in row_img:
