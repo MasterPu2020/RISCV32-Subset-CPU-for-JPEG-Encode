@@ -39,8 +39,8 @@ def convert(file):
     # output define bit map
     text = ''
     for i in range(0, len(row_img)):
-        addr = str(i+5000)
-        maxaddr = str(len(row_img) + 5000)
+        addr = str(i+50000)
+        maxaddr = str(len(row_img) + 50000)
         text += '    ' + addr + ' ' * (len(maxaddr)-len(addr)) + ' <- ' + str(row_img[i]) + '\n'
     with open(file[:-4]+'.bitmap', 'w') as output_bit_map:
         output_bit_map.write(text)

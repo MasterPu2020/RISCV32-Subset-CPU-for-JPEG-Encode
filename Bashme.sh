@@ -1,8 +1,8 @@
 stop=0
 echo "------------------------------------------"
 echo " > Select Command:"
-echo "1.HDL Simulate FPGA"
-echo "2.HDL Simulate FPGA test"
+echo "1.HDL Simulate SoC for FPGA"
+echo "2.HDL Simulate test for FPGA"
 echo "3.HDL Simulate SoC."
 echo "4.HDL Simulate RISCV Core."
 echo "5.Python Simulate and Compile RISCV program."
@@ -12,11 +12,12 @@ read -p "Enter: " choice
 
 if [ "$choice" = "1" ]; then
     cd ./simulation
-    xmverilog ../fpga/tb_soc.sv \
+    xmverilog ../fpga/stim_soc.sv \
     ../fpga/soc.sv \
     ../fpga/core.sv \
     ../fpga/ram.sv \
     ../fpga/rom.sv \
+    ../fpga/panel.sv \
     +access+r +xmtimescale+1ns/10ps
     cd ..
 elif [ "$choice" = "2" ]; then

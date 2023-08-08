@@ -629,26 +629,33 @@ def genmem2macro(file:str, comment=False):
         return True
     
     def sortbyvalue(defines:list):
-        id = 1
-        text = ''
+        id = 2
+        x1 = 0
+        text = 'x1 = x0 + 0\n'
         defines = sorted(defines)
         for i in range(0, len(defines)):
             data, addr = defines[i]
+            # use x1 to store large address
+            if not addr in range(x1-2**11, x1+2**11):
+                x1 = addr
+                text += int2macro('x1 = ' + str(addr))
+            offset = addr - x1
+            # use x2 ~ x28 to store latest value, use x29 ~ x31 load imm value
             if comment:
                 com = ' // mem[' +str(addr)+ '] = ' + str(data)
             else:
                 com = ''
             if data in riscv.x.data:
-                text += 'mem[x0 + ' + str(addr) + '] = x' + str(riscv.x.data.index(data)) + com + '\n'
+                text += 'mem[x1 + ' + str(offset) + '] = x' + str(riscv.x.data.index(data)) + com + '\n'
             else:
                 infor = 'x' + str(id) + ' = ' + str(data)
                 text += int2macro(infor)
-                text += 'mem[x0 + ' + str(addr) + '] = x' + str(id) + com +'\n'
+                text += 'mem[x1 + ' + str(offset) + '] = x' + str(id) + com +'\n'
                 if storeworthy(data, id):
                     if id < 29:
                         id += 1
                     else:
-                        id = 1
+                        id = 2
         return text
 
     # define area style: define ... endefine
