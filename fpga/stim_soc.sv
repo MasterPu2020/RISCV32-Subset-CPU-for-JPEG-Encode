@@ -45,7 +45,7 @@ module stim_soc;
       data = soc.panel.ram.memory[w];
       $fdisplay(fd, "[%0d] : %0d", w, $signed(data));
     end
-    $fdisplay(fd, "[100001] : %0d", $signed(soc.panel.enter_main));
+    $fdisplay(fd, "[100001] : %0d", soc.panel.enter_main);
     $fclose(fd);
     if (showinfor)
       $display(" [System]: Write log finished, file closed.");
