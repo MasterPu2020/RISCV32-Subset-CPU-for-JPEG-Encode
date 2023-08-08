@@ -1,6 +1,6 @@
 //----------------------------------------------------------------
 // RISCV SoC for Cyclone V DE1-SoC demonstration
-// Last Modified Date: 2023/8/7
+// Last Modified Date: 2023/8/8
 // Version: 1.0
 // Author: Clark Pu
 //----------------------------------------------------------------
@@ -20,7 +20,7 @@ module soc #(parameter CLK_RATE = 50_000_000) (
     WIDTH = 32, // bit
     ROM_DEPTH = 2500,    // word
     RAM_DEPTH = 100_000, // word
-    CORE_RATE = 3_125_000, // hz (1/16 of 50Mhz clock)
+    CORE_RATE = 25_000_000, // hz (1/2 of 50Mhz clock)
     CORE_MAX = (CLK_RATE/CORE_RATE/2 - 1),
     DBMSEC = 150; // ms
 

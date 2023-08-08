@@ -85,10 +85,10 @@ module panel
 
   // panel bus switch
   logic [WIDTH-1:0] panel_address;
-  assign bus_enw     = switch ?             0 : enw;
-  assign bus_address = switch ? panel_address : address;
-  assign bus_wdata   = switch ?             0 : wdata;
-  assign rdata       = switch ?             0 : ((bus_address == 100_001) ? enter_main : bus_rdata);
+  assign bus_enw     = switch ?                       0 : enw;
+  assign bus_address = switch ? (panel_address + 50000) : address;
+  assign bus_wdata   = switch ?                       0 : wdata;
+  assign rdata       = switch ?                       0 : ((bus_address == 100_001) ? enter_main : bus_rdata);
   
   // seven segment display
   function [6:0] segment;
@@ -104,7 +104,7 @@ module panel
        7: segment = 8'hf8;
        8: segment = 8'h80;
        9: segment = 8'h90;
-      10: segment = 8'h84; // A
+      10: segment = 8'h88; // A
       11: segment = 8'h83; // b
       12: segment = 8'hc6; // C
       13: segment = 8'ha1; // d

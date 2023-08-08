@@ -1,4 +1,12 @@
 
+# -------------------------------------
+# Using UTF-8
+# Last Modified Date: 2023/8/8
+# Dust Log to JPEG Image File
+# Version 1.1
+# Author: Clark Pu
+# -------------------------------------
+
 def gen(file_in:str, file_out:str, start_addr:int, end_addr:int):
     with open(file_in, 'r') as memlog:
         memlog = memlog.readlines()

@@ -5,7 +5,7 @@ echo "1.HDL Simulate SoC for FPGA"
 echo "2.HDL Simulate test for FPGA"
 echo "3.HDL Simulate SoC."
 echo "4.HDL Simulate RISCV Core."
-echo "5.Python Simulate and Compile RISCV program."
+echo "5.Dust Compiler, Simulator and Verifier."
 echo "------------------------------------------"
 echo " Enter Number to Run. Enter Any Key Else to Quit."
 read -p "Enter: " choice
