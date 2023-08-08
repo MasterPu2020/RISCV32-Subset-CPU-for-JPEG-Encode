@@ -5,6 +5,10 @@
 // Author: Clark Pu
 //----------------------------------------------------------------
 
+// button:  | reset | increase | switch | encode |
+// LED:     [9]------>[0] process of program
+// Segment: [5][4]: address [3][2][1][0]: half word data
+
 module soc #(parameter CLK_RATE = 50_000_000) (
   input wire clock, nreset,
   input wire [2:0] button,
@@ -16,7 +20,7 @@ module soc #(parameter CLK_RATE = 50_000_000) (
     WIDTH = 32, // bit
     ROM_DEPTH = 2500,    // word
     RAM_DEPTH = 100_000, // word
-    CORE_RATE = 6_250_000, // hz (1/8 of 50Mhz clock)
+    CORE_RATE = 3_125_000, // hz (1/16 of 50Mhz clock)
     CORE_MAX = (CLK_RATE/CORE_RATE/2 - 1),
     DBMSEC = 150; // ms
 
@@ -57,29 +61,28 @@ module soc #(parameter CLK_RATE = 50_000_000) (
     .seg);
 
   // pc monitor
-  localparam PROGRESS = 10'b10_0000_0000;
   always_comb begin
     led = '1;
-    if (programaddress < (ROM_DEPTH/10))
-      led = PROGRESS;
-    else if (programaddress < (ROM_DEPTH/10*2))
-      led = PROGRESS >> 1;
-    else if (programaddress < (ROM_DEPTH/10*3))
-      led = PROGRESS >> 2;
-    else if (programaddress < (ROM_DEPTH/10*4))
-      led = PROGRESS >> 3;
-    else if (programaddress < (ROM_DEPTH/10*5))
-      led = PROGRESS >> 4;
-    else if (programaddress < (ROM_DEPTH/10*6))
-      led = PROGRESS >> 5;
-    else if (programaddress < (ROM_DEPTH/10*7))
-      led = PROGRESS >> 6;
-    else if (programaddress < (ROM_DEPTH/10*8))
-      led = PROGRESS >> 7;
-    else if (programaddress < (ROM_DEPTH/10*9))
-      led = PROGRESS >> 8;
+    if (programaddress < (1870 * 4)) // end of init
+      led = 10'b1000000000;
+    else if (programaddress < (1882 * 4)) // start of main
+      led = 10'b0100000000;
+    else if (programaddress < (2005 * 4)) // end of re-ordering
+      led = 10'b0010000000;
+    else if (programaddress < (2015 * 4)) // end of block subtraction
+      led = 10'b0001000000;
+    else if (programaddress < (2101 * 4)) // end of CORDIC
+      led = 10'b0000100000;
+    else if (programaddress < (2179 * 4)) // end of DCT
+      led = 10'b0000010000;
+    else if (programaddress < (2371 * 4)) // end of huffman encode
+      led = 10'b0000001000;
+    else if (programaddress < (2411 * 4)) // start of sampling
+      led = 10'b0000000100;
+    else if (programaddress < (2473 * 4)) // end of program
+      led = 10'b0000000010;
     else
-      led = PROGRESS >> 9;
+      led = 10'b0000000001;
   end
 
 endmodule
