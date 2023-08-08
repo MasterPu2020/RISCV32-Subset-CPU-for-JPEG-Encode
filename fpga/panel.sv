@@ -39,14 +39,12 @@ module panel
     end
     else begin
       // button[0] : enter main function & debounce
-      if (address == 100_001) // button interface: 100,001
-        enter_main <= 0;
-      else if (~button[0]) begin // button press
+      if (~button[0]) begin // button press
         if (dbcnt[0] <= DBMAX)
           dbcnt[0] <= dbcnt[0] + 1;
       end
       else if (dbcnt[0] >= DBMAX) begin // execute once
-        enter_main <= 1;
+        enter_main <= 1; // button interface: 100,001
         dbcnt[0] <= 0;
       end
       else

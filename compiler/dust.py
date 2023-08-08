@@ -32,7 +32,7 @@ class core():
         self.size = size
         self.x = [0] * 32 # registers
         self.pc = 0
-        self.mem = [0] * memsize # RAM
+        self.mem = [0] * (memsize + 1) # RAM
         self.freq = frequncy
         self.bitmax = 2**(size) - 1
         self.orneg = - 2**(size - 1)
@@ -604,7 +604,7 @@ def showlocation(defile, line:int, is_pc=True):
     if is_pc:
         codeline = compile.locate_file(defile, line)
     else:
-        codeline = line
+        codeline = line - 1
         pc = compile.locate_pc(defile, line)
     texts = defile.split('\n')
     texts.pop()
@@ -619,9 +619,9 @@ def showlocation(defile, line:int, is_pc=True):
     text = ''
     for i in range(startline, endline):
         if i != codeline:
-            text += str(i) + ':    ' + texts[i] + '\n'
+            text += str(i+1) + ':    ' + texts[i] + '\n'
         else:
-            text += str(i) + ': -> ' + texts[i] + ' <-\n'
+            text += str(i+1) + ': -> ' + texts[i] + ' <-\n'
     if not is_pc:
         codeline = pc
     return codeline, text

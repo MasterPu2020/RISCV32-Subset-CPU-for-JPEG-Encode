@@ -4,7 +4,7 @@
 
 // Reset All Data Memory
 x10 = 0
-x1 = 411700
+x1 = 100001
 while x10 != x1,
     mem[x10 + 0] = x0
     x10 = x10 + 1

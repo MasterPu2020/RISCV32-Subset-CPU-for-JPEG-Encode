@@ -236,7 +236,7 @@ class regfile():
         self.busy = [False] * 32
         self.access = [0] * 32
         self.release = [''] * 32
-        self.history = [[0] * 10] * 32
+        self.history = [[0 for i in range(10)] for j in range(32)]
         self.size = [size] * 32
         self.readonly = [False] * 32
     
@@ -682,6 +682,7 @@ def genmem2macro(file:str, comment=False):
             defines.append((data,addr))
         else:
             newfile += line + '\n'
+    riscv.x.reset()
     return newfile
 
 # beta function: save a long int into register:
@@ -723,7 +724,7 @@ def locate_file(defile:str, pc:int):
     defile = defile.split('\n')
     defile.pop()
     fileline = 0
-    truecode = 0
+    realcode = 0
     for i in range(0,len(defile)):
         if defile[i] == '':
             fileline += 1
@@ -736,10 +737,13 @@ def locate_file(defile:str, pc:int):
             elif line[0][-1] == ':':
                 fileline += 1
                 continue
+            elif line == []:
+                fileline += 1
+                continue
             else:
                 fileline += 1
-                truecode += 1
-                if truecode >= pc:
+                realcode += 1
+                if realcode >= pc:
                     if pc == 0:
                         fileline -= 1
                     break
@@ -759,6 +763,8 @@ def locate_pc(defile:str, codeline:int):
             if '//' in line[0]:
                 fileline += 1
             elif line[0][-1] == ':':
+                fileline += 1
+            elif line == []:
                 fileline += 1
             else:
                 fileline += 1

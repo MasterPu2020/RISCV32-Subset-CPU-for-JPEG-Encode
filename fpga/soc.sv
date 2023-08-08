@@ -7,7 +7,7 @@
 
 module soc #(parameter CLK_RATE = 50_000_000) (
   input wire clock, nreset,
-  input wire button[2:0],
+  input wire [2:0] button,
   output wire [6:0] seg [0:5],
   output logic [9:0] led
 );

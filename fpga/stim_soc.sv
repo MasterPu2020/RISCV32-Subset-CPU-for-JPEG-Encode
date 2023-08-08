@@ -8,7 +8,7 @@
 `timescale 1ns/10ps
 
 // Use program monitor, this will reduce the simulation speed
-`define ProgramMonitor
+// `define ProgramMonitor
 
 module stim_soc;
   
@@ -22,6 +22,7 @@ module stim_soc;
   localparam CLK_PERIOD = 20;
 
   // SoC
+  always #(CLK_PERIOD/2) clk = ~ clk;
   soc soc(.clock(clk), .nreset(nrst), .button, .seg, .led);
 
   // write mem.log
@@ -39,16 +40,12 @@ module stim_soc;
     end
     if (showinfor)
       $display(" [System]: Write log start, file opened.");
-    $fdisplay(fd, "\n[RAM DATA LOG]: created by system verilog testbench.\n");
-    for (int w = 0; w < 206800; w ++) begin
-      data = soc.ram.memory[w];
+    $fdisplay(fd, "[RAM Data Log]: created by system verilog testbench.");
+    for (int w = 0; w <= 100000; w ++) begin
+      data = soc.panel.ram.memory[w];
       $fdisplay(fd, "[%0d] : %0d", w, $signed(data));
     end
-    for (int w = 0; w < 204900; w ++) begin
-      data = soc.dualram.memory[w];
-      $fdisplay(fd, "[%0d] : %0d", w+206800, $signed(data));
-    end
-    $fdisplay(fd, "[buttom] : %0d", $signed(soc.button.data));
+    $fdisplay(fd, "[100001] : %0d", $signed(soc.panel.enter_main));
     $fclose(fd);
     if (showinfor)
       $display(" [System]: Write log finished, file closed.");
@@ -72,7 +69,7 @@ module stim_soc;
       c = $fgetc(fd);
       if ( c == ";")
         get_program_len ++;
-      $write(c); // debug
+      // $write(c); // debug
     end
     $fclose(fd);
     $display(" [System]: Program length: %0d lines.", get_program_len);
@@ -163,28 +160,22 @@ module stim_soc;
       forever @(posedge soc.clk_core) moni;
     `endif
     // sim time
-    forever #1s $display(" [System] Time: %t", $time);
+    forever #0.05s $display(" [System] Time: %t, PC: %0d", $time, program_line);
   join
-  
-  // system test init and stop
-  always #(CLK_PERIOD/2) clk=~clk;
-  initial begin
-    nrst=1; clk=0; 
-    button[0]=1;
-    button[1]=1;
-    button[2]=1;
-    #1 nrst=0; #1 nrst=1;
-  end
 
-  string logdir = "../fpga/hdl_sim.log";
   integer block_index = 0, program_end;
 
   // test start
   initial begin
-
+    // system test init and stop
+    nrst=1; clk=0; 
+    button[0]=1;
+    button[1]=1;
+    button[2]=1;
+    #1 nrst=0; #1 nrst=1; #1;
     program_end = get_program_len("../fpga/system.v");
 
-    @(program_line == 1876) 
+    @(program_line == 1873) // system.dust---line:1901
     $display("\n [Stim infor] Initiation Finished. \n");
     $stop(1);
 
@@ -195,16 +186,17 @@ module stim_soc;
     button[0] = 1;
 
     fork
-      forever @(program_line == 2375) begin
+      forever @(posedge (program_line == 2371)) begin  // system.dust---line:2566
         block_index ++;
         $display("\n [Stim infor] %0d block encode finished. \n", block_index);
       end
     join_none
 
-    @(program_line == program_end)
+    @(program_line == (program_end-1))
     $display("\n [Stim report] Program end, total %0d blocks encoded. \n", block_index);
+    memlog("../fpga/hdl_sim.log", 1);
+    # 0.1s
     $finish(2);
-
   end
 
 endmodule
