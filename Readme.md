@@ -35,7 +35,7 @@ Output Image Encoded by software algorithm written in Python: [main.jpg](./algor
 
 Output Image Encoded by hardware (Post process by software) written in System Verilog: [hardware-output.jpg](./simulation/hardware-output.jpg)
 
-![Test-hardware](./simulation/hardware-output.jpg)
+![Test-hardware](./soc/hardware-output.jpg)
 
 ---
 
@@ -89,74 +89,74 @@ Output Image Encoded by hardware (Post process by software) written in System Ve
 
 ### 8 Types of statements include in JEPG encoding algorithm
 
-if A, then():
+    if A, then(expressions):
 
     A is false goto line1 
-        ()
+        (expressions)
     line1:
 
-if A, (1); else if B, (2); else, (3):
+    if A, (expressions1); else if B, (expressions2); else, (expressions3):
 
     A is false goto line1 
-        (1)
+        (expressions1)
         goto end-else
     line1:
     B is false goto line2
-        (2)
+        (expressions2)
         goto end-else
     line2:
-        (3)
+        (expressions3)
     end-else:
 
-while A, then():
+    while A, then(expressions):
 
     line1:
     A is false goto line2 
-        ()
+        (expressions)
     goto line1
     line2:
 
-if A and B, then () : 
+    if A and B, then (expressions) : 
 
     A is false goto line1 
     B is false goto line1 
-        ()
+        (expressions)
     line1
 
-if A or B, then () : 
+    if A or B, then (expressions) : 
 
     A is true goto line1 
     B is true goto line1 
     goto line2
     line1:
-        ()
+        (expressions)
     line2:
 
-while A and B then () :
+    while A and B then (expressions) :
 
     line1:
     A is false goto line2 
     B is false goto line2 
-        ()
+        (expressions)
     goto line1
     line2:
 
-while A or B then () :
+    while A or B then (expressions) :
 
     line1:
     A is true goto line2 
     B is true goto line2 
     goto line3
     line2:
-        ()
+        (expressions)
     goto line1
     line3:
 
-break:
+    break:
 
-    (...
+    (expressions)
     goto line1
-    ...)
+    (expressions)
     line1:
 
 ### Logic Judgement

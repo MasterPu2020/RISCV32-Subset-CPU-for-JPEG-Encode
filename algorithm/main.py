@@ -883,10 +883,13 @@ x31 = 9999
 # ------------------------------------------------------------------
 # RegFile Work Aera 5: Post Process
 # ------------------------------------------------------------------
+
 huffman_bit_stack = []
-for nonezero in mem[206800:]:
-    if nonezero != 0:
-        huffman_bit_stack.append(nonezero)
+for i in range(0, len(mem[206800:])):
+    if mem[i+206800] != 0:
+        huffman_bit_stack.append(mem[i+206800])
+        if mem[i+206800] >= (2**31):
+            mem[i+206800] = mem[i+206800] | (-1 ^ (2**32-1))
     else:
         break
 print(huffman_bit_stack)

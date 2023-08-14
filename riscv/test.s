@@ -1,5 +1,5 @@
 // program for testbench
-// arithematic shift edge test
+// arithmetic shift edge test
 x1 = 1
 x2 = 31
 x1 = x1 << x2 // x1 = - 2^31
@@ -8,7 +8,7 @@ x1 = x1 >> x2 // x1 = -1
 mem[x0 + 1] = x1 // mem[1] = -1
 x1 = x1 << x2 // x1 =  -2,147,483,648
 mem[x0 + 2] = x1 // mem[2] = -2,147,483,648
-// multipiler edge test
+// multiplier edge test
 x3 = 2
 x4 = x3 *h x1
 mem[x0 + 3] = x4 // mem[3] = -2
